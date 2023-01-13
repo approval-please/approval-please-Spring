@@ -11,3 +11,12 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL57Dialect
+        show_sql: true
+        format_sql: true
+
+# Logging level
+logging:
+  level:
+    com:
+      umc:
+        approval: debug
