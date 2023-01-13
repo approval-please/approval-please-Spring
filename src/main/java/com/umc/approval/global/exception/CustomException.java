@@ -5,19 +5,19 @@ import lombok.Getter;
 @Getter
 public class CustomException extends RuntimeException {
 
-    private final CustomErrorCode errorType;
+    private final CustomErrorType errorType;
     private final int code;
     private final String errorMessage;
 
     // Without Cause Exception
-    public CustomException(CustomErrorCode errorType) {
+    public CustomException(CustomErrorType errorType) {
         super(errorType.getErrorMessage());
         this.errorType = errorType;
         this.code = errorType.getCode();
         this.errorMessage = errorType.getErrorMessage();
     }
 
-    public CustomException(CustomErrorCode errorType, String errorMessage) {
+    public CustomException(CustomErrorType errorType, String errorMessage) {
         super(errorMessage);
         this.errorType = errorType;
         this.code = errorType.getCode();
@@ -25,14 +25,14 @@ public class CustomException extends RuntimeException {
     }
 
     // With Cause Exception
-    public CustomException(CustomErrorCode errorType, Exception cause) {
+    public CustomException(CustomErrorType errorType, Exception cause) {
         super(errorType.getErrorMessage(), cause);
         this.errorType = errorType;
         this.code = errorType.getCode();
         this.errorMessage = errorType.getErrorMessage();
     }
 
-    public CustomException(CustomErrorCode errorType, String errorMessage, Exception cause) {
+    public CustomException(CustomErrorType errorType, String errorMessage, Exception cause) {
         super(errorMessage, cause);
         this.errorType = errorType;
         this.code = errorType.getCode();

@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
-public class CustomErrorCode {
+public class CustomErrorType {
 
     // TODO ErrorCode를 추가해주세요.
     // EX)
