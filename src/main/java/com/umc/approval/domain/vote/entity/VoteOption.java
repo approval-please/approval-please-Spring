@@ -31,5 +31,5 @@ public class VoteOption extends BaseTimeEntity {
     private Vote vote;
 
     @Column(nullable = false)
-    private String option;
+    private String opt;
 }
