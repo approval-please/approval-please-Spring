@@ -39,7 +39,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         AntPathMatcher pathMatcher = new AntPathMatcher();
         return !(
                 // TODO 인증이 필요한 로직 추가
-                (pathMatcher.match("/auth/test/**", path) && request.getMethod().equals("POST"))
+                pathMatcher.match("/auth/logout", path)
         );
     }
 
