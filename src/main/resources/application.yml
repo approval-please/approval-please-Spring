@@ -8,6 +8,12 @@ spring:
     username: approval
     password: 1234
 
+  # Spring Multipart
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
 # JPA
   jpa:
     properties:
@@ -25,13 +31,6 @@ cloud:
       static: ap-northeast-2
     s3:
       bucket: approval-bucket
-
-# Spring Multipart
-spring:
-  servlet:
-    multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
 
 # Logging level
 logging:
