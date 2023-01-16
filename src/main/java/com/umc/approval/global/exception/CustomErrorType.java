@@ -12,6 +12,13 @@ public enum CustomErrorType {
 
     // TODO ErrorCode를 추가해주세요.
 
+
+    // JWT (7xxxx)
+    TOKEN_NOT_EXIST(BAD_REQUEST, 70001, "JWT Token이 존재하지 않습니다."),
+    INVALID_TOKEN(BAD_REQUEST, 70002,"유효하지 않은 JWT Token 입니다."),
+    ACCESS_TOKEN_EXPIRED(BAD_REQUEST, 70003,"만료된 Access Token 입니다."),
+    REFRESH_TOKEN_EXPIRED(BAD_REQUEST, 70004,"만료된 Refresh Token 입니다."),
+
     // Image (8xxxx)
     IMAGE_UPLOAD_FAILED(BAD_REQUEST, 80001, "이미지 업로드에 실패했습니다."),
     IMAGE_DELETE_FAILED(BAD_REQUEST, 80002, "이미지 삭제에 실패했습니다."),
