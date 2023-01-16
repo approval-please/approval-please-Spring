@@ -8,7 +8,6 @@ import com.umc.approval.domain.document.service.DocumentService;
 import com.umc.approval.domain.link.service.LinkService;
 import com.umc.approval.domain.tag.service.TagService;
 import com.umc.approval.domain.user.entity.User;
-import com.umc.approval.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,7 +25,9 @@ public class DocumentController {
     private final CategoryService categoryService;
     private final TagService tagService;
     private final LinkService linkService;
+
     private final UserService userService;
+
 
     /* 게시글 등록 */
     @PostMapping("")
