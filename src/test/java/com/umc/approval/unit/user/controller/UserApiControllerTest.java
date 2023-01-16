@@ -55,7 +55,7 @@ public class UserApiControllerTest {
     @DisplayName("logout에 성공한다")
     @WithMockUser
     @Test
-    void logout() throws Exception {
+    void logout_success() throws Exception {
         // given & when & then
         mvc.perform(post("/auth/logout")
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
