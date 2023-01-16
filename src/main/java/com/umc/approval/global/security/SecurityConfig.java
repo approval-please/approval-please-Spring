@@ -1,6 +1,7 @@
 package com.umc.approval.global.security;
 
 import com.umc.approval.global.security.filter.CustomAuthenticationFilter;
+import com.umc.approval.global.security.filter.CustomAuthorizationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -20,7 +22,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class SecurityConfig {
 
     private final AuthenticationProvider authenticationProvider;
-    //    private final CustomAuthorizationFilter authorizationFilter;
+    private final CustomAuthorizationFilter authorizationFilter;
     private final AuthenticationSuccessHandler successHandler;
     private final AuthenticationFailureHandler failureHandler;
     private final AuthenticationManagerBuilder authManagerBuilder;
@@ -40,7 +42,7 @@ public class SecurityConfig {
                 .sessionCreationPolicy(STATELESS) // Using JWT
                 .and()
                 .addFilter(authenticationFilter)
-//                .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authenticationProvider(authenticationProvider)
                 .authorizeRequests()
                 .anyRequest().permitAll();
