@@ -1,5 +1,6 @@
 package com.umc.approval.domain.user.controller;
 
+import com.umc.approval.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
