@@ -16,7 +16,8 @@ public class TagService {
     // 태그 등록
     public void createTag(List<String> tags, Document document){
         for(String tag: tags){
-            Tag.builder().document(document).tag(tag).build();
+            Tag newTag = Tag.builder().document(document).tag(tag).build();
+            tagRepository.save(newTag);
         }
     }
 }
