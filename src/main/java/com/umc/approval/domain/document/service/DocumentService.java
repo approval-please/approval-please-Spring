@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DocumentService {
     private final DocumentRepository documentRepository;
-    public Document createDocument(DocumentRequest.BasicWorkRequest req, Category category, User user){
+    public Document createDocument(DocumentRequest.PostDocumentRequest req, Category category, User user){
         Document newDocument = Document.builder()
                 .user(user)
                 .category(category)
@@ -20,7 +20,7 @@ public class DocumentService {
                 .content(req.getContent())
                 .state(2) //승인대기중
                 .view(0L)
-                .notification(true) //넣을 필요x?
+                .notification(true)
                 .build();
         documentRepository.save(newDocument);
         return newDocument;
