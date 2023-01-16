@@ -54,4 +54,8 @@ public class User extends BaseTimeEntity {
     private Long promotionPoint;
 
     private String refreshToken;
+
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
 }
