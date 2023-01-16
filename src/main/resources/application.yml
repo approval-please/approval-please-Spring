@@ -24,7 +24,7 @@ cloud:
     region:
       static: ap-northeast-2
     s3:
-      bucket: hunstagram-bucket
+      bucket: approval-bucket
 
 # Spring Multipart
 spring:
