@@ -30,7 +30,7 @@ cloud:
     region:
       static: ap-northeast-2
     s3:
-      bucket: approval-bucket
+      bucket: approval-s3
 
 # Logging level
 logging:
