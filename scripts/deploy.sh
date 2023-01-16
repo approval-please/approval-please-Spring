@@ -30,5 +30,5 @@ echo "> $JAR_NAME 실행"
 
 nohup java -jar \
         -Duser.timezone=Asia/Seoul \
-        -Dspring.config.location=/home/ubuntu/app/application.yml \
+        -Dspring.config.location=/home/ubuntu/app/application.yml,/home/ubuntu/app/application-aws.yml \
         $JAR_NAME >> $REPOSITORY/nohup.out 2>&1 &
