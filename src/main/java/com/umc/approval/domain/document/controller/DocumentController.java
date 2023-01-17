@@ -10,6 +10,7 @@ import com.umc.approval.domain.link.service.LinkService;
 import com.umc.approval.domain.tag.service.TagService;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.service.UserService;
+import com.umc.approval.global.security.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,14 +34,14 @@ public class DocumentController {
     private final ImageService imageService;
     private final UserService userService;
 
+    private final JwtService jwtService;
+
 
     /* 게시글 등록 */
     @PostMapping("")
-    public ResponseEntity<?> createDocument(@RequestPart(value="data", required=false) DocumentRequest.PostDocumentRequest request,
+    public ResponseEntity<?> createDocument(@RequestPart(value="data", required=false) @Valid DocumentRequest.PostDocumentRequest request,
                                             @RequestPart(value="image", required = false) MultipartFile image,
                                             @RequestPart(value="images", required=false) List<MultipartFile> images){
-
-        // 필수값(category, title, content) null 예외처리
 
 
         // 임시 사용자(삭제 예정..)
