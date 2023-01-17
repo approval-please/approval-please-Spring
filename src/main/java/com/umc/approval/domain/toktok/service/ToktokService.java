@@ -5,6 +5,7 @@ import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
 
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
+import com.umc.approval.domain.image.service.ImageService;
 import com.umc.approval.domain.like_category.entity.LikeCategory;
 import com.umc.approval.domain.like_category.entity.LikeCategoryRepository;
 import com.umc.approval.domain.link.entity.Link;
@@ -57,13 +58,13 @@ public class ToktokService {
     private final TagService tagService;
 
     @Autowired
+    private final ImageService imageService;
+    @Autowired
     private final ToktokRepository toktokRepository;
 
     @Autowired
     private final UserRepository userRepository;
 
-    @Autowired
-    private final ImageRepository imageRepository;
 
     @Autowired
     private final LikeCategoryRepository likeCategoryRepository;
@@ -81,14 +82,14 @@ public class ToktokService {
         if (toktokRequestDto.getVoteTitle() != null) {
             vote = Vote.builder()
                 .title(toktokRequestDto.getVoteTitle())
-                .isSingle(toktokRequestDto.getIsSingle())
-                .isAnonymous(toktokRequestDto.getIsAnonymous())
+                .isSingle(toktokRequestDto.getVoteIsSingle())
+                .isAnonymous(toktokRequestDto.getVoteIsAnonymous())
                 .isEnd(false)
                 .build();
             voteService.createVote(vote);
 
             //투표 선택지 저장
-            for (String option : toktokRequestDto.getOption()) {
+            for (String option : toktokRequestDto.getVoteOption()) {
                 VoteOption voteOption = VoteOption.builder()
                     .vote(vote)
                     .opt(option)
@@ -125,23 +126,11 @@ public class ToktokService {
         }
 
         //aws 이미지 저장
-        if (files.size() == 0) {
-            String imageUrl = awsS3Service.uploadImage(files.get(0));
-            Image images = Image.builder()
-                .toktok(toktok)
-                .imageUrl(imageUrl)
-                .build();
-            imageRepository.save(images);
+        if (files.size() == 1) {
+            imageService.createImage(files.get(0), toktok);
 
         } else {
-            List<String> imageUrl = awsS3Service.uploadImage(files);
-            for (String image : imageUrl) {
-                Image images = Image.builder()
-                    .toktok(toktok)
-                    .imageUrl(image)
-                    .build();
-                imageRepository.save(images);
-            }
+            imageService.createImage(files, toktok);
         }
 
     }

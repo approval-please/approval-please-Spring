@@ -22,13 +22,13 @@ public class ToktokRequestDto {
 
     private String voteTitle;
 
-    private Boolean isSingle;
+    private Boolean voteIsSingle;
 
-    private Boolean isAnonymous;
+    private Boolean voteIsAnonymous;
 
-    private Boolean isEnd;
+    private Boolean voteIsEnd;
 
-    private List<String> option;
+    private List<String> voteOption;
 
     private List<String> linkUrl;
 
