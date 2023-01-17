@@ -145,7 +145,6 @@ public class ToktokService {
         }
 
     }
-
     public CategoryType viewCategory(int category) {
         CategoryType categoryType = Arrays.stream(CategoryType.values())
             .filter(c -> c.getValue() == category)
