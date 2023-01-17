@@ -1,7 +1,7 @@
 package com.umc.approval.domain.toktok.entity;
 
 import com.umc.approval.domain.BaseTimeEntity;
-import com.umc.approval.domain.category.entity.Category;
+import com.umc.approval.domain.like_category.entity.LikeCategory;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.vote.entity.Vote;
 import lombok.AllArgsConstructor;
@@ -35,7 +35,7 @@ public class Toktok extends BaseTimeEntity {
 
     @OneToOne(fetch = LAZY)
     @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    private LikeCategory likeCategory;
 
     @OneToOne(fetch = LAZY)
     @JoinColumn(name = "vote_id")
