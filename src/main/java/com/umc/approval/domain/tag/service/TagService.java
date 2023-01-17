@@ -13,7 +13,6 @@ import java.util.List;
 public class TagService {
     private final TagRepository tagRepository;
 
-    // 태그 등록
     public void createTag(List<String> tags, Document document){
         for(String tag: tags){
             Tag newTag = Tag.builder().document(document).tag(tag).build();

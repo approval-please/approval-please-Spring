@@ -30,9 +30,6 @@ public class DocumentController {
     private final ImageService imageService;
     private final UserService userService;
 
-
-
-    /* 게시글 등록 */
     @PostMapping("")
     public ResponseEntity<?> createDocument(@Valid @RequestPart(value="data", required=false) DocumentRequest.PostDocumentRequest request,
                                             @RequestPart(value="images", required=false) List<MultipartFile> images){

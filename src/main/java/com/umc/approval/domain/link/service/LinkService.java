@@ -13,7 +13,6 @@ import java.util.List;
 public class LinkService {
     private final LinkRepository linkRepository;
 
-    // 링크 등록
     public void createLink(List<String> links, Document document){
         for(String link: links){
             Link newLink = Link.builder().document(document).linkUrl(link).build();

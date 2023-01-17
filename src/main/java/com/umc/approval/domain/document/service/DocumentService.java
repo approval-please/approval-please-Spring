@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 public class DocumentService {
     private final DocumentRepository documentRepository;
 
-    /* 게시글 등록 */
     public Document createDocument(DocumentRequest.PostDocumentRequest req, CategoryType categoryType, User user){
         Document newDocument = Document.builder()
                 .user(user)

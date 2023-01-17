@@ -18,7 +18,7 @@ import java.util.List;
 public class ImageService {
     private final AwsS3Service awsS3Service;
     private final ImageRepository imageRepository;
-    // 이미지 등록
+
     public void createImage(List<MultipartFile> image, Document document){
         List<String> imgUrls = awsS3Service.uploadImage(image);
         for(String imgUrl: imgUrls){
