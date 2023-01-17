@@ -42,7 +42,6 @@ public class DocumentController {
     /* 게시글 등록 */
     @PostMapping("")
     public ResponseEntity<?> createDocument(@RequestPart(value="data", required=false) @Valid DocumentRequest.PostDocumentRequest request,
-                                            @RequestPart(value="image", required = false) MultipartFile image,
                                             @RequestPart(value="images", required=false) List<MultipartFile> images){
 
         User user = userService.getUser();
@@ -57,10 +56,9 @@ public class DocumentController {
             tagService.createTag(request.getTag(), newDocument);
         if(request.getLinkUrl() != null)
             linkService.createLink(request.getLinkUrl(), newDocument);
-        if(image != null){
-            imageService.createImage(image, newDocument);
-        }else if(images != null){
-            imageService.createImage(images, newDocument);
+        if(images != null){
+            if(images.size()==1) { imageService.createImage(images.get(0), newDocument); }
+            else                 { imageService.createImage(images, newDocument);}
         }
 
         return ResponseEntity.ok().body("게시글 등록 성공!");
