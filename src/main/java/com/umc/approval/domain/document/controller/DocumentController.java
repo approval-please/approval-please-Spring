@@ -10,6 +10,7 @@ import com.umc.approval.domain.link.service.LinkService;
 import com.umc.approval.domain.tag.service.TagService;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.service.UserService;
+import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
+
+import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
 
 @RestController
 @RequestMapping("documents")
@@ -34,7 +37,6 @@ public class DocumentController {
     private final ImageService imageService;
     private final UserService userService;
 
-    private final JwtService jwtService;
 
 
     /* 게시글 등록 */
@@ -43,15 +45,13 @@ public class DocumentController {
                                             @RequestPart(value="image", required = false) MultipartFile image,
                                             @RequestPart(value="images", required=false) List<MultipartFile> images){
 
-
-        // 임시 사용자(삭제 예정..)
-        User temporaryUser = userService.getTemporaryUser().get();
+        User user = userService.getUser();
 
         // 해당하는 카테고리 찾기
         Optional<Category> category = categoryService.getCategory(request.getCategory());
 
         // 게시글 등록
-        Document newDocument = documentService.createDocument(request, category.get(),temporaryUser);
+        Document newDocument = documentService.createDocument(request, category.get(), user);
 
         if(request.getTag() != null)
             tagService.createTag(request.getTag(), newDocument);

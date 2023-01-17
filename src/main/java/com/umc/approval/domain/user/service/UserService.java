@@ -21,9 +21,9 @@ public class UserService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
 
-    // 임시 사용자(삭제 예정..)
-    public Optional<User> getTemporaryUser(){
-        return userRepository.findById(1L);
+    public User getUser(){
+        return userRepository.findById(jwtService.getId())
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
     }
 
     public void logout() {
