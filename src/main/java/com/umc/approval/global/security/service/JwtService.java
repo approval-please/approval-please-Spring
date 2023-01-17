@@ -63,6 +63,11 @@ public class JwtService {
         return decodedJWT.getSubject();
     }
 
+    public String getEmail(String token) {
+        DecodedJWT decodedJWT = verifyToken(token);
+        return decodedJWT.getSubject();
+    }
+
     public Long getId() {
         String accessToken = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
         DecodedJWT decodedJWT = verifyToken(accessToken);
