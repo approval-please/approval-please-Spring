@@ -32,7 +32,7 @@ public class UserService {
 
     public TokenResponseDto refresh(HttpServletRequest request) {
         // Refresh Token 유효성 검사
-        String refreshToken = jwtService.getAccessToken(request);
+        String refreshToken = jwtService.getToken(request);
         DecodedJWT decodedJWT = jwtService.verifyToken(refreshToken);
 
         String email = decodedJWT.getSubject();
