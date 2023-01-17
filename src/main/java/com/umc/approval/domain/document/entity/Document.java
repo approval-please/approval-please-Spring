@@ -1,7 +1,7 @@
 package com.umc.approval.domain.document.entity;
 
 import com.umc.approval.domain.BaseTimeEntity;
-import com.umc.approval.domain.category.entity.Category;
+import com.umc.approval.domain.like_category.entity.LikeCategory;
 import com.umc.approval.domain.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,7 +34,7 @@ public class Document extends BaseTimeEntity {
 
     @OneToOne(fetch = LAZY)
     @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    private LikeCategory likeCategory;
 
     @Column(nullable = false)
     private String title;
