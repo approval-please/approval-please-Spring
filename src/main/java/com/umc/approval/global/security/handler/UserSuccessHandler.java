@@ -1,6 +1,7 @@
 package com.umc.approval.global.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.umc.approval.domain.user.dto.TokenResponseDto;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.security.service.CustomUserDetails;
@@ -41,12 +42,5 @@ public class UserSuccessHandler implements AuthenticationSuccessHandler {
         user.updateRefreshToken(refreshToken);
         response.setContentType(APPLICATION_JSON_VALUE);
         new ObjectMapper().writeValue(response.getWriter(), new TokenResponseDto(accessToken, refreshToken));
-    }
-
-    @Getter
-    @AllArgsConstructor
-    private static class TokenResponseDto {
-        private String accessToken;
-        private String refreshToken;
     }
 }

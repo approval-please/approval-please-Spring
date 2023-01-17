@@ -1,5 +1,6 @@
 package com.umc.approval.domain.user.controller;
 
+import com.umc.approval.domain.user.dto.TokenResponseDto;
 import com.umc.approval.domain.user.service.UserService;
 import com.umc.approval.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ public class UserApiController {
     }
 
     @GetMapping("/refresh")
-    public ResponseEntity<Map<String, String>> refresh() {
-        return ResponseEntity.ok(userService.refresh());
+    public ResponseEntity<TokenResponseDto> refresh(HttpServletRequest request) {
+        return ResponseEntity.ok(userService.refresh(request));
     }
 }
