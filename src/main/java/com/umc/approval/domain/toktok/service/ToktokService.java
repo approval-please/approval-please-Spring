@@ -5,9 +5,11 @@ import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
 
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
+import com.umc.approval.domain.like_category.entity.LikeCategory;
 import com.umc.approval.domain.like_category.entity.LikeCategoryRepository;
 import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.service.LinkService;
+import com.umc.approval.domain.tag.service.TagService;
 import com.umc.approval.domain.toktok.dto.ToktokRequestDto;
 import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.toktok.entity.ToktokRepository;
@@ -20,6 +22,8 @@ import com.umc.approval.domain.vote.service.VoteService;
 import com.umc.approval.global.aws.service.AwsS3Service;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
+import com.umc.approval.global.type.CategoryType;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import javax.swing.plaf.synth.SynthTextAreaUI;
@@ -50,6 +54,9 @@ public class ToktokService {
     private final LinkService linkService;
 
     @Autowired
+    private final TagService tagService;
+
+    @Autowired
     private final ToktokRepository toktokRepository;
 
     @Autowired
@@ -65,11 +72,12 @@ public class ToktokService {
     private Vote vote;
     private Toktok toktok;
 
-
     public void createPost(ToktokRequestDto toktokRequestDto, List<MultipartFile> files) {
+        //User 정보 가져오기
         User user = userRepository.findById(jwtService.getId())
             .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
-        //투표 등록했는지 확인
+
+        //투표 등록
         if (toktokRequestDto.getVoteTitle() != null) {
             vote = Vote.builder()
                 .title(toktokRequestDto.getVoteTitle())
@@ -79,6 +87,7 @@ public class ToktokService {
                 .build();
             voteService.createVote(vote);
 
+            //투표 선택지 저장
             for (String option : toktokRequestDto.getOption()) {
                 VoteOption voteOption = VoteOption.builder()
                     .vote(vote)
@@ -87,29 +96,33 @@ public class ToktokService {
                 voteOptionService.createVoteOption(voteOption);
             }
         }
-        //링크 첨부했는지 확인
-//        if (toktokRequestDto.getLinkUrl() != null) {
-//            List<String> linkList = toktokRequestDto.getLinkUrl();
-//            linkService.createLink(linkList, );
-//
-//        }
-//        category = Category.builder()
-//            .user(user)
-//            .category("디지털 기기")
-//            .build();
-//        categoryRepository.save(category);
 
-//
-//        toktok = Toktok.builder()
-//            .user(user)
-//            .content(toktokRequestDto.getContent())
-//            .category(category)
-//            .vote(vote)
-//            .view((long) 0)
-//            .notification(false)
-//            .build();
-//
-//        toktokRepository.save(toktok);
+        //카테고리 등록
+        CategoryType categoryType = viewCategory(toktokRequestDto.getCategory());
+
+        //결제톡톡 게시글 등록
+        toktok = Toktok.builder()
+            .user(user)
+            .content(toktokRequestDto.getContent())
+            .category(categoryType)
+            .vote(vote)
+            .view((long) 0)
+            .notification(true)
+            .build();
+
+        toktokRepository.save(toktok);
+
+        //링크 등록
+        if (toktokRequestDto.getLinkUrl() != null) {
+            List<String> linkList = toktokRequestDto.getLinkUrl();
+            linkService.createLink(linkList, toktok);
+        }
+
+        //태그 등록
+        if (toktokRequestDto.getTag() != null) {
+            List<String> tagList = toktokRequestDto.getTag();
+            tagService.createTag(tagList, toktok);
+        }
 
         //aws 이미지 저장
         if (files.size() == 0) {
@@ -124,12 +137,19 @@ public class ToktokService {
             List<String> imageUrl = awsS3Service.uploadImage(files);
             for (String image : imageUrl) {
                 Image images = Image.builder()
-                    .toktok(null)
+                    .toktok(toktok)
                     .imageUrl(image)
                     .build();
                 imageRepository.save(images);
             }
         }
 
+    }
+
+    public CategoryType viewCategory(int category) {
+        CategoryType categoryType = Arrays.stream(CategoryType.values())
+            .filter(c -> c.getValue() == category)
+            .findAny().get();
+        return categoryType;
     }
 }
