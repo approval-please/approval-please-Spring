@@ -1,7 +1,5 @@
 package com.umc.approval.domain.document.controller;
 
-import com.umc.approval.domain.category.entity.Category;
-import com.umc.approval.domain.category.service.CategoryService;
 import com.umc.approval.domain.document.dto.DocumentRequest;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.service.DocumentService;
@@ -10,20 +8,16 @@ import com.umc.approval.domain.link.service.LinkService;
 import com.umc.approval.domain.tag.service.TagService;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.service.UserService;
-import com.umc.approval.global.exception.CustomException;
-import com.umc.approval.global.security.service.JwtService;
+import com.umc.approval.global.type.CategoryType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-
-import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
 
 @RestController
 @RequestMapping("documents")
@@ -31,7 +25,6 @@ import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
 @Slf4j
 public class DocumentController {
     private final DocumentService documentService;
-    private final CategoryService categoryService;
     private final TagService tagService;
     private final LinkService linkService;
     private final ImageService imageService;
@@ -41,16 +34,18 @@ public class DocumentController {
 
     /* 게시글 등록 */
     @PostMapping("")
-    public ResponseEntity<?> createDocument(@RequestPart(value="data", required=false) @Valid DocumentRequest.PostDocumentRequest request,
+    public ResponseEntity<?> createDocument(@Valid @RequestPart(value="data", required=false) DocumentRequest.PostDocumentRequest request,
                                             @RequestPart(value="images", required=false) List<MultipartFile> images){
 
         User user = userService.getUser();
 
         // 해당하는 카테고리 찾기
-        Optional<Category> category = categoryService.getCategory(request.getCategory());
+        CategoryType categoryType = Arrays.stream(CategoryType.values())
+                .filter(c -> c.getValue() == request.getCategory())
+                .findAny().get();
 
         // 게시글 등록
-        Document newDocument = documentService.createDocument(request, category.get(), user);
+        Document newDocument = documentService.createDocument(request, categoryType, user);
 
         if(request.getTag() != null)
             tagService.createTag(request.getTag(), newDocument);
