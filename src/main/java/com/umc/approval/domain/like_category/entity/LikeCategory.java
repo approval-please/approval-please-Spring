@@ -2,6 +2,7 @@ package com.umc.approval.domain.like_category.entity;
 
 import com.umc.approval.domain.BaseTimeEntity;
 import com.umc.approval.domain.user.entity.User;
+import com.umc.approval.global.type.CategoryType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+import static javax.persistence.EnumType.STRING;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PRIVATE;
@@ -31,6 +33,7 @@ public class LikeCategory extends BaseTimeEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Enumerated(STRING)
     @Column(nullable = false)
     private CategoryType category;
 }
