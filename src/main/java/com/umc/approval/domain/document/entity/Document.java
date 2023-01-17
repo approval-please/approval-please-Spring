@@ -1,8 +1,9 @@
 package com.umc.approval.domain.document.entity;
 
 import com.umc.approval.domain.BaseTimeEntity;
-import com.umc.approval.domain.category.entity.Category;
+import com.umc.approval.domain.like_category.entity.LikeCategory;
 import com.umc.approval.domain.user.entity.User;
+import com.umc.approval.global.type.CategoryType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+import static javax.persistence.EnumType.STRING;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PRIVATE;
@@ -32,9 +34,9 @@ public class Document extends BaseTimeEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToOne(fetch = LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    @Enumerated(STRING)
+    @Column(nullable = false)
+    private CategoryType category;
 
     @Column(nullable = false)
     private String title;

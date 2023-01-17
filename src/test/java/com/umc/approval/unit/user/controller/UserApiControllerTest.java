@@ -2,6 +2,7 @@ package com.umc.approval.unit.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.umc.approval.domain.user.controller.UserApiController;
+import com.umc.approval.domain.user.dto.TokenResponseDto;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.domain.user.service.UserService;
 import com.umc.approval.global.aws.service.AwsS3Service;
@@ -18,8 +19,6 @@ import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -60,5 +59,21 @@ public class UserApiControllerTest {
         mvc.perform(post("/auth/logout")
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk());
+    }
+
+    @DisplayName("refresh token을 통해 access(refresh) token 재발급에 성공한다")
+    @WithMockUser
+    @Test
+    void refresh() throws Exception {
+        // given
+        String token = "Bearer test123";
+        given(userService.refresh(any())).willReturn(new TokenResponseDto("test1", "test2"));
+
+        // when & then
+        mvc.perform(post("/auth/refresh")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
+                        .header("Authorization", token))
+                .andExpect(status().isOk())
+                .andDo(print());
     }
 }

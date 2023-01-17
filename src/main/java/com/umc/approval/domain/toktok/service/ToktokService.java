@@ -3,11 +3,11 @@ package com.umc.approval.domain.toktok.service;
 
 import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
 
-import com.umc.approval.domain.category.entity.Category;
-import com.umc.approval.domain.category.entity.CategoryRepository;
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
+import com.umc.approval.domain.like_category.entity.LikeCategoryRepository;
 import com.umc.approval.domain.link.entity.Link;
+import com.umc.approval.domain.link.service.LinkService;
 import com.umc.approval.domain.toktok.dto.ToktokRequestDto;
 import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.toktok.entity.ToktokRepository;
@@ -47,6 +47,9 @@ public class ToktokService {
     private final VoteOptionService voteOptionService;
 
     @Autowired
+    private final LinkService linkService;
+
+    @Autowired
     private final ToktokRepository toktokRepository;
 
     @Autowired
@@ -56,19 +59,16 @@ public class ToktokService {
     private final ImageRepository imageRepository;
 
     @Autowired
-    private final CategoryRepository categoryRepository;
+    private final LikeCategoryRepository likeCategoryRepository;
 
     private Long voteId;
     private Vote vote;
-    private Category category;
     private Toktok toktok;
 
 
     public void createPost(ToktokRequestDto toktokRequestDto, List<MultipartFile> files) {
-//        User user = userRepository.findById(jwtService.getId())
-//            .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
-        System.out.println(jwtService.getId());
-//        Optional<User> user = userRepository.findByEmail("sju08227@naver.com");
+        User user = userRepository.findById(jwtService.getId())
+            .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
         //투표 등록했는지 확인
         if (toktokRequestDto.getVoteTitle() != null) {
             vote = Vote.builder()
@@ -88,18 +88,18 @@ public class ToktokService {
             }
         }
         //링크 첨부했는지 확인
-//        if (toktokRequestDto.getLinkUrl().isEmpty() == false) {
+//        if (toktokRequestDto.getLinkUrl() != null) {
 //            List<String> linkList = toktokRequestDto.getLinkUrl();
-//            for (String linkUrl : linkList) {
-//            }
+//            linkService.createLink(linkList, );
+//
 //        }
 //        category = Category.builder()
 //            .user(user)
 //            .category("디지털 기기")
 //            .build();
 //        categoryRepository.save(category);
+
 //
-////
 //        toktok = Toktok.builder()
 //            .user(user)
 //            .content(toktokRequestDto.getContent())
