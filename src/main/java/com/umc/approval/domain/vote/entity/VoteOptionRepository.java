@@ -1,8 +1,9 @@
-package com.umc.approval.domain.tag.entity;
+package com.umc.approval.domain.vote.entity;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TagRepository extends JpaRepository<Tag, Long> {
+public interface VoteOptionRepository extends JpaRepository<VoteOption, Long> {
+
 }

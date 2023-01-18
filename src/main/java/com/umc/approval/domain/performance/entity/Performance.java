@@ -1,5 +1,6 @@
 package com.umc.approval.domain.performance.entity;
 
+import com.umc.approval.domain.BaseTimeEntity;
 import com.umc.approval.domain.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +19,7 @@ import static lombok.AccessLevel.PROTECTED;
 @AllArgsConstructor(access = PRIVATE)
 @NoArgsConstructor(access = PROTECTED)
 @Entity
-public class Performance {
+public class Performance extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
