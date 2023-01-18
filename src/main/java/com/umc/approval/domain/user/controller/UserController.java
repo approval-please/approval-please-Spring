@@ -5,6 +5,7 @@ import com.umc.approval.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,5 +25,11 @@ public class UserController {
     @PostMapping("/auth/refresh")
     public ResponseEntity<UserDto.TokenResponse> refresh(HttpServletRequest request) {
         return ResponseEntity.ok(userService.refresh(request));
+    }
+
+    @PostMapping("/auth/reset")
+    public ResponseEntity<Void> resetPassword(@RequestBody UserDto.ResetPasswordRequest requestDto) {
+        userService.resetPassword(requestDto);
+        return ResponseEntity.ok().build();
     }
 }
