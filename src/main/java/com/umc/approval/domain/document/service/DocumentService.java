@@ -16,12 +16,15 @@ import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import com.umc.approval.global.type.CategoryType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.swing.text.html.Option;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
 
@@ -39,9 +42,7 @@ public class DocumentService {
     private final ImageRepository imageRepository;
 
     public void createDocument(DocumentDto.PostDocumentRequest request, List<MultipartFile> images) {
-
-        User user = userRepository.findById(jwtService.getId())
-                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+        User user = certifyUser();
 
         // 해당하는 카테고리 찾기
         CategoryType categoryType = Arrays.stream(CategoryType.values())
@@ -83,5 +84,33 @@ public class DocumentService {
                 }
             }
         }
+    }
+
+
+    public void deleteDocument(Long documentId) {
+
+        // tag 삭제
+        tagRepository.deleteByDocumentId(documentId);
+
+        // link 삭제
+        linkRepository.deleteByDocumentId(documentId);
+
+        // image 삭제
+        List<String> imageUrlList = imageRepository.findImageUrl(documentId);
+        imageRepository.deleteByDocumentId(documentId);
+        for(String path: imageUrlList){
+            awsS3Service.deleteImage(path);
+        }
+
+        // document 삭제
+        documentRepository.deleteById(documentId);
+    }
+
+
+    // 사용자 인증
+    private User certifyUser(){
+        User user = userRepository.findById(jwtService.getId())
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+        return user;
     }
 }
