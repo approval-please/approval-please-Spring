@@ -1,7 +1,7 @@
 package com.umc.approval.unit.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.umc.approval.domain.user.controller.UserController;
+import com.umc.approval.domain.user.controller.UserApiController;
 import com.umc.approval.domain.user.dto.TokenResponseDto;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.domain.user.service.UserService;
@@ -27,11 +27,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @MockBean(JpaMetamodelMappingContext.class)
-@WebMvcTest(controllers = UserController.class,
+@WebMvcTest(controllers = UserApiController.class,
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class),
         })
-public class UserControllerTest {
+public class UserApiControllerTest {
 
     @Autowired
     MockMvc mvc;
