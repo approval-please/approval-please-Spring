@@ -1,6 +1,6 @@
 package com.umc.approval.domain.document.service;
 
-import com.umc.approval.domain.document.dto.DocumentRequest;
+import com.umc.approval.domain.document.dto.DocumentDto;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.entity.DocumentRepository;
 import com.umc.approval.domain.image.entity.Image;
@@ -38,7 +38,7 @@ public class DocumentService {
     private final LinkRepository linkRepository;
     private final ImageRepository imageRepository;
 
-    public void createDocument(DocumentRequest.PostDocumentRequest request, List<MultipartFile> images) {
+    public void createDocument(DocumentDto.PostDocumentRequest request, List<MultipartFile> images) {
 
         User user = userRepository.findById(jwtService.getId())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
