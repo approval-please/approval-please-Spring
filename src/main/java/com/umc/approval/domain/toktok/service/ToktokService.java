@@ -74,7 +74,7 @@ public class ToktokService {
     private Toktok toktok;
 
     public void createPost(ToktokRequestDto toktokRequestDto, List<MultipartFile> files) {
-        //User 정보 가져오기
+
         User user = userRepository.findById(jwtService.getId())
             .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
@@ -134,6 +134,7 @@ public class ToktokService {
         }
 
     }
+
     public CategoryType viewCategory(int category) {
         CategoryType categoryType = Arrays.stream(CategoryType.values())
             .filter(c -> c.getValue() == category)

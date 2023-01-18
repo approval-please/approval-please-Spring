@@ -28,7 +28,7 @@ public class ToktokApiController {
 
     @PostMapping("/community/toktoks")
     public ResponseEntity<Void> createPost(@Valid
-        @RequestPart(value = "data", required = false) ToktokRequestDto toktokRequestDto,
+    @RequestPart(value = "data", required = false) ToktokRequestDto toktokRequestDto,
         @RequestPart(value = "images", required = false) List<MultipartFile> files) {
 
         toktokService.createPost(toktokRequestDto, files);
