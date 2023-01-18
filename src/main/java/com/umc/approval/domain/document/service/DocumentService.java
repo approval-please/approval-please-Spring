@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.umc.approval.global.exception.CustomErrorType.DOCUMENT_NOT_FOUND;
 import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
 
 @Transactional
@@ -89,6 +90,8 @@ public class DocumentService {
 
     public void deleteDocument(Long documentId) {
 
+        findDocument(documentId);
+
         // tag 삭제
         tagRepository.deleteByDocumentId(documentId);
 
@@ -112,5 +115,12 @@ public class DocumentService {
         User user = userRepository.findById(jwtService.getId())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
         return user;
+    }
+
+    private void findDocument(Long documentId){
+        Optional<Document> document = documentRepository.findById(documentId);
+        if(document.isEmpty()){
+            throw new CustomException(DOCUMENT_NOT_FOUND);
+        }
     }
 }
