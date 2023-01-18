@@ -9,9 +9,7 @@ import com.umc.approval.global.security.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.servlet.http.HttpServletRequest;
-
 import static com.umc.approval.global.exception.CustomErrorType.INVALID_TOKEN;
 import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
 import static com.umc.approval.global.security.service.JwtService.TOKEN_REFRESH_DAYS;
@@ -23,6 +21,11 @@ public class UserService {
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
+
+    public User getUser(){
+        return userRepository.findById(jwtService.getId())
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+    }
 
     public void logout() {
         User user = userRepository.findById(jwtService.getId())
