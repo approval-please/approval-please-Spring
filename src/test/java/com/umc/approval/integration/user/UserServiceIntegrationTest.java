@@ -1,6 +1,7 @@
 package com.umc.approval.integration.user;
 
 import com.umc.approval.config.AwsS3MockConfig;
+import com.umc.approval.domain.user.dto.UserDto;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.domain.user.service.UserService;
@@ -16,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +25,6 @@ import javax.persistence.EntityManager;
 import java.util.Collections;
 import java.util.List;
 
-import static com.umc.approval.global.exception.CustomErrorType.TOKEN_NOT_EXIST;
 import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -42,6 +43,9 @@ public class UserServiceIntegrationTest {
 
     @Autowired
     JwtService jwtService;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @Autowired
     EntityManager em;
@@ -114,5 +118,43 @@ public class UserServiceIntegrationTest {
     void logout_token_not_found_fail() {
         // given & when & then
         assertThrows(NullPointerException.class, () -> userService.logout());
+    }
+
+    @DisplayName("비밀번호 재설정에 성공한다")
+    @Test
+    void reset_password_success() {
+
+        // given
+        User user = createUser(1L);
+        userRepository.save(user);
+        em.flush();
+        em.clear();
+        String newPassword = "testNew12345!";
+        UserDto.ResetPasswordRequest requestDto = new UserDto.ResetPasswordRequest(user.getEmail(), newPassword);
+
+        // when
+        userService.resetPassword(requestDto);
+        User findUser = userRepository.findAll().get(0);
+
+        // then
+        assertThat(passwordEncoder.matches(newPassword, findUser.getPassword())).isTrue();
+    }
+
+    @DisplayName("비밀번호 재설정 시 사용자가 없으면 실패한다")
+    @Test
+    void reset_password_user_not_found_fail() {
+
+        // given
+        User user = createUser(1L);
+        userRepository.save(user);
+        em.flush();
+        em.clear();
+        String newPassword = "testNew12345!";
+        // 존재하지 않는 사용자 이메일 입력
+        UserDto.ResetPasswordRequest requestDto = new UserDto.ResetPasswordRequest("dummy@test.com", newPassword);
+
+        // when & then
+        CustomException e = assertThrows(CustomException.class, () -> userService.resetPassword(requestDto));
+        assertThat(e.getErrorType()).isEqualTo(USER_NOT_FOUND);
     }
 }
