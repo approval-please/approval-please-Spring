@@ -27,4 +27,10 @@ public class UserController {
         userService.logout();
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/auth/reset")
+    public ResponseEntity<Void> resetPassword(@RequestBody UserDto.ResetPasswordRequest requestDto) {
+        userService.resetPassword(requestDto);
+        return ResponseEntity.ok().build();
+    }
 }
