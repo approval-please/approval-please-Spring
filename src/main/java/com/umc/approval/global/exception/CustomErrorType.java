@@ -23,6 +23,8 @@ public enum CustomErrorType {
     LOGIN_FAILED(UNAUTHORIZED, 20003, "아이디 또는 비밀번호가 일치하지 않습니다."),
     USER_NOT_FOUND(NOT_FOUND, 20004, "사용자를 찾을 수 없습니다."),
 
+    DOCUMENT_NOT_FOUND(NOT_FOUND, 30001, "존재하지 않는 결재서류입니다."),
+
 
     // Image (8xxxx)
     IMAGE_UPLOAD_FAILED(BAD_REQUEST, 80001, "이미지 업로드에 실패했습니다."),
