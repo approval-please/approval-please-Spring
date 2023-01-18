@@ -12,8 +12,6 @@ import com.umc.approval.domain.toktok.entity.ToktokRepository;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.domain.vote.entity.Vote;
-import com.umc.approval.domain.vote.entity.VoteOption;
-import com.umc.approval.domain.vote.service.VoteOptionService;
 import com.umc.approval.domain.vote.service.VoteService;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
@@ -36,9 +34,6 @@ public class ToktokService {
 
     @Autowired
     private final VoteService voteService;
-
-    @Autowired
-    private final VoteOptionService voteOptionService;
 
     @Autowired
     private final LinkService linkService;
@@ -65,22 +60,7 @@ public class ToktokService {
 
         //투표 등록
         if (request.getVoteTitle() != null) {
-            vote = Vote.builder()
-                .title(request.getVoteTitle())
-                .isSingle(request.getVoteIsSingle())
-                .isAnonymous(request.getVoteIsAnonymous())
-                .isEnd(false)
-                .build();
-            voteService.createVote(vote);
-
-            //투표 선택지 저장
-            for (String option : request.getVoteOption()) {
-                VoteOption voteOption = VoteOption.builder()
-                    .vote(vote)
-                    .opt(option)
-                    .build();
-                voteOptionService.createVoteOption(voteOption);
-            }
+            vote = voteService.createVote(request);
         }
 
         //카테고리 등록
