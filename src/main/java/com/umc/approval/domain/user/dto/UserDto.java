@@ -19,6 +19,7 @@ public class UserDto {
     }
 
     @Getter
+    @AllArgsConstructor
     public static class ResetPasswordRequest {
         private String email;
         private String newPassword;
