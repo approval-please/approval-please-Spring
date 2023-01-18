@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RequiredArgsConstructor
 @RestController
 public class UserController {
@@ -26,6 +28,11 @@ public class UserController {
     public ResponseEntity<Void> logout() {
         userService.logout();
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<UserDto.TokenResponse> refresh(HttpServletRequest request) {
+        return ResponseEntity.ok(userService.refresh(request));
     }
 
     @PostMapping("/auth/reset")
