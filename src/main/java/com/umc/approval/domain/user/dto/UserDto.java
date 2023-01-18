@@ -1,5 +1,6 @@
 package com.umc.approval.domain.user.dto;
 
+import com.umc.approval.domain.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -12,6 +13,18 @@ public class UserDto {
         private String email;
         private String password;
         private String phoneNumber;
+
+        public User toEntity(String encodedPassword) {
+            // 일반회원가입 최초 가입자는 level 0, promotionPoint 0L로 초기화
+            return User.builder()
+                    .nickname(this.getNickname())
+                    .email(this.getEmail())
+                    .password(encodedPassword)
+                    .phoneNumber(this.getPhoneNumber())
+                    .level(0)
+                    .promotionPoint(0L)
+                    .build();
+        }
     }
 
     @Getter
