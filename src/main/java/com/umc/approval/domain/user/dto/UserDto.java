@@ -9,7 +9,7 @@ public class UserDto {
 
     @Getter
     @AllArgsConstructor
-    public static class TokenResponseDto {
+    public static class TokenResponse {
         private String accessToken;
         private String refreshToken;
 

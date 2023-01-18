@@ -39,6 +39,6 @@ public class UserSuccessHandler implements AuthenticationSuccessHandler {
         String refreshToken = jwtService.createRefreshToken(user.getEmail());
         user.updateRefreshToken(refreshToken);
         response.setContentType(APPLICATION_JSON_VALUE);
-        new ObjectMapper().writeValue(response.getWriter(), new UserDto.TokenResponseDto(accessToken, refreshToken));
+        new ObjectMapper().writeValue(response.getWriter(), new UserDto.TokenResponse(accessToken, refreshToken));
     }
 }

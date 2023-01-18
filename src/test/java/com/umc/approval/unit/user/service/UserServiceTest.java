@@ -67,7 +67,7 @@ public class UserServiceTest {
         given(jwtService.createAccessToken(any(), any())).willReturn(responseAccessToken);
 
         // when
-        UserDto.TokenResponseDto response = userService.refresh(new MockHttpServletRequest());
+        UserDto.TokenResponse response = userService.refresh(new MockHttpServletRequest());
 
         // then
         assertThat(response.getAccessToken()).isEqualTo(responseAccessToken);
@@ -92,7 +92,7 @@ public class UserServiceTest {
         given(jwtService.createRefreshToken(any())).willReturn(responseRefreshToken);
 
         // when
-        UserDto.TokenResponseDto response = userService.refresh(new MockHttpServletRequest());
+        UserDto.TokenResponse response = userService.refresh(new MockHttpServletRequest());
 
         // then
         assertThat(response.getAccessToken()).isEqualTo(responseAccessToken);

@@ -67,7 +67,7 @@ public class UserControllerTest {
     void refresh() throws Exception {
         // given
         String token = "Bearer test123";
-        given(userService.refresh(any())).willReturn(new UserDto.TokenResponseDto("test1", "test2"));
+        given(userService.refresh(any())).willReturn(new UserDto.TokenResponse("test1", "test2"));
 
         // when & then
         mvc.perform(post("/auth/refresh")
