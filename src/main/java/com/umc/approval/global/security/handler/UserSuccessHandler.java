@@ -1,13 +1,11 @@
 package com.umc.approval.global.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.umc.approval.domain.user.dto.TokenResponseDto;
+import com.umc.approval.domain.user.dto.UserDto;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.security.service.CustomUserDetails;
 import com.umc.approval.global.security.service.JwtService;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -41,6 +39,6 @@ public class UserSuccessHandler implements AuthenticationSuccessHandler {
         String refreshToken = jwtService.createRefreshToken(user.getEmail());
         user.updateRefreshToken(refreshToken);
         response.setContentType(APPLICATION_JSON_VALUE);
-        new ObjectMapper().writeValue(response.getWriter(), new TokenResponseDto(accessToken, refreshToken));
+        new ObjectMapper().writeValue(response.getWriter(), new UserDto.TokenResponse(accessToken, refreshToken));
     }
 }

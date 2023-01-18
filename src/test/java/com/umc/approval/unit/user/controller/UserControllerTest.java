@@ -1,8 +1,8 @@
 package com.umc.approval.unit.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.umc.approval.domain.user.controller.UserApiController;
-import com.umc.approval.domain.user.dto.TokenResponseDto;
+import com.umc.approval.domain.user.controller.UserController;
+import com.umc.approval.domain.user.dto.UserDto;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.domain.user.service.UserService;
 import com.umc.approval.global.aws.service.AwsS3Service;
@@ -27,11 +27,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @MockBean(JpaMetamodelMappingContext.class)
-@WebMvcTest(controllers = UserApiController.class,
+@WebMvcTest(controllers = UserController.class,
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class),
         })
-public class UserApiControllerTest {
+public class UserControllerTest {
 
     @Autowired
     MockMvc mvc;
@@ -67,7 +67,7 @@ public class UserApiControllerTest {
     void refresh() throws Exception {
         // given
         String token = "Bearer test123";
-        given(userService.refresh(any())).willReturn(new TokenResponseDto("test1", "test2"));
+        given(userService.refresh(any())).willReturn(new UserDto.TokenResponse("test1", "test2"));
 
         // when & then
         mvc.perform(post("/auth/refresh")

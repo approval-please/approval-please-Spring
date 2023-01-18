@@ -1,6 +1,6 @@
 package com.umc.approval.unit.user.service;
 
-import com.umc.approval.domain.user.dto.TokenResponseDto;
+import com.umc.approval.domain.user.dto.UserDto;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.domain.user.service.UserService;
@@ -67,7 +67,7 @@ public class UserServiceTest {
         given(jwtService.createAccessToken(any(), any())).willReturn(responseAccessToken);
 
         // when
-        TokenResponseDto response = userService.refresh(new MockHttpServletRequest());
+        UserDto.TokenResponse response = userService.refresh(new MockHttpServletRequest());
 
         // then
         assertThat(response.getAccessToken()).isEqualTo(responseAccessToken);
@@ -92,7 +92,7 @@ public class UserServiceTest {
         given(jwtService.createRefreshToken(any())).willReturn(responseRefreshToken);
 
         // when
-        TokenResponseDto response = userService.refresh(new MockHttpServletRequest());
+        UserDto.TokenResponse response = userService.refresh(new MockHttpServletRequest());
 
         // then
         assertThat(response.getAccessToken()).isEqualTo(responseAccessToken);

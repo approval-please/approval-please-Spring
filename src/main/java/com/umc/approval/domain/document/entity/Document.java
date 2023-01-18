@@ -1,6 +1,7 @@
 package com.umc.approval.domain.document.entity;
 
 import com.umc.approval.domain.BaseTimeEntity;
+import com.umc.approval.domain.document.dto.DocumentDto;
 import com.umc.approval.domain.like_category.entity.LikeCategory;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.global.type.CategoryType;
