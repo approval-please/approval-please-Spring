@@ -7,6 +7,7 @@ import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ public class UserService {
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public void logout() {
         User user = userRepository.findById(jwtService.getId())
@@ -54,5 +56,11 @@ public class UserService {
             user.updateRefreshToken(newRefreshToken);
         }
         return tokenResponse;
+    }
+
+    public void resetPassword(UserDto.ResetPasswordRequest requestDto) {
+        User user = userRepository.findByEmail(requestDto.getEmail())
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+        user.encodePassword(passwordEncoder.encode(requestDto.getNewPassword()));
     }
 }
