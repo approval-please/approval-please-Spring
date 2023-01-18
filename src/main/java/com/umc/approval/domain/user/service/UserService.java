@@ -22,11 +22,6 @@ public class UserService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
 
-    public User getUser(){
-        return userRepository.findById(jwtService.getId())
-                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
-    }
-
     public void logout() {
         User user = userRepository.findById(jwtService.getId())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
