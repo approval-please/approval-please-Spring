@@ -93,16 +93,28 @@ public class DocumentService {
         findDocument(documentId);
 
         // tag 삭제
-        tagRepository.deleteByDocumentId(documentId);
+        List<Tag> tagList = tagRepository.findByDocumentId(documentId);
+        if(tagList != null){
+            for(Tag tag: tagList){
+                tagRepository.deleteById(tag.getId());
+            }
+        }
 
         // link 삭제
-        linkRepository.deleteByDocumentId(documentId);
+        List<Link> linkList = linkRepository.findByDocumentId(documentId);
+        if(linkList != null){
+            for(Link link: linkList){
+                linkRepository.deleteById(link.getId());
+            }
+        }
 
         // image 삭제
-        List<String> imageUrlList = imageRepository.findImageUrl(documentId);
-        imageRepository.deleteByDocumentId(documentId);
-        for(String path: imageUrlList){
-            awsS3Service.deleteImage(path);
+        List<Image> imageList = imageRepository.findByDocumentId(documentId);
+        if(imageList != null){
+            imageRepository.deleteByDocumentId(documentId);
+            for(Image image: imageList){
+                awsS3Service.deleteImage(image.getImageUrl());
+            }
         }
 
         // document 삭제
@@ -110,7 +122,6 @@ public class DocumentService {
     }
 
 
-    // 사용자 인증
     private User certifyUser(){
         User user = userRepository.findById(jwtService.getId())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
