@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 public class UserDto {
     @Getter
-//    @NoArgsConstructor
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class emailCheckRequest { //이메일 체크 Request
         private String email;
