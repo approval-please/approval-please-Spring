@@ -1,11 +1,18 @@
 package com.umc.approval.domain.user.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-
 public class UserDto {
+
+    @Getter
+    @AllArgsConstructor
+    public static class Request {   //유저 등록 Request
+        private String nickname;
+        private String email;
+        private String password;
+        private String phoneNumber;
+    }
 
     @Getter
     @AllArgsConstructor
