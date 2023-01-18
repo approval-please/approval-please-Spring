@@ -62,4 +62,8 @@ public class User extends BaseTimeEntity {
     public void deleteRefreshToken() {
         this.refreshToken = null;
     }
+
+    public void encodePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
 }
