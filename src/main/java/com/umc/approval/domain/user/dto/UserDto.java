@@ -17,4 +17,10 @@ public class UserDto {
             this.refreshToken = refreshToken;
         }
     }
+
+    @Getter
+    public static class ResetPasswordRequest {
+        private String email;
+        private String newPassword;
+    }
 }
