@@ -1,6 +1,6 @@
 package com.umc.approval.domain.user.controller;
 
-import com.umc.approval.domain.user.dto.TokenResponseDto;
+import com.umc.approval.domain.user.dto.UserDto;
 import com.umc.approval.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @RequiredArgsConstructor
 @RestController
-public class UserApiController {
+public class UserController {
 
     private final UserService userService;
 
@@ -22,7 +22,7 @@ public class UserApiController {
     }
 
     @PostMapping("/auth/refresh")
-    public ResponseEntity<TokenResponseDto> refresh(HttpServletRequest request) {
+    public ResponseEntity<UserDto.TokenResponseDto> refresh(HttpServletRequest request) {
         return ResponseEntity.ok(userService.refresh(request));
     }
 }

@@ -1,7 +1,7 @@
 package com.umc.approval.domain.user.service;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.umc.approval.domain.user.dto.TokenResponseDto;
+import com.umc.approval.domain.user.dto.UserDto;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.exception.CustomException;
@@ -28,7 +28,7 @@ public class UserService {
         user.deleteRefreshToken();
     }
 
-    public TokenResponseDto refresh(HttpServletRequest request) {
+    public UserDto.TokenResponseDto refresh(HttpServletRequest request) {
         // Refresh Token 유효성 검사
         String refreshToken = jwtService.getToken(request);
         DecodedJWT decodedJWT = jwtService.verifyToken(refreshToken);
@@ -44,7 +44,7 @@ public class UserService {
 
         // refresh token 유효성 검사 완료 후 -> access token 재발급
         String accessToken = jwtService.createAccessToken(user.getEmail(), user.getId());
-        TokenResponseDto tokenResponseDto = new TokenResponseDto(accessToken, null);
+        UserDto.TokenResponseDto tokenResponseDto = new UserDto.TokenResponseDto(accessToken, null);
 
         // Refresh Token 만료시간 계산해 1개월 미만일 시 refresh token도 발급
         long diffDays = jwtService.calculateRefreshExpiredDays(decodedJWT);
