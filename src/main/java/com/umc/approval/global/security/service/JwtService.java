@@ -43,10 +43,10 @@ public class JwtService {
     public static final String CLAIM_ROLE = "role";
 
     /* 기본적으로 로그인은 필수가 아니지만, 특정 기능에 대해서 access token이 필요한 경우
-     * 로그인이 되어있지 않을 수 있으므로 SecurityContextHolder에 access token이 저장되어 있지 않을 수 있음
-     * Request Header에서 직접 accessToken을 가져온다
+     * 로그인이 되어있지 않을 수 있으므로 SecurityContextHolder에 token이 저장되어 있지 않을 수 있음
+     * Request Header에서 직접 token을 가져온다
      */
-    public String getAccessToken(HttpServletRequest request) {
+    public String getToken(HttpServletRequest request) {
         String authorizationHeader = request.getHeader(AUTHORIZATION);
         if (authorizationHeader == null || !authorizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {
             throw new CustomException(TOKEN_NOT_EXIST);
@@ -60,6 +60,11 @@ public class JwtService {
     public String getEmail() {
         String accessToken = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
         DecodedJWT decodedJWT = verifyToken(accessToken);
+        return decodedJWT.getSubject();
+    }
+
+    public String getEmail(String token) {
+        DecodedJWT decodedJWT = verifyToken(token);
         return decodedJWT.getSubject();
     }
 

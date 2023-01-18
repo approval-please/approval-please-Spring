@@ -13,6 +13,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -39,7 +40,8 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         AntPathMatcher pathMatcher = new AntPathMatcher();
         return !(
                 // TODO 인증이 필요한 로직 추가
-                pathMatcher.match("/auth/logout", path)
+                pathMatcher.match("/auth/logout", path) || pathMatcher.match("/documents", path) && request.getMethod().equals("POST") ||
+                (pathMatcher.match("/community/toktoks", path) && request.getMethod().equals("POST"))
         );
     }
 

@@ -1,9 +1,9 @@
 package com.umc.approval.domain.toktok.entity;
 
 import com.umc.approval.domain.BaseTimeEntity;
-import com.umc.approval.domain.category.entity.Category;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.vote.entity.Vote;
+import com.umc.approval.global.type.CategoryType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+import static javax.persistence.EnumType.STRING;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PRIVATE;
@@ -33,9 +34,9 @@ public class Toktok extends BaseTimeEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToOne(fetch = LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    @Enumerated(STRING)
+    @Column(nullable = false)
+    private CategoryType category;
 
     @OneToOne(fetch = LAZY)
     @JoinColumn(name = "vote_id")
@@ -48,5 +49,5 @@ public class Toktok extends BaseTimeEntity {
     private Long view;
 
     @Column(columnDefinition = "tinyint(1) default 1", nullable = false)
-    private boolean notification;
+    private boolean notification; //기본 값을 Boolean = True로 하겠다는 의미
 }

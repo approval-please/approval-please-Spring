@@ -1,5 +1,6 @@
 package com.umc.approval.domain.cert.entity;
 
+import com.umc.approval.domain.BaseTimeEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +20,7 @@ import static lombok.AccessLevel.PROTECTED;
 @AllArgsConstructor(access = PRIVATE)
 @NoArgsConstructor(access = PROTECTED)
 @Entity
-public class Cert {
+public class Cert extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
