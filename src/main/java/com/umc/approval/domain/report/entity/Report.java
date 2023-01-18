@@ -1,5 +1,6 @@
 package com.umc.approval.domain.report.entity;
 
+import com.umc.approval.domain.BaseTimeEntity;
 import com.umc.approval.domain.document.entity.Document;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +19,7 @@ import static lombok.AccessLevel.PROTECTED;
 @AllArgsConstructor(access = PRIVATE)
 @NoArgsConstructor(access = PROTECTED)
 @Entity
-public class Report {
+public class Report extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
