@@ -26,8 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static com.umc.approval.global.exception.CustomErrorType.DOCUMENT_NOT_FOUND;
-import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
+import static com.umc.approval.global.exception.CustomErrorType.*;
 
 @Transactional
 @RequiredArgsConstructor
@@ -89,8 +88,11 @@ public class DocumentService {
 
 
     public void deleteDocument(Long documentId) {
-
-        findDocument(documentId);
+        // 게시글 존재 유무, 삭제 권한 확인
+        Document document = findDocument(documentId);
+        if(jwtService.getId() != document.getUser().getId()){
+            throw new CustomException(NO_PERMISSION);
+        }
 
         // tag 삭제
         List<Tag> tagList = tagRepository.findByDocumentId(documentId);
@@ -128,10 +130,11 @@ public class DocumentService {
         return user;
     }
 
-    private void findDocument(Long documentId){
+    private Document findDocument(Long documentId){
         Optional<Document> document = documentRepository.findById(documentId);
         if(document.isEmpty()){
             throw new CustomException(DOCUMENT_NOT_FOUND);
         }
+        return document.get();
     }
 }
