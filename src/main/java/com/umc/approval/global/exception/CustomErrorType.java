@@ -19,7 +19,7 @@ public enum CustomErrorType {
 
     // User (2xxxx)
     EMAIL_ALREADY_EXIST(BAD_REQUEST, 20001, "이미 존재하는 이메일입니다."),
-    NICKNAME_ALREADY_EXIST(BAD_REQUEST, 20002, "이미 존재하는 닉네임입니다."),
+    PHONE_NUMBER_ALREADY_EXIST(BAD_REQUEST, 20002, "이미 존재하는 전화번호입니다."),
     LOGIN_FAILED(UNAUTHORIZED, 20003, "아이디 또는 비밀번호가 일치하지 않습니다."),
     USER_NOT_FOUND(NOT_FOUND, 20004, "사용자를 찾을 수 없습니다."),
 

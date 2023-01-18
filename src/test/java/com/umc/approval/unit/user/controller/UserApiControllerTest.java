@@ -1,7 +1,7 @@
 package com.umc.approval.unit.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.umc.approval.domain.user.controller.UserApiController;
+import com.umc.approval.domain.user.controller.UserController;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.domain.user.service.UserService;
 import com.umc.approval.global.aws.service.AwsS3Service;
@@ -19,16 +19,13 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Optional;
-
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @MockBean(JpaMetamodelMappingContext.class)
-@WebMvcTest(controllers = UserApiController.class,
+@WebMvcTest(controllers = UserController.class,
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class),
         })
