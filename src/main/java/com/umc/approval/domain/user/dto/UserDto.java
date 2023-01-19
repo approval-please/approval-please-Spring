@@ -9,7 +9,7 @@ public class UserDto {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class emailCheckRequest { //이메일 체크 Request
+    public static class EmailCheckRequest { //이메일 체크 Request
         private String email;
     }
 
