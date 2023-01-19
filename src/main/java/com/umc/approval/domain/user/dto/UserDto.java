@@ -16,7 +16,13 @@ public class UserDto {
 
     @Getter
     @AllArgsConstructor
-    public static class Request {   //유저 등록 Request
+    public static class EmailCheckResponse {
+        private Integer status;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class NormalRequest {   // 일반 유저 등록 Request
         private String nickname;
         private String email;
         private String password;
@@ -25,10 +31,33 @@ public class UserDto {
         public User toEntity(String encodedPassword) {
             // 일반회원가입 최초 가입자는 level 0, promotionPoint 0L로 초기화
             return User.builder()
-                    .nickname(this.getNickname())
+                    .nickname(this.nickname)
+                    .email(this.email)
+                    .password(encodedPassword)
+                    .phoneNumber(this.phoneNumber)
+                    .level(0)
+                    .promotionPoint(0L)
+                    .build();
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class SnsRequest {   // SNS 유저 등록 Request
+        private String nickname;
+        private String email;
+        private String phoneNumber;
+        private SocialType socialType;
+        private Long socialId;
+
+        public User toEntity(String encodedPassword) {
+            return User.builder()
+                    .nickname(this.nickname)
                     .email(this.getEmail())
                     .password(encodedPassword)
                     .phoneNumber(this.getPhoneNumber())
+                    .socialType(this.socialType)
+                    .socialId(this.socialId)
                     .level(0)
                     .promotionPoint(0L)
                     .build();
@@ -54,10 +83,6 @@ public class UserDto {
         private SocialType socialType;
         private String accessToken;
         private String refreshToken;
-
-        public void setRefreshToken(String refreshToken) {
-            this.refreshToken = refreshToken;
-        }
     }
 
     @Getter
