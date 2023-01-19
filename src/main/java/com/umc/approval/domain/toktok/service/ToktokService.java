@@ -23,12 +23,15 @@ import com.umc.approval.global.type.CategoryType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.List;
 
+import static com.umc.approval.global.exception.CustomErrorType.TOKTOKPOST_NOT_FOUND;
 import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
+import static com.umc.approval.global.exception.CustomErrorType.VOTE_IS_END;
 
 @Transactional
 @RequiredArgsConstructor
@@ -48,23 +51,23 @@ public class ToktokService {
     public void createPost(ToktokDto.PostToktokRequest request, List<MultipartFile> files) {
 
         User user = userRepository.findById(jwtService.getId())
-                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+            .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
         //투표 등록
         Vote vote = null;
         if (request.getVoteTitle() != null) {
             vote = Vote.builder()
-                    .title(request.getVoteTitle())
-                    .isSingle(request.getVoteIsSingle())
-                    .isAnonymous(request.getVoteIsAnonymous())
-                    .isEnd(false)
-                    .build();
+                .title(request.getVoteTitle())
+                .isSingle(request.getVoteIsSingle())
+                .isAnonymous(request.getVoteIsAnonymous())
+                .isEnd(false)
+                .build();
             voteRepository.save(vote);
             for (String option : request.getVoteOption()) {
                 VoteOption voteOption = VoteOption.builder()
-                        .vote(vote)
-                        .opt(option)
-                        .build();
+                    .vote(vote)
+                    .opt(option)
+                    .build();
                 voteOptionRepository.save(voteOption);
             }
         }
@@ -74,13 +77,13 @@ public class ToktokService {
 
         //결제톡톡 게시글 등록
         Toktok toktok = Toktok.builder()
-                .user(user)
-                .content(request.getContent())
-                .category(categoryType)
-                .vote(vote)
-                .view(0L)
-                .notification(true)
-                .build();
+            .user(user)
+            .content(request.getContent())
+            .category(categoryType)
+            .vote(vote)
+            .view(0L)
+            .notification(true)
+            .build();
 
         toktokRepository.save(toktok);
 
@@ -117,10 +120,73 @@ public class ToktokService {
         }
     }
 
+    public void updatePost(@PathVariable Long id, ToktokDto.PostToktokRequest request,
+        List<MultipartFile> files) {
+        Toktok toktok = toktokRepository.findById(id)
+            .orElseThrow(() -> new CustomException(TOKTOKPOST_NOT_FOUND));
+
+        Vote vote = voteRepository.findById(toktok.getVote().getId()).get();
+        // 투표 종료 된 글은 투표 관련 사항 수정 불가
+        if (vote.getIsEnd().equals(true) && (request.getVoteTitle() != null
+            || request.getVoteOption() != null ||
+            request.getVoteIsAnonymous() != null || request.getVoteIsSingle() != null)) {
+            throw new CustomException(VOTE_IS_END);
+        }
+
+
+        List<VoteOption> voteOption = voteOptionRepository.findByVote(vote);
+        if (request.getVoteTitle() != null) {
+            vote.update(request);
+            voteOptionRepository.deleteAll(voteOption);
+
+//            for (String option : request.getVoteOption()) {
+//                VoteOption vote_option = VoteOption.builder()
+//                    .vote(vote)
+//                    .opt(option)
+//                    .build();
+//                voteOptionRepository.save(vote_option);
+//            }
+        }
+
+        // 태그 수정
+        if (request.getTag() != null) {
+            List<Tag> tags = tagRepository.findByToktok(toktok);
+            tagRepository.deleteAll(tags);
+            List<String> tagList = request.getTag();
+            for (String tag : tagList) {
+                Tag newTag = Tag.builder().toktok(toktok).tag(tag).build();
+                tagRepository.save(newTag);
+            }
+        }
+
+
+
+        CategoryType categoryType = viewCategory(request.getCategory());
+        //톡톡 게시글 수정
+//        toktok.update(request, categoryType, vote);
+
+        //이미지 수정
+//        if (files.size() == 1) {
+//            String imgUrl = awsS3Service.uploadImage(files.get(0));
+//            List<Image> uploadImg = imageRepository.findByToktok(toktok);
+//            uploadImg.get(0).update(imgUrl);
+//        }
+//        else {
+//            List<String> imgUrls = awsS3Service.uploadImage(files);
+//            int i = 0;
+//            List<Image> uploadImg = imageRepository.findByToktok(toktok);
+//            for (Image image : uploadImg) {
+//                image.update(imgUrls.get(i));
+//                i += 1;
+//            }
+//            //이미지 추가하는 경우
+//        }
+    }
+
     public CategoryType viewCategory(int category) {
         CategoryType categoryType = Arrays.stream(CategoryType.values())
-                .filter(c -> c.getValue() == category)
-                .findAny().get();
+            .filter(c -> c.getValue() == category)
+            .findAny().get();
         return categoryType;
     }
 }

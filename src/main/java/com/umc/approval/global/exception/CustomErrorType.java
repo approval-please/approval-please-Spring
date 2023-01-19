@@ -23,6 +23,9 @@ public enum CustomErrorType {
     LOGIN_FAILED(UNAUTHORIZED, 20003, "아이디 또는 비밀번호가 일치하지 않습니다."),
     USER_NOT_FOUND(NOT_FOUND, 20004, "사용자를 찾을 수 없습니다."),
 
+    // Toktok (3xxxx)
+    TOKTOKPOST_NOT_FOUND(NOT_FOUND, 30001, "해당 게시글은 없는 게시글 입니다."),
+    VOTE_IS_END(BAD_REQUEST, 30002, "투표가 종료된 글은 투표 관련 사항들의 수정이 불가합니다."),
 
     // Image (8xxxx)
     IMAGE_UPLOAD_FAILED(BAD_REQUEST, 80001, "이미지 업로드에 실패했습니다."),
