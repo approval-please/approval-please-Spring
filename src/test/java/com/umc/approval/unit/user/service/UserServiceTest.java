@@ -52,6 +52,57 @@ public class UserServiceTest {
                 .build();
     }
 
+    @DisplayName("이메일 확인에 성공한다 - 존재X")
+    @Test
+    void email_check_not_exist_success() {
+
+        // given
+        given(userRepository.findByEmail(any())).willReturn(Optional.empty());
+        UserDto.EmailCheckRequest requestDto = new UserDto.EmailCheckRequest("test@test.com");
+
+        // when
+        UserDto.EmailCheckResponse response = userService.emailCheck(requestDto);
+
+        // then
+        assertThat(response.getStatus()).isEqualTo(0);
+    }
+
+    @DisplayName("이메일 확인에 성공한다 - 일반계정")
+    @Test
+    void email_check_normal_success() {
+
+        // given
+        User user = createUser(1L);
+        given(userRepository.findByEmail(any())).willReturn(Optional.of(user));
+        UserDto.EmailCheckRequest requestDto = new UserDto.EmailCheckRequest(user.getEmail());
+
+        // when
+        UserDto.EmailCheckResponse response = userService.emailCheck(requestDto);
+
+        // then
+        assertThat(response.getStatus()).isEqualTo(1);
+    }
+
+    @DisplayName("이메일 확인에 성공한다 - SNS계정")
+    @Test
+    void email_check_sns_success() {
+
+        // given
+        User user = User.builder()
+                .email("test@test.com")
+                .socialId(1234L)
+                .socialType(SocialType.KAKAO)
+                .build();
+        given(userRepository.findByEmail(any())).willReturn(Optional.of(user));
+        UserDto.EmailCheckRequest requestDto = new UserDto.EmailCheckRequest(user.getEmail());
+
+        // when
+        UserDto.EmailCheckResponse response = userService.emailCheck(requestDto);
+
+        // then
+        assertThat(response.getStatus()).isEqualTo(2);
+    }
+
     @DisplayName("sns 회원가입에 성공한다 - 카카오")
     @Test
     void sns_signup_kakao_success() {
