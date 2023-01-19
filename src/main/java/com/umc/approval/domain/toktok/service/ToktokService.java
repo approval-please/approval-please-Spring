@@ -133,19 +133,19 @@ public class ToktokService {
             throw new CustomException(VOTE_IS_END);
         }
 
-
+        // 투표 수정
         List<VoteOption> voteOption = voteOptionRepository.findByVote(vote);
         if (request.getVoteTitle() != null) {
             vote.update(request);
             voteOptionRepository.deleteAll(voteOption);
 
-//            for (String option : request.getVoteOption()) {
-//                VoteOption vote_option = VoteOption.builder()
-//                    .vote(vote)
-//                    .opt(option)
-//                    .build();
-//                voteOptionRepository.save(vote_option);
-//            }
+            for (String option : request.getVoteOption()) {
+                VoteOption vote_option = VoteOption.builder()
+                    .vote(vote)
+                    .opt(option)
+                    .build();
+                voteOptionRepository.save(vote_option);
+            }
         }
 
         // 태그 수정
@@ -159,11 +159,22 @@ public class ToktokService {
             }
         }
 
+        // 링크 수정
+        if (request.getLinkUrl() != null) {
+            List<Link> links = linkRepository.findByToktok(toktok);
+            linkRepository.deleteAll(links);
+            List<String> linkList = request.getLinkUrl();
+            for(String link : linkList) {
+                Link newLink = Link.builder().toktok(toktok).linkUrl(link).build();
+                linkRepository.save(newLink);
+            }
+        }
+
 
 
         CategoryType categoryType = viewCategory(request.getCategory());
         //톡톡 게시글 수정
-//        toktok.update(request, categoryType, vote);
+        toktok.update(request, categoryType, vote);
 
         //이미지 수정
 //        if (files.size() == 1) {
