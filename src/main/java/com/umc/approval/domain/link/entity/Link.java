@@ -29,10 +29,6 @@ public class Link extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "document_id")
-    private Document document;
-
-    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "toktok_id")
     private Toktok toktok;
 

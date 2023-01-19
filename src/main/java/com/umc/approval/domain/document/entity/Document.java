@@ -53,4 +53,7 @@ public class Document extends BaseTimeEntity {
 
     @Column(columnDefinition = "tinyint(1) default 1", nullable = false)
     private Boolean notification;
+
+    @Column
+    private String linkUrl;
 }
