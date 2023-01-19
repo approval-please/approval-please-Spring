@@ -16,6 +16,14 @@ public class UserController {
 
     private final UserService userService;
 
+    @PostMapping("/auth/duplicate/email")
+    public ResponseEntity<Void> emailDuplicateCheck(
+            @RequestBody final UserDto.EmailCheckRequest emailCheckRequest
+    ) {
+        userService.emailDuplicateCheck(emailCheckRequest);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/auth/signup")
     public ResponseEntity<Void> signup(
             @RequestBody final UserDto.Request userCreateRequest

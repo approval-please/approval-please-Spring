@@ -4,8 +4,15 @@ import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.global.type.SocialType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 public class UserDto {
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class EmailCheckRequest { //이메일 체크 Request
+        private String email;
+    }
 
     @Getter
     @AllArgsConstructor

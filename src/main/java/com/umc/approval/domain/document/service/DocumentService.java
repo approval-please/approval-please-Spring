@@ -16,14 +16,17 @@ import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import com.umc.approval.global.type.CategoryType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.swing.text.html.Option;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
-import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
+import static com.umc.approval.global.exception.CustomErrorType.*;
 
 @Transactional
 @RequiredArgsConstructor
@@ -39,9 +42,7 @@ public class DocumentService {
     private final ImageRepository imageRepository;
 
     public void createDocument(DocumentDto.PostDocumentRequest request, List<MultipartFile> images) {
-
-        User user = userRepository.findById(jwtService.getId())
-                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+        User user = certifyUser();
 
         // 해당하는 카테고리 찾기
         CategoryType categoryType = Arrays.stream(CategoryType.values())
@@ -57,6 +58,7 @@ public class DocumentService {
                 .state(2) //승인대기중
                 .view(0L)
                 .notification(true)
+                .linkUrl(request.getLinkUrl())
                 .build();
         documentRepository.save(document);
 
@@ -64,11 +66,6 @@ public class DocumentService {
             for (String tag : request.getTag()) {
                 Tag newTag = Tag.builder().document(document).tag(tag).build();
                 tagRepository.save(newTag);
-            }
-        if (request.getLinkUrl() != null)
-            for (String link : request.getLinkUrl()) {
-                Link newLink = Link.builder().document(document).linkUrl(link).build();
-                linkRepository.save(newLink);
             }
         if (images != null) {
             if (images.size() == 1) {
@@ -83,5 +80,50 @@ public class DocumentService {
                 }
             }
         }
+    }
+
+
+    public void deleteDocument(Long documentId) {
+        // 게시글 존재 유무, 삭제 권한 확인
+        Document document = findDocument(documentId);
+        User user = certifyUser();
+        if(user.getId() != document.getUser().getId()){
+            throw new CustomException(NO_PERMISSION);
+        }
+
+        // tag 삭제
+        List<Tag> tagList = tagRepository.findByDocumentId(documentId);
+        if(tagList != null){
+            for(Tag tag: tagList){
+                tagRepository.deleteById(tag.getId());
+            }
+        }
+
+        // image 삭제
+        List<Image> imageList = imageRepository.findByDocumentId(documentId);
+        if(imageList != null){
+            imageRepository.deleteByDocumentId(documentId);
+            for(Image image: imageList){
+                awsS3Service.deleteImage(image.getImageUrl());
+            }
+        }
+
+        // document 삭제
+        documentRepository.deleteById(documentId);
+    }
+
+
+    private User certifyUser(){
+        User user = userRepository.findById(jwtService.getId())
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+        return user;
+    }
+
+    private Document findDocument(Long documentId){
+        Optional<Document> document = documentRepository.findById(documentId);
+        if(document.isEmpty()){
+            throw new CustomException(DOCUMENT_NOT_FOUND);
+        }
+        return document.get();
     }
 }
