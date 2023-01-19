@@ -49,6 +49,9 @@ public class Vote extends BaseTimeEntity {
     @Column(nullable = false)
     private Boolean isEnd;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "vote", cascade = CascadeType.REMOVE)
+    private List<VoteOption> voteOptionList = new ArrayList<>();
+
     public void update(PostToktokRequest request) {
         this.title = request.getVoteTitle();
         this.isSingle = request.getVoteIsSingle();
