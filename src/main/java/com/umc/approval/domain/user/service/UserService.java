@@ -35,6 +35,19 @@ public class UserService {
                 });
     }
 
+    public UserDto.EmailCheckResponse emailCheck(UserDto.EmailCheckRequest requestDto) {
+        User user = userRepository.findByEmail(requestDto.getEmail())
+                .orElse(null);
+
+        if (user == null) {
+            return new UserDto.EmailCheckResponse(0);
+        } else if (user.getSocialType() == null) {
+            return new UserDto.EmailCheckResponse(1);
+        } else {
+            return new UserDto.EmailCheckResponse(2);
+        }
+    }
+
     public void signup(UserDto.NormalRequest userCreateNormalRequest) {
         // 이메일 중복 체크
         emailDuplicateValidation(userCreateNormalRequest.getEmail());
