@@ -59,20 +59,8 @@ public class ToktokService {
         //투표 등록
         Vote vote = null;
         if (request.getVoteTitle() != null) {
-            vote = Vote.builder()
-                .title(request.getVoteTitle())
-                .isSingle(request.getVoteIsSingle())
-                .isAnonymous(request.getVoteIsAnonymous())
-                .isEnd(false)
-                .build();
-            voteRepository.save(vote);
-            for (String option : request.getVoteOption()) {
-                VoteOption voteOption = VoteOption.builder()
-                    .vote(vote)
-                    .opt(option)
-                    .build();
-                voteOptionRepository.save(voteOption);
-            }
+            vote = createVote(request);
+            createVoteOption(request.getVoteOption(), vote);
         }
 
         //카테고리 등록
@@ -93,19 +81,13 @@ public class ToktokService {
         //링크 등록
         if (request.getLinkUrl() != null) {
             List<String> linkList = request.getLinkUrl();
-            for (String link : linkList) {
-                Link newLink = Link.builder().toktok(toktok).linkUrl(link).build();
-                linkRepository.save(newLink);
-            }
+            createLink(linkList, toktok);
         }
 
         //태그 등록
         if (request.getTag() != null) {
             List<String> tagList = request.getTag();
-            for (String tag : tagList) {
-                Tag newTag = Tag.builder().toktok(toktok).tag(tag).build();
-                tagRepository.save(newTag);
-            }
+            createTag(tagList, toktok);
         }
 
         //aws 이미지 저장
@@ -128,54 +110,38 @@ public class ToktokService {
         Toktok toktok = toktokRepository.findById(id)
             .orElseThrow(() -> new CustomException(TOKTOKPOST_NOT_FOUND));
 
-
         // 태그 수정
+        List<Tag> tags = tagRepository.findByToktokId(toktok.getId());
+        if (tags != null && !tags.isEmpty()) {
+            tagRepository.deleteAll(tags);
+        }
         if (request.getTag() != null) {
-            List<Tag> tags = tagRepository.findByToktokId(toktok.getId());
-            if(tags != null && !tags.isEmpty()) {
-                tagRepository.deleteAll(tags);
-            }
             List<String> tagList = request.getTag();
-            if(tagList != null & !tagList.isEmpty()){
-                for (String tag : tagList) {
-                    Tag newTag = Tag.builder().toktok(toktok).tag(tag).build();
-                    tagRepository.save(newTag);
-                }
+            if (tagList != null && !tagList.isEmpty()) {
+                createTag(tagList, toktok);
             }
         }
 
         // 링크 수정
-        if (request.getLinkUrl() != null) {
-            List<Link> links = linkRepository.findByToktokId(toktok.getId());
+        List<Link> links = linkRepository.findByToktokId(toktok.getId());
+        if (links != null && !links.isEmpty()) {
             linkRepository.deleteAll(links);
+        }
+        if (request.getLinkUrl() != null) {
             List<String> linkList = request.getLinkUrl();
-            for(String link : linkList) {
-                Link newLink = Link.builder().toktok(toktok).linkUrl(link).build();
-                linkRepository.save(newLink);
+            if (linkList != null && !linkList.isEmpty()) {
+                createLink(linkList, toktok);
             }
         }
 
         CategoryType categoryType = viewCategory(request.getCategory());
 
-        // 없었던 투표를 추가하여 수정하는 경우
-        if(toktok.getVote() == null && request.getVoteTitle() != null) {
-            Vote vote = Vote.builder()
-                .title(request.getVoteTitle())
-                .isSingle(request.getVoteIsSingle())
-                .isAnonymous(request.getVoteIsAnonymous())
-                .isEnd(false)
-                .build();
-            voteRepository.save(vote);
-            for (String option : request.getVoteOption()) {
-                VoteOption voteOption = VoteOption.builder()
-                    .vote(vote)
-                    .opt(option)
-                    .build();
-                voteOptionRepository.save(voteOption);
-            }
+        // 없었던 투표를 새로 생성하는 경우
+        if (toktok.getVote() == null && request.getVoteTitle() != null) {
+            Vote vote = createVote(request);
+            createVoteOption(request.getVoteOption(), vote);
             toktok.update(request, categoryType, vote);
-        }
-        else if(toktok.getVote() != null) {
+        } else if (toktok.getVote() != null) {
             Optional<Vote> vote = voteRepository.findById(toktok.getVote().getId());
             Vote getVote = vote.get();
             List<VoteOption> voteOption = voteOptionRepository.findByVote(getVote);
@@ -187,23 +153,19 @@ public class ToktokService {
                 entityManager.clear();
                 voteRepository.delete(getVote);
             } else if (toktok.getVote() != null && request.getVoteTitle() != null) {
+                // 있었던 투표를 수정하는 경우
                 getVote.update(request);
-                for (String option : request.getVoteOption()) {
-                    VoteOption voteOptions = VoteOption.builder()
-                        .vote(getVote)
-                        .opt(option)
-                        .build();
-                    voteOptionRepository.save(voteOptions);
-                }
+                createVoteOption(request.getVoteOption(), getVote);
             }
             toktok.update(request, categoryType, getVote);
         } else {
+            // 없는 투표를 새로 만들지 않는 경우
             toktok.update(request, categoryType, null);
         }
 
         //이미지 수정
         List<Image> images = imageRepository.findByToktokId(toktok.getId());
-        if(images != null && !images.isEmpty()) {
+        if (images != null && !images.isEmpty()) {
             imageRepository.deleteAll(images);
         }
 
@@ -213,7 +175,7 @@ public class ToktokService {
             imageRepository.save(uploadImg);
 
         } else {
-            if(files != null && !files.isEmpty()) {
+            if (files != null && !files.isEmpty()) {
                 List<String> imgUrls = awsS3Service.uploadImage(files);
                 for (String imgUrl : imgUrls) {
                     Image uploadImg = Image.builder().toktok(toktok).imageUrl(imgUrl).build();
@@ -228,5 +190,39 @@ public class ToktokService {
             .filter(c -> c.getValue() == category)
             .findAny().get();
         return categoryType;
+    }
+
+    public Vote createVote(ToktokDto.PostToktokRequest request) {
+        Vote vote = Vote.builder()
+            .title(request.getVoteTitle())
+            .isSingle(request.getVoteIsSingle())
+            .isAnonymous(request.getVoteIsAnonymous())
+            .isEnd(false)
+            .build();
+        return voteRepository.save(vote);
+    }
+
+    public void createVoteOption(List<String> voteOptionList, Vote vote) {
+        for (String option : voteOptionList) {
+            VoteOption voteOption = VoteOption.builder()
+                .vote(vote)
+                .opt(option)
+                .build();
+            voteOptionRepository.save(voteOption);
+        }
+    }
+
+    public void createLink(List<String> linkList, Toktok toktok) {
+        for (String link : linkList) {
+            Link newLink = Link.builder().toktok(toktok).linkUrl(link).build();
+            linkRepository.save(newLink);
+        }
+    }
+
+    public void createTag(List<String> tagList, Toktok toktok) {
+        for (String tag : tagList) {
+            Tag newTag = Tag.builder().toktok(toktok).tag(tag).build();
+            tagRepository.save(newTag);
+        }
     }
 }
