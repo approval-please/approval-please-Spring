@@ -24,6 +24,11 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/auth/email")
+    public ResponseEntity<UserDto.EmailCheckResponse> emailCheck(@RequestBody UserDto.EmailCheckRequest requestDto) {
+        return ResponseEntity.ok(userService.emailCheck(requestDto));
+    }
+
     @PostMapping("/auth/signup")
     public ResponseEntity<Void> signup(
             @RequestBody final UserDto.NormalRequest userCreateNormalRequest

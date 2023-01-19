@@ -14,6 +14,11 @@ public class UserDto {
         private String email;
     }
 
+    @AllArgsConstructor
+    public static class EmailCheckResponse {
+        private Integer status;
+    }
+
     @Getter
     @AllArgsConstructor
     public static class NormalRequest {   // 일반 유저 등록 Request
