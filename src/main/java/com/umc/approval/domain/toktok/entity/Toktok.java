@@ -57,4 +57,8 @@ public class Toktok extends BaseTimeEntity {
         this.content = request.getContent();
         this.vote = vote;
     }
+
+    public void deleteVote() {
+        this.vote = null;
+    }
 }

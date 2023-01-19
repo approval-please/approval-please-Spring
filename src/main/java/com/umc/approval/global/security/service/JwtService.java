@@ -42,10 +42,32 @@ public class JwtService {
     public static final String CLAIM_ID = "id";
     public static final String CLAIM_ROLE = "role";
 
-    /* 기본적으로 로그인은 필수가 아니지만, 특정 기능에 대해서 access token이 필요한 경우
+    /* 기본적으로 로그인은 필수가 아니지만, 특정 기능에 대해서 로그인 여부 확인이 필요한 경우
      * 로그인이 되어있지 않을 수 있으므로 SecurityContextHolder에 token이 저장되어 있지 않을 수 있음
-     * Request Header에서 직접 token을 가져온다
+     * Request Header에서 직접 token을 가져와 userId를 꺼내온다.
+     * 로그인 된 경우 : userId 리턴
+     * 로그인 안된 경우 : null 리턴
+     * ex) 타 사원증 조회 시
+     * 타 사원증 조회 시 기본적으로 로그인 하지 않은 사용자도 조회가 가능하다
+     * but, 안드 측에서 [팔로우] or [팔로우 취소] 와 같은 ui 처리를 위해서는
+     * 해당 사원이 팔로우 되어있는지 여부를 판단하는 Boolean isFollow 가 필요
+     * 로그인 안한 경우 - isFollow = false
+     * 로그인 한 경우 - isFollow = 팔로우 여부에 따라 true/false
      */
+    public Long getIdDirectHeader(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+        if (authorizationHeader == null || !authorizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {
+            return null;
+        }
+        String accessToken = authorizationHeader.substring(TOKEN_HEADER_PREFIX.length());
+        try {
+            DecodedJWT decodedJWT = verifyToken(accessToken);
+            return decodedJWT.getClaim(CLAIM_ID).asLong();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public String getToken(HttpServletRequest request) {
         String authorizationHeader = request.getHeader(AUTHORIZATION);
         if (authorizationHeader == null || !authorizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {

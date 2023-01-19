@@ -21,6 +21,7 @@ import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import com.umc.approval.global.type.CategoryType;
 import java.util.Optional;
+import javax.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,6 +49,7 @@ public class ToktokService {
     private final LinkRepository linkRepository;
     private final TagRepository tagRepository;
     private final ImageRepository imageRepository;
+    private final EntityManager entityManager;
 
     public void createPost(ToktokDto.PostToktokRequest request, List<MultipartFile> files) {
 
@@ -121,7 +123,7 @@ public class ToktokService {
         }
     }
 
-    public void updatePost(@PathVariable Long id, ToktokDto.PostToktokRequest request,
+    public void updatePost(Long id, ToktokDto.PostToktokRequest request,
         List<MultipartFile> files) {
         Toktok toktok = toktokRepository.findById(id)
             .orElseThrow(() -> new CustomException(TOKTOKPOST_NOT_FOUND));
@@ -129,18 +131,22 @@ public class ToktokService {
 
         // 태그 수정
         if (request.getTag() != null) {
-            List<Tag> tags = tagRepository.findByToktok(toktok);
-            tagRepository.deleteAll(tags);
+            List<Tag> tags = tagRepository.findByToktokId(toktok.getId());
+            if(tags != null && !tags.isEmpty()) {
+                tagRepository.deleteAll(tags);
+            }
             List<String> tagList = request.getTag();
-            for (String tag : tagList) {
-                Tag newTag = Tag.builder().toktok(toktok).tag(tag).build();
-                tagRepository.save(newTag);
+            if(tagList != null & !tagList.isEmpty()){
+                for (String tag : tagList) {
+                    Tag newTag = Tag.builder().toktok(toktok).tag(tag).build();
+                    tagRepository.save(newTag);
+                }
             }
         }
 
         // 링크 수정
         if (request.getLinkUrl() != null) {
-            List<Link> links = linkRepository.findByToktok(toktok);
+            List<Link> links = linkRepository.findByToktokId(toktok.getId());
             linkRepository.deleteAll(links);
             List<String> linkList = request.getLinkUrl();
             for(String link : linkList) {
@@ -168,20 +174,20 @@ public class ToktokService {
                 voteOptionRepository.save(voteOption);
             }
             toktok.update(request, categoryType, vote);
-
         }
-        else {
+        else if(toktok.getVote() != null) {
             Optional<Vote> vote = voteRepository.findById(toktok.getVote().getId());
             Vote getVote = vote.get();
             List<VoteOption> voteOption = voteOptionRepository.findByVote(getVote);
             voteOptionRepository.deleteAll(voteOption);
             // 있었던 투표를 없애는 경우
             if (getVote.getTitle() != null && request.getVoteTitle() == null) {
+                toktok.deleteVote();
+                entityManager.flush();
+                entityManager.clear();
                 voteRepository.delete(getVote);
             } else if (toktok.getVote() != null && request.getVoteTitle() != null) {
-                voteOptionRepository.deleteAll(voteOption);
                 getVote.update(request);
-
                 for (String option : request.getVoteOption()) {
                     VoteOption voteOptions = VoteOption.builder()
                         .vote(getVote)
@@ -191,22 +197,28 @@ public class ToktokService {
                 }
             }
             toktok.update(request, categoryType, getVote);
+        } else {
+            toktok.update(request, categoryType, null);
         }
 
         //이미지 수정
-        List<Image> images = imageRepository.findByToktok(toktok);
-        imageRepository.deleteAll(images);
+        List<Image> images = imageRepository.findByToktokId(toktok.getId());
+        if(images != null && !images.isEmpty()) {
+            imageRepository.deleteAll(images);
+        }
 
-        if (files.size() == 1) {
+        if (files != null && files.size() == 1) {
             String imgUrl = awsS3Service.uploadImage(files.get(0));
             Image uploadImg = Image.builder().toktok(toktok).imageUrl(imgUrl).build();
             imageRepository.save(uploadImg);
 
         } else {
-            List<String> imgUrls = awsS3Service.uploadImage(files);
-            for (String imgUrl : imgUrls) {
-                Image uploadImg = Image.builder().toktok(toktok).imageUrl(imgUrl).build();
-                imageRepository.save(uploadImg);
+            if(files != null && !files.isEmpty()) {
+                List<String> imgUrls = awsS3Service.uploadImage(files);
+                for (String imgUrl : imgUrls) {
+                    Image uploadImg = Image.builder().toktok(toktok).imageUrl(imgUrl).build();
+                    imageRepository.save(uploadImg);
+                }
             }
         }
     }

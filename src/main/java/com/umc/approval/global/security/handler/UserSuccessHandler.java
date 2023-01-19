@@ -31,6 +31,7 @@ public class UserSuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
         User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("가입된 이메일이 존재하지 않습니다."));
 
@@ -39,6 +40,14 @@ public class UserSuccessHandler implements AuthenticationSuccessHandler {
         String refreshToken = jwtService.createRefreshToken(user.getEmail());
         user.updateRefreshToken(refreshToken);
         response.setContentType(APPLICATION_JSON_VALUE);
-        new ObjectMapper().writeValue(response.getWriter(), new UserDto.TokenResponse(accessToken, refreshToken));
+        // SNS 유저 로그인 response
+        if (user.getSocialType() != null) {
+            new ObjectMapper().writeValue(response.getWriter(),
+                    new UserDto.SnsTokenResponse(false, user.getSocialId(), user.getSocialType(), accessToken, refreshToken));
+        } else {
+            // 일반 유저 로그인 response
+            new ObjectMapper().writeValue(response.getWriter(),
+                    new UserDto.NormalTokenResponse(accessToken, refreshToken));
+        }
     }
 }

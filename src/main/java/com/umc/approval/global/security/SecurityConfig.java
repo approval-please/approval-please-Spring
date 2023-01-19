@@ -1,7 +1,10 @@
 package com.umc.approval.global.security;
 
+import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.security.filter.CustomAuthenticationFilter;
 import com.umc.approval.global.security.filter.CustomAuthorizationFilter;
+import com.umc.approval.global.security.filter.CustomKakaoAuthenticationFilter;
+import com.umc.approval.global.security.service.KakaoOAuth2Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +30,9 @@ public class SecurityConfig {
     private final AuthenticationFailureHandler failureHandler;
     private final AuthenticationManagerBuilder authManagerBuilder;
 
+    private final KakaoOAuth2Service kakaoOAuth2Service;
+    private final UserRepository userRepository;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
@@ -37,10 +43,18 @@ public class SecurityConfig {
         authenticationFilter.setAuthenticationSuccessHandler(successHandler);
         authenticationFilter.setAuthenticationFailureHandler(failureHandler);
 
+        // 카카오 로그인 인증 필터
+        CustomKakaoAuthenticationFilter customKakaoAuthenticationFilter
+                = new CustomKakaoAuthenticationFilter(kakaoOAuth2Service, userRepository, authManagerBuilder.getOrBuild());
+        customKakaoAuthenticationFilter.setFilterProcessesUrl("/auth/kakao");
+        customKakaoAuthenticationFilter.setAuthenticationSuccessHandler(successHandler);
+        customKakaoAuthenticationFilter.setAuthenticationFailureHandler(failureHandler);
+
         http.csrf().disable()
                 .sessionManagement()
                 .sessionCreationPolicy(STATELESS) // Using JWT
                 .and()
+                .addFilter(customKakaoAuthenticationFilter)
                 .addFilter(authenticationFilter)
                 .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authenticationProvider(authenticationProvider)

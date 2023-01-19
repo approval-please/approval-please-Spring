@@ -16,14 +16,30 @@ public class UserController {
 
     private final UserService userService;
 
+    @PostMapping("/auth/duplicate/email")
+    public ResponseEntity<Void> emailDuplicateCheck(
+            @RequestBody final UserDto.EmailCheckRequest emailCheckRequest
+    ) {
+        userService.emailDuplicateCheck(emailCheckRequest);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/auth/signup")
+    public ResponseEntity<Void> signup(
+            @RequestBody final UserDto.Request userCreateRequest
+    ) {
+        userService.signup(userCreateRequest);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/auth/logout")
     public ResponseEntity<Void> logout() {
         userService.logout();
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/auth/refresh")
-    public ResponseEntity<UserDto.TokenResponse> refresh(HttpServletRequest request) {
+    @PostMapping("auth/refresh")
+    public ResponseEntity<UserDto.NormalTokenResponse> refresh(HttpServletRequest request) {
         return ResponseEntity.ok(userService.refresh(request));
     }
 

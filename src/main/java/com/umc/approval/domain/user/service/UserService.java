@@ -10,9 +10,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.servlet.http.HttpServletRequest;
-import static com.umc.approval.global.exception.CustomErrorType.INVALID_TOKEN;
-import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
+
+import static com.umc.approval.global.exception.CustomErrorType.*;
 import static com.umc.approval.global.security.service.JwtService.TOKEN_REFRESH_DAYS;
 
 @Transactional
@@ -24,13 +25,42 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    public void emailDuplicateCheck(UserDto.EmailCheckRequest emailCheckRequest){
+        // 이메일 중복 체크
+        userRepository.findByEmail(emailCheckRequest.getEmail())
+                .ifPresent(user -> {
+                    throw new CustomException(EMAIL_ALREADY_EXIST);
+                });
+    }
+
+    public void signup(UserDto.Request userCreateRequest) {
+        // 이메일 중복 체크
+        userRepository.findByEmail(userCreateRequest.getEmail())
+                .ifPresent(user -> {
+                    throw new CustomException(EMAIL_ALREADY_EXIST);
+                });
+
+        // 전화번호 중복 체크
+        userRepository.findByPhoneNumber(userCreateRequest.getPhoneNumber())
+                .ifPresent(user -> {
+                    throw new CustomException(PHONE_NUMBER_ALREADY_EXIST);
+                });
+
+        // 비밀번호 암호화
+        String encodedPassword = passwordEncoder.encode(userCreateRequest.getPassword());
+
+        // 사용자 등록
+        User user = userCreateRequest.toEntity(encodedPassword);
+        userRepository.save(user);
+    }
+
     public void logout() {
         User user = userRepository.findById(jwtService.getId())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
         user.deleteRefreshToken();
     }
 
-    public UserDto.TokenResponse refresh(HttpServletRequest request) {
+    public UserDto.NormalTokenResponse refresh(HttpServletRequest request) {
         // Refresh Token 유효성 검사
         String refreshToken = jwtService.getToken(request);
         DecodedJWT decodedJWT = jwtService.verifyToken(refreshToken);
@@ -46,16 +76,16 @@ public class UserService {
 
         // refresh token 유효성 검사 완료 후 -> access token 재발급
         String accessToken = jwtService.createAccessToken(user.getEmail(), user.getId());
-        UserDto.TokenResponse tokenResponse = new UserDto.TokenResponse(accessToken, null);
+        UserDto.NormalTokenResponse normalTokenResponse = new UserDto.NormalTokenResponse(accessToken, null);
 
         // Refresh Token 만료시간 계산해 1개월 미만일 시 refresh token도 발급
         long diffDays = jwtService.calculateRefreshExpiredDays(decodedJWT);
         if (diffDays < TOKEN_REFRESH_DAYS) {
             String newRefreshToken = jwtService.createRefreshToken(user.getEmail());
-            tokenResponse.setRefreshToken(newRefreshToken);
+            normalTokenResponse.setRefreshToken(newRefreshToken);
             user.updateRefreshToken(newRefreshToken);
         }
-        return tokenResponse;
+        return normalTokenResponse;
     }
 
     public void resetPassword(UserDto.ResetPasswordRequest requestDto) {
