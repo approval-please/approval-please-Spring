@@ -48,7 +48,7 @@ public class KakaoOAuth2Service {
             return profile.getId();
 
         } catch (Exception e) {
-            throw new AuthenticationCredentialsNotFoundException("카카오 로그인 인증에 실패했습니다.");
+            throw new AuthenticationCredentialsNotFoundException("SNS 로그인에 실패했습니다.");
         }
     }
 }
