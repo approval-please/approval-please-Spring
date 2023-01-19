@@ -63,6 +63,63 @@ public class UserServiceIntegrationTest {
                 .build();
     }
 
+    @DisplayName("이메일 확인에 성공한다 - 존재X")
+    @Test
+    void email_check_not_exist_success() {
+
+        // given
+        UserDto.EmailCheckRequest requestDto = new UserDto.EmailCheckRequest("test@test.com");
+
+        // when
+        UserDto.EmailCheckResponse response = userService.emailCheck(requestDto);
+
+        // then
+        assertThat(response.getStatus()).isEqualTo(0);
+    }
+
+    @DisplayName("이메일 확인에 성공한다 - 일반계정")
+    @Test
+    void email_check_normal_success() {
+
+        // given
+        User user = createUser(1L);
+        userRepository.save(user);
+        UserDto.EmailCheckRequest requestDto = new UserDto.EmailCheckRequest(user.getEmail());
+
+        // when
+        UserDto.EmailCheckResponse response = userService.emailCheck(requestDto);
+
+        // then
+        assertThat(response.getStatus()).isEqualTo(1);
+
+    }
+
+    @DisplayName("이메일 확인에 성공한다 - SNS계정")
+    @Test
+    void email_check_sns_success() {
+
+        // given
+        User user = User.builder()
+                .nickname("test")
+                .email("test@test.com")
+                .password("test1234!")
+                .phoneNumber("010-1234-5678")
+                .socialId(1234L)
+                .socialType(KAKAO)
+                .level(0)
+                .promotionPoint(0L)
+                .build();
+        userRepository.save(user);
+        UserDto.EmailCheckRequest requestDto = new UserDto.EmailCheckRequest(user.getEmail());
+
+        // when
+        UserDto.EmailCheckResponse response = userService.emailCheck(requestDto);
+
+        // then
+        assertThat(response.getStatus()).isEqualTo(2);
+
+    }
+
     @DisplayName("sns 회원가입에 성공한다 - 카카오")
     @Test
     void sns_signup_kakao_success() {
@@ -88,8 +145,6 @@ public class UserServiceIntegrationTest {
         // given
         User user = createUser(1L);
         userRepository.save(user);
-        em.flush();
-        em.clear();
         UserDto.SnsRequest requestDto = new UserDto.SnsRequest(
                 "test", user.getEmail(), "010-1234-5678", KAKAO, 12345L);
 
@@ -105,8 +160,6 @@ public class UserServiceIntegrationTest {
         // given
         User user = createUser(1L);
         userRepository.save(user);
-        em.flush();
-        em.clear();
         UserDto.SnsRequest requestDto = new UserDto.SnsRequest(
                 "test", "test@test.com", user.getPhoneNumber(), KAKAO, 12345L);
 
@@ -125,8 +178,6 @@ public class UserServiceIntegrationTest {
         String accessToken = jwtService.createAccessToken(user.getEmail(), user.getId());
         String refreshToken = jwtService.createRefreshToken(user.getEmail());
         user.updateRefreshToken(refreshToken);
-        em.flush();
-        em.clear();
 
         // SecurityContextHolder에 accessToken 포함하여 저장
         List<SimpleGrantedAuthority> authorities
@@ -153,8 +204,6 @@ public class UserServiceIntegrationTest {
         String accessToken = jwtService.createAccessToken(user.getEmail() + "dum", user.getId() + 1L);
         String refreshToken = jwtService.createRefreshToken(user.getEmail());
         user.updateRefreshToken(refreshToken);
-        em.flush();
-        em.clear();
 
         // SecurityContextHolder에 accessToken 포함하여 저장
         List<SimpleGrantedAuthority> authorities
@@ -181,8 +230,6 @@ public class UserServiceIntegrationTest {
         // given
         User user = createUser(1L);
         userRepository.save(user);
-        em.flush();
-        em.clear();
         String newPassword = "testNew12345!";
         UserDto.ResetPasswordRequest requestDto = new UserDto.ResetPasswordRequest(user.getEmail(), newPassword);
 
@@ -201,8 +248,6 @@ public class UserServiceIntegrationTest {
         // given
         User user = createUser(1L);
         userRepository.save(user);
-        em.flush();
-        em.clear();
         String newPassword = "testNew12345!";
         // 존재하지 않는 사용자 이메일 입력
         UserDto.ResetPasswordRequest requestDto = new UserDto.ResetPasswordRequest("dummy@test.com", newPassword);
