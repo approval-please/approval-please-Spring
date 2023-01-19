@@ -35,6 +35,8 @@ public class UserFailureHandler implements AuthenticationFailureHandler {
             new ObjectMapper().writeValue(response.getWriter(), errorResponse);
         } else if (eClass.equals(FirstSnsLoginException.class)) {
             // SNS 최초 가입
+            response.setContentType(APPLICATION_JSON_VALUE);
+            response.setCharacterEncoding("utf-8");
             Long socialId = ((FirstSnsLoginException) exception).getSocialId();
             new ObjectMapper().writeValue(response.getWriter(),
                     new UserDto.SnsTokenResponse(true, socialId, null, null));
