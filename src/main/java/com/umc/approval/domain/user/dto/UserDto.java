@@ -14,6 +14,7 @@ public class UserDto {
         private String email;
     }
 
+    @Getter
     @AllArgsConstructor
     public static class EmailCheckResponse {
         private Integer status;
