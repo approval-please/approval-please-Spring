@@ -16,7 +16,7 @@ public class UserDto {
 
     @Getter
     @AllArgsConstructor
-    public static class Request {   //유저 등록 Request
+    public static class NormalRequest {   // 일반 유저 등록 Request
         private String nickname;
         private String email;
         private String password;
@@ -33,6 +33,16 @@ public class UserDto {
                     .promotionPoint(0L)
                     .build();
         }
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class SnsRequest {   // SNS 유저 등록 Request
+        private String nickname;
+        private String email;
+        private String phoneNumber;
+        private SocialType socialType;
+        private Long socialId;
     }
 
     @Getter
@@ -54,10 +64,6 @@ public class UserDto {
         private SocialType socialType;
         private String accessToken;
         private String refreshToken;
-
-        public void setRefreshToken(String refreshToken) {
-            this.refreshToken = refreshToken;
-        }
     }
 
     @Getter

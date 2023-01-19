@@ -33,24 +33,24 @@ public class UserService {
                 });
     }
 
-    public void signup(UserDto.Request userCreateRequest) {
+    public void signup(UserDto.NormalRequest userCreateNormalRequest) {
         // 이메일 중복 체크
-        userRepository.findByEmail(userCreateRequest.getEmail())
+        userRepository.findByEmail(userCreateNormalRequest.getEmail())
                 .ifPresent(user -> {
                     throw new CustomException(EMAIL_ALREADY_EXIST);
                 });
 
         // 전화번호 중복 체크
-        userRepository.findByPhoneNumber(userCreateRequest.getPhoneNumber())
+        userRepository.findByPhoneNumber(userCreateNormalRequest.getPhoneNumber())
                 .ifPresent(user -> {
                     throw new CustomException(PHONE_NUMBER_ALREADY_EXIST);
                 });
 
         // 비밀번호 암호화
-        String encodedPassword = passwordEncoder.encode(userCreateRequest.getPassword());
+        String encodedPassword = passwordEncoder.encode(userCreateNormalRequest.getPassword());
 
         // 사용자 등록
-        User user = userCreateRequest.toEntity(encodedPassword);
+        User user = userCreateNormalRequest.toEntity(encodedPassword);
         userRepository.save(user);
     }
 
