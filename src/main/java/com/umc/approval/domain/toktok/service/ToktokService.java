@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.umc.approval.global.exception.CustomErrorType.NO_PERMISSION;
 import static com.umc.approval.global.exception.CustomErrorType.TOKTOKPOST_NOT_FOUND;
 import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
 import static com.umc.approval.global.exception.CustomErrorType.VOTE_IS_END;
@@ -105,10 +106,17 @@ public class ToktokService {
         }
     }
 
-    public void updatePost(Long id, ToktokDto.PostToktokRequest request,
-        List<MultipartFile> files) {
+    public void updatePost(Long id, ToktokDto.PostToktokRequest request, List<MultipartFile> files) {
+
+        User user = userRepository.findById(jwtService.getId())
+            .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
         Toktok toktok = toktokRepository.findById(id)
             .orElseThrow(() -> new CustomException(TOKTOKPOST_NOT_FOUND));
+
+        if(user.getId() != toktok.getUser().getId()){
+            throw new CustomException(NO_PERMISSION);
+        }
 
         // 태그 수정
         List<Tag> tags = tagRepository.findByToktokId(toktok.getId());
