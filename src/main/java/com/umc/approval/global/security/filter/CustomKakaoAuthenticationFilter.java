@@ -26,7 +26,6 @@ public class CustomKakaoAuthenticationFilter extends UsernamePasswordAuthenticat
 
     private final KakaoOAuth2Service kakaoOAuth2Service;
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
     @Override
