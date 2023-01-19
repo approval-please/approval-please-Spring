@@ -25,10 +25,10 @@ public class UserDto {
         public User toEntity(String encodedPassword) {
             // 일반회원가입 최초 가입자는 level 0, promotionPoint 0L로 초기화
             return User.builder()
-                    .nickname(this.getNickname())
-                    .email(this.getEmail())
+                    .nickname(this.nickname)
+                    .email(this.email)
                     .password(encodedPassword)
-                    .phoneNumber(this.getPhoneNumber())
+                    .phoneNumber(this.phoneNumber)
                     .level(0)
                     .promotionPoint(0L)
                     .build();
@@ -43,6 +43,19 @@ public class UserDto {
         private String phoneNumber;
         private SocialType socialType;
         private Long socialId;
+
+        public User toEntity(String encodedPassword) {
+            return User.builder()
+                    .nickname(this.nickname)
+                    .email(this.getEmail())
+                    .password(encodedPassword)
+                    .phoneNumber(this.getPhoneNumber())
+                    .socialType(this.socialType)
+                    .socialId(this.socialId)
+                    .level(0)
+                    .promotionPoint(0L)
+                    .build();
+        }
     }
 
     @Getter
