@@ -60,7 +60,7 @@ public class UserService {
         user.deleteRefreshToken();
     }
 
-    public UserDto.TokenResponse refresh(HttpServletRequest request) {
+    public UserDto.NormalTokenResponse refresh(HttpServletRequest request) {
         // Refresh Token 유효성 검사
         String refreshToken = jwtService.getToken(request);
         DecodedJWT decodedJWT = jwtService.verifyToken(refreshToken);
@@ -76,16 +76,16 @@ public class UserService {
 
         // refresh token 유효성 검사 완료 후 -> access token 재발급
         String accessToken = jwtService.createAccessToken(user.getEmail(), user.getId());
-        UserDto.TokenResponse tokenResponse = new UserDto.TokenResponse(accessToken, null);
+        UserDto.NormalTokenResponse normalTokenResponse = new UserDto.NormalTokenResponse(accessToken, null);
 
         // Refresh Token 만료시간 계산해 1개월 미만일 시 refresh token도 발급
         long diffDays = jwtService.calculateRefreshExpiredDays(decodedJWT);
         if (diffDays < TOKEN_REFRESH_DAYS) {
             String newRefreshToken = jwtService.createRefreshToken(user.getEmail());
-            tokenResponse.setRefreshToken(newRefreshToken);
+            normalTokenResponse.setRefreshToken(newRefreshToken);
             user.updateRefreshToken(newRefreshToken);
         }
-        return tokenResponse;
+        return normalTokenResponse;
     }
 
     public void resetPassword(UserDto.ResetPasswordRequest requestDto) {

@@ -11,7 +11,7 @@ import static org.springframework.http.HttpStatus.*;
 public enum CustomErrorType {
 
     // TODO ErrorCode를 추가해주세요.
-    // JWT (1xxxx)
+    // Token (1xxxx)
     TOKEN_NOT_EXIST(BAD_REQUEST, 10001, "JWT Token이 존재하지 않습니다."),
     INVALID_TOKEN(BAD_REQUEST, 10002, "유효하지 않은 JWT Token 입니다."),
     ACCESS_TOKEN_EXPIRED(BAD_REQUEST, 10003, "만료된 Access Token 입니다."),
@@ -23,9 +23,11 @@ public enum CustomErrorType {
     LOGIN_FAILED(UNAUTHORIZED, 20003, "아이디 또는 비밀번호가 일치하지 않습니다."),
     USER_NOT_FOUND(NOT_FOUND, 20004, "사용자를 찾을 수 없습니다."),
     NO_PERMISSION(FORBIDDEN, 20005, "게시글 수정 및 삭제에 대한 권한이 없습니다."),
+    SNS_LOGIN_FAILED(UNAUTHORIZED, 20006, "SNS 로그인에 실패했습니다."),
 
     // Document (3xxxx)
     DOCUMENT_NOT_FOUND(NOT_FOUND, 30001, "존재하지 않는 결재서류입니다."),
+
 
 
     // Image (8xxxx)

@@ -39,7 +39,7 @@ public class UserController {
     }
 
     @PostMapping("auth/refresh")
-    public ResponseEntity<UserDto.TokenResponse> refresh(HttpServletRequest request) {
+    public ResponseEntity<UserDto.NormalTokenResponse> refresh(HttpServletRequest request) {
         return ResponseEntity.ok(userService.refresh(request));
     }
 

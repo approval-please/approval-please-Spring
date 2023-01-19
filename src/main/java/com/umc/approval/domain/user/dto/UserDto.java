@@ -1,6 +1,7 @@
 package com.umc.approval.domain.user.dto;
 
 import com.umc.approval.domain.user.entity.User;
+import com.umc.approval.global.type.SocialType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,7 +37,21 @@ public class UserDto {
 
     @Getter
     @AllArgsConstructor
-    public static class TokenResponse {
+    public static class NormalTokenResponse {
+        private String accessToken;
+        private String refreshToken;
+
+        public void setRefreshToken(String refreshToken) {
+            this.refreshToken = refreshToken;
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class SnsTokenResponse {
+        private Boolean isFirst;
+        private Long socialId;
+        private SocialType socialType;
         private String accessToken;
         private String refreshToken;
 
