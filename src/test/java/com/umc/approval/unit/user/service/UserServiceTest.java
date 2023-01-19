@@ -7,6 +7,7 @@ import com.umc.approval.domain.user.service.UserService;
 import com.umc.approval.global.aws.service.AwsS3Service;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
+import com.umc.approval.global.type.SocialType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
-import static com.umc.approval.global.exception.CustomErrorType.INVALID_TOKEN;
+import static com.umc.approval.global.exception.CustomErrorType.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -49,6 +50,49 @@ public class UserServiceTest {
                 .password("test123!" + id)
                 .nickname("test" + id)
                 .build();
+    }
+
+    @DisplayName("sns 회원가입에 성공한다 - 카카오")
+    @Test
+    void sns_signup_kakao_success() {
+
+        // given
+        given(userRepository.findByEmail(any())).willReturn(Optional.empty());
+        given(userRepository.findByPhoneNumber(any())).willReturn(Optional.empty());
+        UserDto.SnsRequest requestDto = new UserDto.SnsRequest(
+                "test", "test@test.com", "010-1234-5678", SocialType.KAKAO, 12345L);
+
+        // when & then
+        userService.snsSignup(requestDto);
+    }
+
+    @DisplayName("sns 회원가입 시 이메일 중복 시 실패한다")
+    @Test
+    void sns_signup_email_dup_fail() {
+
+        // given
+        given(userRepository.findByEmail(any())).willReturn(Optional.of(createUser(1L)));
+        UserDto.SnsRequest requestDto = new UserDto.SnsRequest(
+                "test", "test@test.com", "010-1234-5678", SocialType.KAKAO, 12345L);
+
+        // when & then
+        CustomException e = assertThrows(CustomException.class, () -> userService.snsSignup(requestDto));
+        assertThat(e.getErrorType()).isEqualTo(EMAIL_ALREADY_EXIST);
+    }
+
+    @DisplayName("sns 회원가입 시 휴대폰 번호 중복 시 실패한다")
+    @Test
+    void sns_signup_phone_dup_fail() {
+
+        // given
+        given(userRepository.findByEmail(any())).willReturn(Optional.empty());
+        given(userRepository.findByPhoneNumber(any())).willReturn(Optional.of(createUser(1L)));
+        UserDto.SnsRequest requestDto = new UserDto.SnsRequest(
+                "test", "test@test.com", "010-1234-5678", SocialType.KAKAO, 12345L);
+
+        // when & then
+        CustomException e = assertThrows(CustomException.class, () -> userService.snsSignup(requestDto));
+        assertThat(e.getErrorType()).isEqualTo(PHONE_NUMBER_ALREADY_EXIST);
     }
 
     @DisplayName("refresh token을 통해 access token 재발급에 성공한다")

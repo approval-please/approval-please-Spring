@@ -75,7 +75,7 @@ public class UserControllerTest {
     @DisplayName("sns 회원가입 시 body가 없으면 실패한다")
     @WithMockUser
     @Test
-    void sns_signup_kakao_no_body_fail() throws Exception {
+    void sns_signup_no_body_fail() throws Exception {
 
         // given & when & then
         mvc.perform(post("/auth/signup/sns")
