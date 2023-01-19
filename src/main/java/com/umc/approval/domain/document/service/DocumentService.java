@@ -90,7 +90,8 @@ public class DocumentService {
     public void deleteDocument(Long documentId) {
         // 게시글 존재 유무, 삭제 권한 확인
         Document document = findDocument(documentId);
-        if(jwtService.getId() != document.getUser().getId()){
+        User user = certifyUser();
+        if(user.getId() != document.getUser().getId()){
             throw new CustomException(NO_PERMISSION);
         }
 
