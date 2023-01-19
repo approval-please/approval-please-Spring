@@ -8,6 +8,7 @@ import com.umc.approval.domain.user.service.UserService;
 import com.umc.approval.global.aws.service.AwsS3Service;
 import com.umc.approval.global.security.SecurityConfig;
 import com.umc.approval.global.security.service.JwtService;
+import com.umc.approval.global.type.SocialType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +53,37 @@ public class UserControllerTest {
     @MockBean
     private UserRepository userRepository;
 
+    @DisplayName("sns 회원가입에 성공한다 - 카카오")
+    @WithMockUser
+    @Test
+    void sns_signup_kakao_success() throws Exception {
+
+        // given
+        UserDto.SnsRequest requestDto = new UserDto.SnsRequest(
+                "test", "test@test.com", "010-1234-5678", SocialType.KAKAO, 12345L);
+        String body = new ObjectMapper().writeValueAsString(requestDto);
+
+        // when & then
+        mvc.perform(post("/auth/signup/sns")
+                        .content(body)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @DisplayName("sns 회원가입 시 body가 없으면 실패한다")
+    @WithMockUser
+    @Test
+    void sns_signup_kakao_no_body_fail() throws Exception {
+
+        // given & when & then
+        mvc.perform(post("/auth/signup/sns")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isInternalServerError())
+                .andDo(print());
+    }
+
     @DisplayName("logout에 성공한다")
     @WithMockUser
     @Test
@@ -78,7 +110,7 @@ public class UserControllerTest {
                 .andDo(print());
     }
 
-    @DisplayName("비밀번호 재설정 시, body가 없으면 실패한다")
+    @DisplayName("비밀번호 재설정에 성공한다")
     @WithMockUser
     @Test
     void reset_password_success() throws Exception {
