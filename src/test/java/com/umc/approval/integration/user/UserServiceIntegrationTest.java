@@ -25,7 +25,9 @@ import javax.persistence.EntityManager;
 import java.util.Collections;
 import java.util.List;
 
-import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
+import static com.umc.approval.global.exception.CustomErrorType.*;
+import static com.umc.approval.global.security.service.KakaoOAuth2Service.KAKAO_SECRET_PASSWORD;
+import static com.umc.approval.global.type.SocialType.KAKAO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -59,6 +61,58 @@ public class UserServiceIntegrationTest {
                 .level(0)
                 .promotionPoint(0L)
                 .build();
+    }
+
+    @DisplayName("sns 회원가입에 성공한다 - 카카오")
+    @Test
+    void sns_signup_kakao_success() {
+
+        // given
+        UserDto.SnsRequest requestDto = new UserDto.SnsRequest(
+                "test", "test@test.com", "010-1234-5678", KAKAO, 12345L);
+
+        // when
+        userService.snsSignup(requestDto);
+        User findUser = userRepository.findAll().get(0);
+
+        // then
+        assertThat(findUser.getEmail()).isEqualTo(requestDto.getEmail());
+        assertThat(findUser.getSocialType()).isEqualTo(KAKAO);
+        assertThat(passwordEncoder.matches(KAKAO_SECRET_PASSWORD, findUser.getPassword())).isTrue();
+    }
+
+    @DisplayName("sns 회원가입 시 이메일 중복 시 실패한다")
+    @Test
+    void sns_signup_email_dup_fail() {
+
+        // given
+        User user = createUser(1L);
+        userRepository.save(user);
+        em.flush();
+        em.clear();
+        UserDto.SnsRequest requestDto = new UserDto.SnsRequest(
+                "test", user.getEmail(), "010-1234-5678", KAKAO, 12345L);
+
+        // when & then
+        CustomException e = assertThrows(CustomException.class, () -> userService.snsSignup(requestDto));
+        assertThat(e.getErrorType()).isEqualTo(EMAIL_ALREADY_EXIST);
+    }
+
+    @DisplayName("sns 회원가입 시 휴대폰 번호 중복 시 실패한다")
+    @Test
+    void sns_signup_phone_dup_fail() {
+
+        // given
+        User user = createUser(1L);
+        userRepository.save(user);
+        em.flush();
+        em.clear();
+        UserDto.SnsRequest requestDto = new UserDto.SnsRequest(
+                "test", "test@test.com", user.getPhoneNumber(), KAKAO, 12345L);
+
+        // when & then
+        CustomException e = assertThrows(CustomException.class, () -> userService.snsSignup(requestDto));
+        assertThat(e.getErrorType()).isEqualTo(PHONE_NUMBER_ALREADY_EXIST);
     }
 
     @DisplayName("logout에 성공한다")
