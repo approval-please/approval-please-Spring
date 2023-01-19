@@ -29,7 +29,20 @@ public class UserDto {
 
     @Getter
     @AllArgsConstructor
-    public static class TokenResponse {
+    public static class NormalTokenResponse {
+        private String accessToken;
+        private String refreshToken;
+
+        public void setRefreshToken(String refreshToken) {
+            this.refreshToken = refreshToken;
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class SnsTokenResponse {
+        private Boolean isFirst;
+        private Long socialId;
         private String accessToken;
         private String refreshToken;
 
