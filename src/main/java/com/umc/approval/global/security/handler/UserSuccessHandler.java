@@ -6,7 +6,6 @@ import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.security.service.CustomUserDetails;
 import com.umc.approval.global.security.service.JwtService;
-import com.umc.approval.global.type.SocialType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -32,7 +31,6 @@ public class UserSuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        SocialType socialType = (SocialType) authentication.getCredentials();
 
         User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("가입된 이메일이 존재하지 않습니다."));
@@ -43,9 +41,9 @@ public class UserSuccessHandler implements AuthenticationSuccessHandler {
         user.updateRefreshToken(refreshToken);
         response.setContentType(APPLICATION_JSON_VALUE);
         // SNS 유저 로그인 response
-        if (socialType != null) {
+        if (user.getSocialType() != null) {
             new ObjectMapper().writeValue(response.getWriter(),
-                    new UserDto.SnsTokenResponse(false, user.getSocialId(), accessToken, refreshToken));
+                    new UserDto.SnsTokenResponse(false, user.getSocialId(), user.getSocialType(), accessToken, refreshToken));
         } else {
             // 일반 유저 로그인 response
             new ObjectMapper().writeValue(response.getWriter(),

@@ -5,6 +5,7 @@ import com.umc.approval.domain.user.dto.UserDto;
 import com.umc.approval.global.exception.CustomErrorType;
 import com.umc.approval.global.exception.ErrorResponse;
 import com.umc.approval.global.security.exception.FirstSnsLoginException;
+import com.umc.approval.global.type.SocialType;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -38,8 +39,9 @@ public class UserFailureHandler implements AuthenticationFailureHandler {
             response.setContentType(APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("utf-8");
             Long socialId = ((FirstSnsLoginException) exception).getSocialId();
+            SocialType socialType = ((FirstSnsLoginException) exception).getSocialType();
             new ObjectMapper().writeValue(response.getWriter(),
-                    new UserDto.SnsTokenResponse(true, socialId, null, null));
+                    new UserDto.SnsTokenResponse(true, socialId, socialType, null, null));
         } else {
             // 일반 로그인 실패
             ErrorResponse errorResponse = new ErrorResponse(LOGIN_FAILED);

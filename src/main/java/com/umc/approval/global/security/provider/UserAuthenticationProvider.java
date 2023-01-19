@@ -29,14 +29,6 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {
             throw new BadCredentialsException("비밀번호가 일치하지 않습니다.");
         }
-
-        // SNS 로그인 유저 경우
-        if (userDetails.getUser().getSocialType() != null) {
-            return new UsernamePasswordAuthenticationToken(
-                    userDetails, userDetails.getUser().getSocialType(), userDetails.getAuthorities());
-        }
-
-        // 일반 로그인 유저 경우
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 

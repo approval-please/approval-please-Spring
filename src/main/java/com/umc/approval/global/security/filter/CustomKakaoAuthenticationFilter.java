@@ -5,6 +5,7 @@ import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.exception.CustomErrorType;
 import com.umc.approval.global.security.exception.FirstSnsLoginException;
 import com.umc.approval.global.security.service.KakaoOAuth2Service;
+import com.umc.approval.global.type.SocialType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,7 +42,7 @@ public class CustomKakaoAuthenticationFilter extends UsernamePasswordAuthenticat
 
         // 최초 로그인 (회원가입 response)
         if (user == null) {
-            throw new FirstSnsLoginException(kakaoId);
+            throw new FirstSnsLoginException(kakaoId, SocialType.KAKAO);
         } else {
             // 기존 유저 (로그인 처리)
             Authentication auth = new UsernamePasswordAuthenticationToken(user.getEmail(), KAKAO_SECRET_PASSWORD);
