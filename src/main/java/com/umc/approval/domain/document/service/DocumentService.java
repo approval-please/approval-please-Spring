@@ -58,6 +58,7 @@ public class DocumentService {
                 .state(2) //승인대기중
                 .view(0L)
                 .notification(true)
+                .linkUrl(request.getLinkUrl())
                 .build();
         documentRepository.save(document);
 
@@ -65,11 +66,6 @@ public class DocumentService {
             for (String tag : request.getTag()) {
                 Tag newTag = Tag.builder().document(document).tag(tag).build();
                 tagRepository.save(newTag);
-            }
-        if (request.getLinkUrl() != null)
-            for (String link : request.getLinkUrl()) {
-                Link newLink = Link.builder().document(document).linkUrl(link).build();
-                linkRepository.save(newLink);
             }
         if (images != null) {
             if (images.size() == 1) {
@@ -100,14 +96,6 @@ public class DocumentService {
         if(tagList != null){
             for(Tag tag: tagList){
                 tagRepository.deleteById(tag.getId());
-            }
-        }
-
-        // link 삭제
-        List<Link> linkList = linkRepository.findByDocumentId(documentId);
-        if(linkList != null){
-            for(Link link: linkList){
-                linkRepository.deleteById(link.getId());
             }
         }
 

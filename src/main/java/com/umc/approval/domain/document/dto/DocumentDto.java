@@ -24,6 +24,6 @@ public class DocumentDto {
         private String content;
 
         private List<String> tag;
-        private List<String> linkUrl;
+        private String linkUrl;
     }
 }
