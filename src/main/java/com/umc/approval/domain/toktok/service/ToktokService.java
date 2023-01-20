@@ -212,6 +212,14 @@ public class ToktokService {
             }
         }
 
+        //link 삭제
+        List<Link> linkList = linkRepository.findByToktokId(toktokId);
+        if (linkList != null) {
+            for (Link link : linkList) {
+                linkRepository.deleteById(link.getId());
+            }
+        }
+
         //image 삭제
         List<Image> imageList = imageRepository.findByToktokId(toktokId);
         if (imageList != null) {
@@ -234,6 +242,8 @@ public class ToktokService {
             entityManager.clear();
             voteRepository.delete(getVote);
         }
+
+        toktokRepository.deleteById(toktokId);
     }
 
 
