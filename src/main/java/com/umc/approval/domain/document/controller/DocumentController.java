@@ -26,6 +26,14 @@ public class DocumentController {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping("/{documentId}")
+    public ResponseEntity<Void> updateDocument(@PathVariable("documentId") Long documentId,
+                                               @Valid @RequestPart(value = "data", required = false) DocumentDto.PatchDocumentRequest request,
+                                               @RequestPart(value = "images", required = false) List<MultipartFile> images){
+        documentService.updateDocument(documentId, request, images);
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping("/{documentId}")
     public ResponseEntity<Void> deleteDocument(@PathVariable("documentId") Long documentId){
         documentService.deleteDocument(documentId);

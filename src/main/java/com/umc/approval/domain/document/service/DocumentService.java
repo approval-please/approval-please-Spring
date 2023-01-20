@@ -16,6 +16,7 @@ import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import com.umc.approval.global.type.CategoryType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,7 @@ import static com.umc.approval.global.exception.CustomErrorType.*;
 @Transactional
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class DocumentService {
 
     private final JwtService jwtService;
@@ -62,12 +64,68 @@ public class DocumentService {
                 .build();
         documentRepository.save(document);
 
-        if (request.getTag() != null)
+        if (request.getTag() != null) {
             for (String tag : request.getTag()) {
                 Tag newTag = Tag.builder().document(document).tag(tag).build();
                 tagRepository.save(newTag);
             }
+        }
         if (images != null) {
+            if (images.size() == 1) {
+                String imgUrl = awsS3Service.uploadImage(images.get(0));
+                Image uploadImg = Image.builder().document(document).imageUrl(imgUrl).build();
+                imageRepository.save(uploadImg);
+            } else {
+                List<String> imgUrls = awsS3Service.uploadImage(images);
+                for (String imgUrl : imgUrls) {
+                    Image uploadImg = Image.builder().document(document).imageUrl(imgUrl).build();
+                    imageRepository.save(uploadImg);
+                }
+            }
+        }
+    }
+
+    public void updateDocument(Long documentId, DocumentDto.PatchDocumentRequest request, List<MultipartFile> images) {
+        // 게시글 존재 유무, 수정 권한 확인
+        Document document = findDocument(documentId);
+        User user = certifyUser();
+        if(user.getId() != document.getUser().getId()){
+            throw new CustomException(NO_PERMISSION);
+        }
+
+        // document 수정
+        CategoryType categoryType = Arrays.stream(CategoryType.values())
+                .filter(c -> c.getValue() == request.getCategory())
+                .findAny().get();
+
+        document.update(categoryType, request.getTitle(), request.getContent(), request.getLinkUrl());
+
+        // tag 수정
+        List<Tag> tagList = tagRepository.findByDocumentId(documentId);
+        if(tagList != null){
+            for(Tag tag: tagList){
+                tagRepository.deleteById(tag.getId());
+            }
+        }
+
+        if(request.getTag() != null){
+            for (String tag : request.getTag()) {
+                Tag newTag = Tag.builder().document(document).tag(tag).build();
+                tagRepository.save(newTag);
+            }
+
+        }
+
+        // image 수정
+        List<Image> imageList = imageRepository.findByDocumentId(documentId);
+        if(imageList != null){
+            imageRepository.deleteByDocumentId(documentId);
+            for(Image image: imageList){
+                awsS3Service.deleteImage(image.getImageUrl());
+            }
+        }
+
+        if(images != null){
             if (images.size() == 1) {
                 String imgUrl = awsS3Service.uploadImage(images.get(0));
                 Image uploadImg = Image.builder().document(document).imageUrl(imgUrl).build();
