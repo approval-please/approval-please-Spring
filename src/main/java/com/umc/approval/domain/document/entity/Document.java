@@ -56,4 +56,11 @@ public class Document extends BaseTimeEntity {
 
     @Column(name = "link_url")
     private String linkUrl;
+
+    public void update(CategoryType category, String title, String content, String linkUrl) {
+        this.category = category;
+        this.title = title;
+        this.content = content;
+        this.linkUrl = linkUrl;
+    }
 }

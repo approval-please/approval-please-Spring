@@ -20,9 +20,17 @@ public class DocumentController {
     private final DocumentService documentService;
 
     @PostMapping
-    public ResponseEntity<Void> createDocument(@Valid @RequestPart(value = "data", required = false) DocumentDto.PostDocumentRequest request,
+    public ResponseEntity<Void> createDocument(@Valid @RequestPart(value = "data", required = false) DocumentDto.DocumentRequest request,
                                                @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         documentService.createDocument(request, images);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{documentId}")
+    public ResponseEntity<Void> updateDocument(@PathVariable("documentId") Long documentId,
+                                               @Valid @RequestPart(value = "data", required = false) DocumentDto.DocumentRequest request,
+                                               @RequestPart(value = "images", required = false) List<MultipartFile> images){
+        documentService.updateDocument(documentId, request, images);
         return ResponseEntity.ok().build();
     }
 
