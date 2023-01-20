@@ -63,6 +63,14 @@ public class UserServiceIntegrationTest {
                 .build();
     }
 
+    private void loginUser(User user) {
+        String accessToken = jwtService.createAccessToken(user.getEmail(), user.getId());
+        List<SimpleGrantedAuthority> authorities
+                = Collections.singletonList(new SimpleGrantedAuthority(RoleType.USER.getKey()));
+        Authentication authToken = new UsernamePasswordAuthenticationToken(user.getEmail(), accessToken, authorities);
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+    }
+
     @DisplayName("이메일 확인에 성공한다 - 존재X")
     @Test
     void email_check_not_exist_success() {
@@ -179,11 +187,7 @@ public class UserServiceIntegrationTest {
         String refreshToken = jwtService.createRefreshToken(user.getEmail());
         user.updateRefreshToken(refreshToken);
 
-        // SecurityContextHolder에 accessToken 포함하여 저장
-        List<SimpleGrantedAuthority> authorities
-                = Collections.singletonList(new SimpleGrantedAuthority(RoleType.USER.getKey()));
-        Authentication authToken = new UsernamePasswordAuthenticationToken(user.getEmail(), accessToken, authorities);
-        SecurityContextHolder.getContext().setAuthentication(authToken);
+        loginUser(user);
 
         // when
         userService.logout();

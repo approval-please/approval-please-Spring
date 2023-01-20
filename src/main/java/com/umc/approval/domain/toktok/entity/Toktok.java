@@ -49,8 +49,8 @@ public class Toktok extends BaseTimeEntity {
     @Column(nullable = false)
     private Long view;
 
-    @Column(columnDefinition = "tinyint(1) default 1", nullable = false)
-    private boolean notification; //기본 값을 Boolean = True로 하겠다는 의미 
+    @Column(nullable = false)
+    private boolean notification;
 
     public void update(ToktokDto.PostToktokRequest request, CategoryType categoryType, Vote vote) {
         this.category = categoryType;
