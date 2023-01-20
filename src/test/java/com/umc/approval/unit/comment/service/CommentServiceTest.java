@@ -70,14 +70,14 @@ public class CommentServiceTest {
 
     private MockMultipartFile createImage() throws IOException {
         String fileName = "test";
-        String contentType = "image";
+        String contentType = "image/png";
         String filePath = "src/test/resources/img/test.png";
         return new MockMultipartFile("images", fileName, contentType, new FileInputStream(filePath));
     }
 
     @DisplayName("댓글 등록에 성공한다 - 이미지 X")
     @Test
-    void create_comment_success() throws Exception {
+    void create_comment_success() {
 
         // given
         User user = createUser(1L);
@@ -121,7 +121,7 @@ public class CommentServiceTest {
 
     @DisplayName("댓글 등록 시 사용자가 존재하지 않으면 실패한다")
     @Test
-    void create_comment_user_not_found_fail() throws Exception {
+    void create_comment_user_not_found_fail() {
 
         // given
         given(userRepository.findById(any())).willReturn(Optional.empty());
@@ -137,7 +137,7 @@ public class CommentServiceTest {
 
     @DisplayName("댓글 등록 시 게시글(결재서류)이 존재하지 않으면 실패한다")
     @Test
-    void create_comment_post_not_found_fail() throws Exception {
+    void create_comment_post_not_found_fail() {
 
         // given
         User user = createUser(1L);

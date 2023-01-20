@@ -6,11 +6,17 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 public class UserDto {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class EmailCheckRequest { //이메일 체크 Request
+        @NotBlank(message = "이메일은 필수 값입니다.")
+        @Email(message = "이메일 형식이 올바르지 않습니다.")
         private String email;
     }
 
@@ -23,9 +29,18 @@ public class UserDto {
     @Getter
     @AllArgsConstructor
     public static class NormalRequest {   // 일반 유저 등록 Request
+
+        @NotBlank(message = "닉네임은 필수 값입니다.")
         private String nickname;
+
+        @NotBlank(message = "이메일은 필수 값입니다.")
+        @Email(message = "이메일 형식이 올바르지 않습니다.")
         private String email;
+
+        @NotBlank(message = "비밀번호는 필수 값입니다.")
         private String password;
+
+        @NotBlank(message = "휴대폰 번호는 필수 값입니다.")
         private String phoneNumber;
 
         public User toEntity(String encodedPassword) {
@@ -44,9 +59,17 @@ public class UserDto {
     @Getter
     @AllArgsConstructor
     public static class SnsRequest {   // SNS 유저 등록 Request
+
+        @NotBlank(message = "닉네임은 필수 값입니다.")
         private String nickname;
+
+        @NotBlank(message = "이메일은 필수 값입니다.")
+        @Email(message = "이메일 형식이 올바르지 않습니다.")
         private String email;
+
+        @NotBlank(message = "휴대폰 번호는 필수 값입니다.")
         private String phoneNumber;
+
         private SocialType socialType;
         private Long socialId;
 
@@ -88,7 +111,12 @@ public class UserDto {
     @Getter
     @AllArgsConstructor
     public static class ResetPasswordRequest {
+
+        @NotBlank(message = "이메일은 필수 값입니다.")
+        @Email(message = "이메일 형식이 올바르지 않습니다.")
         private String email;
+
+        @NotBlank(message = "비밀번호는 필수 값입니다.")
         private String newPassword;
     }
 }

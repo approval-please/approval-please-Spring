@@ -73,7 +73,7 @@ public class CommentControllerTest {
 
     private MockMultipartFile createImage() throws IOException {
         String fileName = "test";
-        String contentType = "image";
+        String contentType = "image/png";
         String filePath = "src/test/resources/img/test.png";
         return new MockMultipartFile("images", fileName, contentType, new FileInputStream(filePath));
     }
