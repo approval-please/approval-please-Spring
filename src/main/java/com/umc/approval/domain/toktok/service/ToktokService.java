@@ -53,9 +53,7 @@ public class ToktokService {
     private final EntityManager entityManager;
 
     public void createPost(ToktokDto.PostToktokRequest request, List<MultipartFile> files) {
-
-        User user = userRepository.findById(jwtService.getId())
-            .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+        User user = certifyUser();
 
         //투표 등록
         Vote vote = null;
@@ -92,27 +90,25 @@ public class ToktokService {
         }
 
         //aws 이미지 저장
-        if (files.size() == 1) {
-            String imgUrl = awsS3Service.uploadImage(files.get(0));
-            Image uploadImg = Image.builder().toktok(toktok).imageUrl(imgUrl).build();
-            imageRepository.save(uploadImg);
-
-        } else {
-            List<String> imgUrls = awsS3Service.uploadImage(files);
-            for (String imgUrl : imgUrls) {
+        if (files != null) {
+            if (files.size() == 1) {
+                String imgUrl = awsS3Service.uploadImage(files.get(0));
                 Image uploadImg = Image.builder().toktok(toktok).imageUrl(imgUrl).build();
                 imageRepository.save(uploadImg);
+
+            } else {
+                List<String> imgUrls = awsS3Service.uploadImage(files);
+                for (String imgUrl : imgUrls) {
+                    Image uploadImg = Image.builder().toktok(toktok).imageUrl(imgUrl).build();
+                    imageRepository.save(uploadImg);
+                }
             }
         }
     }
 
     public void updatePost(Long id, ToktokDto.PostToktokRequest request, List<MultipartFile> files) {
-
-        User user = userRepository.findById(jwtService.getId())
-            .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
-
-        Toktok toktok = toktokRepository.findById(id)
-            .orElseThrow(() -> new CustomException(TOKTOKPOST_NOT_FOUND));
+        User user = certifyUser();
+        Toktok toktok =findToktok(id);
 
         if(user.getId() != toktok.getUser().getId()){
             throw new CustomException(NO_PERMISSION);
@@ -199,6 +195,44 @@ public class ToktokService {
         }
     }
 
+    public void deletePost(Long toktokId) {
+        User user = certifyUser();
+        Toktok toktok = findToktok(toktokId);
+        if(user.getId() != toktok.getUser().getId()) {
+            throw new CustomException(NO_PERMISSION);
+        }
+
+        // tag 삭제
+        List<Tag> tagList = tagRepository.findByToktokId(toktokId);
+        if(tagList != null) {
+            for(Tag tag: tagList) {
+                tagRepository.deleteById(tag.getId());
+            }
+        }
+
+        //image 삭제
+        List<Image> imageList = imageRepository.findByToktokId(toktokId);
+        if(imageList != null) {
+            imageRepository.deleteByToktokId(toktokId);
+            for(Image image : imageList) {
+                awsS3Service.deleteImage(image.getImageUrl());
+            }
+        }
+
+        //vote 삭제
+        Optional<Vote> vote = voteRepository.findById(toktok.getVote().getId());
+        Vote getVote = vote.get();
+        List<VoteOption> voteOptionList = voteOptionRepository.findByVote(getVote);
+        if(voteOptionList != null) {
+            voteOptionRepository.deleteAll(voteOptionList);
+        }
+        toktok.deleteVote();
+        entityManager.flush();
+        entityManager.clear();
+        voteRepository.delete(getVote);
+    }
+
+
     public CategoryType viewCategory(int category) {
         CategoryType categoryType = Arrays.stream(CategoryType.values())
             .filter(c -> c.getValue() == category)
@@ -239,4 +273,17 @@ public class ToktokService {
             tagRepository.save(newTag);
         }
     }
+
+    private User certifyUser() {
+        User user = userRepository.findById(jwtService.getId())
+            .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+        return user;
+    }
+
+    private Toktok findToktok(Long id) {
+        Toktok toktok = toktokRepository.findById(id)
+            .orElseThrow(() -> new CustomException(TOKTOKPOST_NOT_FOUND));
+        return toktok;
+    }
+
 }
