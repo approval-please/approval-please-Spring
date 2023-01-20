@@ -26,6 +26,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -70,6 +71,13 @@ public class CommentControllerTest {
     @MockBean
     ToktokRepository toktokRepository;
 
+    private MockMultipartFile createImage() throws IOException {
+        String fileName = "test";
+        String contentType = "image";
+        String filePath = "src/test/resources/img/test.png";
+        return new MockMultipartFile("images", fileName, contentType, new FileInputStream(filePath));
+    }
+
     @DisplayName("댓글 등록에 성공한다 - 이미지 X")
     @WithMockUser
     @Test
@@ -106,16 +114,10 @@ public class CommentControllerTest {
         MockMultipartFile bodyFile = new MockMultipartFile("data", "data",
                 "application/json", body.getBytes(StandardCharsets.UTF_8));
 
-        String fileName = "test";
-        String contentType = "image";
-        String filePath = "src/test/resources/img/test.png";
-        MockMultipartFile image
-                = new MockMultipartFile("images", fileName, contentType, new FileInputStream(filePath));
-
         // when & then
         mvc.perform(multipart("/comments")
                         .file(bodyFile)
-                        .file(image)
+                        .file(createImage())
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk())
                 .andDo(print());
