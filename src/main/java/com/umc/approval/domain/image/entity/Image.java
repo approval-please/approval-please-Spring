@@ -42,4 +42,8 @@ public class Image extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String imageUrl;
+
+    public void update(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 }
