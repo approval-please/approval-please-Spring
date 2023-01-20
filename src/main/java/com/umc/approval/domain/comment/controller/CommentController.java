@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RequestMapping("/comments")
@@ -21,7 +22,7 @@ public class CommentController {
 
     @PostMapping
     public ResponseEntity<Void> createComment(
-            @RequestPart(value = "data") CommentDto.CreateRequest requestDto,
+            @Valid @RequestPart(value = "data") CommentDto.CreateRequest requestDto,
             @RequestPart(value = "images", required = false) List<MultipartFile> images
     ) {
         commentService.createComment(requestDto, images);
