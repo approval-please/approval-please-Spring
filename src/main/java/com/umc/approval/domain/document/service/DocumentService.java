@@ -43,7 +43,7 @@ public class DocumentService {
     private final LinkRepository linkRepository;
     private final ImageRepository imageRepository;
 
-    public void createDocument(DocumentDto.PostDocumentRequest request, List<MultipartFile> images) {
+    public void createDocument(DocumentDto.DocumentRequest request, List<MultipartFile> images) {
         User user = certifyUser();
 
         // 해당하는 카테고리 찾기
@@ -85,7 +85,7 @@ public class DocumentService {
         }
     }
 
-    public void updateDocument(Long documentId, DocumentDto.PatchDocumentRequest request, List<MultipartFile> images) {
+    public void updateDocument(Long documentId, DocumentDto.DocumentRequest request, List<MultipartFile> images) {
         // 게시글 존재 유무, 수정 권한 확인
         Document document = findDocument(documentId);
         User user = certifyUser();
