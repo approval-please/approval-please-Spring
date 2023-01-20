@@ -28,10 +28,16 @@ public enum CustomErrorType {
     // Document (3xxxx)
     DOCUMENT_NOT_FOUND(NOT_FOUND, 30001, "존재하지 않는 결재서류입니다."),
 
+    // Toktok (4xxxx)
+    TOKTOKPOST_NOT_FOUND(NOT_FOUND, 40001, "존재하지 않는 결재톡톡입니다."),
+    VOTE_IS_END(BAD_REQUEST, 40002, "투표가 종료된 글은 투표 관련 사항들의 수정이 불가합니다."),
 
-    // Toktok (3xxxx)
-    TOKTOKPOST_NOT_FOUND(NOT_FOUND, 30001, "해당 게시글은 없는 게시글 입니다."),
-    VOTE_IS_END(BAD_REQUEST, 30002, "투표가 종료된 글은 투표 관련 사항들의 수정이 불가합니다."),
+    // Report (5xxxx)
+    REPORT_NOT_FOUND(NOT_FOUND, 50001, "존재하지 않는 결재보고서입니다."),
+
+    // Comment (7xxxx)
+    COMMENT_NOT_FOUND(NOT_FOUND, 70001, "존재하지 않는 댓글입니다."),
+    PARENT_COMMENT_NOT_FOUND(NOT_FOUND, 70002, "존재하지 않는 상위 댓글입니다."),
 
     // Image (8xxxx)
     IMAGE_UPLOAD_FAILED(BAD_REQUEST, 80001, "이미지 업로드에 실패했습니다."),
