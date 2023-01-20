@@ -40,7 +40,6 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
-    private final LinkRepository linkRepository;
     private final ImageRepository imageRepository;
 
     public void createDocument(DocumentDto.DocumentRequest request, List<MultipartFile> images) {
@@ -64,25 +63,8 @@ public class DocumentService {
                 .build();
         documentRepository.save(document);
 
-        if (request.getTag() != null) {
-            for (String tag : request.getTag()) {
-                Tag newTag = Tag.builder().document(document).tag(tag).build();
-                tagRepository.save(newTag);
-            }
-        }
-        if (images != null) {
-            if (images.size() == 1) {
-                String imgUrl = awsS3Service.uploadImage(images.get(0));
-                Image uploadImg = Image.builder().document(document).imageUrl(imgUrl).build();
-                imageRepository.save(uploadImg);
-            } else {
-                List<String> imgUrls = awsS3Service.uploadImage(images);
-                for (String imgUrl : imgUrls) {
-                    Image uploadImg = Image.builder().document(document).imageUrl(imgUrl).build();
-                    imageRepository.save(uploadImg);
-                }
-            }
-        }
+        createTag(request, document);
+        createImages(images, document);
     }
 
     public void updateDocument(Long documentId, DocumentDto.DocumentRequest request, List<MultipartFile> images) {
@@ -101,43 +83,12 @@ public class DocumentService {
         document.update(categoryType, request.getTitle(), request.getContent(), request.getLinkUrl());
 
         // tag 수정
-        List<Tag> tagList = tagRepository.findByDocumentId(documentId);
-        if(tagList != null){
-            for(Tag tag: tagList){
-                tagRepository.deleteById(tag.getId());
-            }
-        }
-
-        if(request.getTag() != null){
-            for (String tag : request.getTag()) {
-                Tag newTag = Tag.builder().document(document).tag(tag).build();
-                tagRepository.save(newTag);
-            }
-
-        }
+        deleteTag(documentId);
+        createTag(request, document);
 
         // image 수정
-        List<Image> imageList = imageRepository.findByDocumentId(documentId);
-        if(imageList != null){
-            imageRepository.deleteByDocumentId(documentId);
-            for(Image image: imageList){
-                awsS3Service.deleteImage(image.getImageUrl());
-            }
-        }
-
-        if(images != null){
-            if (images.size() == 1) {
-                String imgUrl = awsS3Service.uploadImage(images.get(0));
-                Image uploadImg = Image.builder().document(document).imageUrl(imgUrl).build();
-                imageRepository.save(uploadImg);
-            } else {
-                List<String> imgUrls = awsS3Service.uploadImage(images);
-                for (String imgUrl : imgUrls) {
-                    Image uploadImg = Image.builder().document(document).imageUrl(imgUrl).build();
-                    imageRepository.save(uploadImg);
-                }
-            }
-        }
+        deleteImages(documentId);
+        createImages(images, document);
     }
 
 
@@ -150,21 +101,10 @@ public class DocumentService {
         }
 
         // tag 삭제
-        List<Tag> tagList = tagRepository.findByDocumentId(documentId);
-        if(tagList != null){
-            for(Tag tag: tagList){
-                tagRepository.deleteById(tag.getId());
-            }
-        }
+        deleteTag(documentId);
 
         // image 삭제
-        List<Image> imageList = imageRepository.findByDocumentId(documentId);
-        if(imageList != null){
-            imageRepository.deleteByDocumentId(documentId);
-            for(Image image: imageList){
-                awsS3Service.deleteImage(image.getImageUrl());
-            }
-        }
+        deleteImages(documentId);
 
         // document 삭제
         documentRepository.deleteById(documentId);
@@ -184,4 +124,49 @@ public class DocumentService {
         }
         return document.get();
     }
+
+    private void createTag(DocumentDto.DocumentRequest request, Document document){
+        if (request.getTag() != null) {
+            for (String tag : request.getTag()) {
+                Tag newTag = Tag.builder().document(document).tag(tag).build();
+                tagRepository.save(newTag);
+            }
+        }
+    }
+
+    private void createImages(List<MultipartFile> images, Document document){
+        if (images != null) {
+            if (images.size() == 1) {
+                String imgUrl = awsS3Service.uploadImage(images.get(0));
+                Image uploadImg = Image.builder().document(document).imageUrl(imgUrl).build();
+                imageRepository.save(uploadImg);
+            } else {
+                List<String> imgUrls = awsS3Service.uploadImage(images);
+                for (String imgUrl : imgUrls) {
+                    Image uploadImg = Image.builder().document(document).imageUrl(imgUrl).build();
+                    imageRepository.save(uploadImg);
+                }
+            }
+        }
+    }
+
+    private void deleteTag(Long documentId){
+        List<Tag> tagList = tagRepository.findByDocumentId(documentId);
+        if(tagList != null){
+            for(Tag tag: tagList){
+                tagRepository.deleteById(tag.getId());
+            }
+        }
+    }
+
+    private void deleteImages(Long documentId){
+        List<Image> imageList = imageRepository.findByDocumentId(documentId);
+        if(imageList != null){
+            imageRepository.deleteByDocumentId(documentId);
+            for(Image image: imageList){
+                awsS3Service.deleteImage(image.getImageUrl());
+            }
+        }
+    }
+
 }
