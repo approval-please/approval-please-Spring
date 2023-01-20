@@ -5,15 +5,15 @@ import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.user.entity.User;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 
 public class CommentDto {
 
     @Getter
-    @AllArgsConstructor
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class CreateRequest {
         private Long documentId;
         private Long reportId;
