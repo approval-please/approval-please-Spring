@@ -47,7 +47,7 @@ public class ToktokController {
     }
 
     @DeleteMapping("/{toktokId}")
-    public ResponseEntity<Void> deletPost(@PathVariable("toktokId") Long id) {
+    public ResponseEntity<Void> deletePost(@PathVariable("toktokId") Long id) {
         toktokService.deletePost(id);
         return ResponseEntity.ok().build();
     }
