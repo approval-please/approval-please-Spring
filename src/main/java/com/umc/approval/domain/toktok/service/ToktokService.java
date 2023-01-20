@@ -207,17 +207,13 @@ public class ToktokService {
         // tag 삭제
         List<Tag> tagList = tagRepository.findByToktokId(toktokId);
         if (tagList != null) {
-            for (Tag tag : tagList) {
-                tagRepository.deleteById(tag.getId());
-            }
+            tagRepository.deleteAll(tagList);
         }
 
         //link 삭제
         List<Link> linkList = linkRepository.findByToktokId(toktokId);
         if (linkList != null) {
-            for (Link link : linkList) {
-                linkRepository.deleteById(link.getId());
-            }
+            linkRepository.deleteAll(linkList);
         }
 
         //image 삭제
