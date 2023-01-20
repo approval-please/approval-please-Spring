@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import static com.umc.approval.global.exception.CustomErrorType.*;
 import static com.umc.approval.global.security.service.JwtService.TOKEN_REFRESH_DAYS;
+import static com.umc.approval.global.security.service.KakaoOAuth2Service.KAKAO_SECRET_PASSWORD;
+import static com.umc.approval.global.type.SocialType.KAKAO;
 
 @Transactional
 @RequiredArgsConstructor
@@ -25,7 +27,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public void emailDuplicateCheck(UserDto.EmailCheckRequest emailCheckRequest){
+    public void emailDuplicateCheck(UserDto.EmailCheckRequest emailCheckRequest) {
         // 이메일 중복 체크
         userRepository.findByEmail(emailCheckRequest.getEmail())
                 .ifPresent(user -> {
@@ -33,24 +35,47 @@ public class UserService {
                 });
     }
 
-    public void signup(UserDto.Request userCreateRequest) {
+    public UserDto.EmailCheckResponse emailCheck(UserDto.EmailCheckRequest requestDto) {
+        User user = userRepository.findByEmail(requestDto.getEmail())
+                .orElse(null);
+
+        if (user == null) {
+            return new UserDto.EmailCheckResponse(0);
+        } else if (user.getSocialType() == null) {
+            return new UserDto.EmailCheckResponse(1);
+        } else {
+            return new UserDto.EmailCheckResponse(2);
+        }
+    }
+
+    public void signup(UserDto.NormalRequest userCreateNormalRequest) {
         // 이메일 중복 체크
-        userRepository.findByEmail(userCreateRequest.getEmail())
-                .ifPresent(user -> {
-                    throw new CustomException(EMAIL_ALREADY_EXIST);
-                });
+        emailDuplicateValidation(userCreateNormalRequest.getEmail());
 
         // 전화번호 중복 체크
-        userRepository.findByPhoneNumber(userCreateRequest.getPhoneNumber())
-                .ifPresent(user -> {
-                    throw new CustomException(PHONE_NUMBER_ALREADY_EXIST);
-                });
+        phoneNumberDuplicateValidation(userCreateNormalRequest.getPhoneNumber());
 
         // 비밀번호 암호화
-        String encodedPassword = passwordEncoder.encode(userCreateRequest.getPassword());
+        String encodedPassword = passwordEncoder.encode(userCreateNormalRequest.getPassword());
 
         // 사용자 등록
-        User user = userCreateRequest.toEntity(encodedPassword);
+        User user = userCreateNormalRequest.toEntity(encodedPassword);
+        userRepository.save(user);
+    }
+
+    public void snsSignup(UserDto.SnsRequest requestDto) {
+        // 이메일 중복 체크
+        emailDuplicateValidation(requestDto.getEmail());
+
+        // 전화번호 중복 체크
+        phoneNumberDuplicateValidation(requestDto.getPhoneNumber());
+
+        // 비밀번호 암호화
+        String encodedPassword = null;
+        if (requestDto.getSocialType() == KAKAO) {
+            encodedPassword = passwordEncoder.encode(KAKAO_SECRET_PASSWORD);
+        }
+        User user = requestDto.toEntity(encodedPassword);
         userRepository.save(user);
     }
 
@@ -92,5 +117,19 @@ public class UserService {
         User user = userRepository.findByEmail(requestDto.getEmail())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
         user.encodePassword(passwordEncoder.encode(requestDto.getNewPassword()));
+    }
+
+    private void phoneNumberDuplicateValidation(String phoneNumber) {
+        userRepository.findByPhoneNumber(phoneNumber)
+                .ifPresent(user -> {
+                    throw new CustomException(PHONE_NUMBER_ALREADY_EXIST);
+                });
+    }
+
+    private void emailDuplicateValidation(String email) {
+        userRepository.findByEmail(email)
+                .ifPresent(user -> {
+                    throw new CustomException(EMAIL_ALREADY_EXIST);
+                });
     }
 }

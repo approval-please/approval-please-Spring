@@ -1,6 +1,8 @@
 package com.umc.approval.domain.vote.entity;
 
 import com.umc.approval.domain.BaseTimeEntity;
+import com.umc.approval.domain.toktok.dto.ToktokDto;
+import com.umc.approval.domain.toktok.entity.Toktok;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,4 +34,8 @@ public class VoteOption extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String opt;
+
+    public void update(String option) {
+        this.opt = option;
+    }
 }

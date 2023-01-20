@@ -51,7 +51,7 @@ public class Document extends BaseTimeEntity {
     @Column(nullable = false)
     private Long view;
 
-    @Column(columnDefinition = "tinyint(1) default 1", nullable = false)
+    @Column(nullable = false)
     private Boolean notification;
 
     @Column(name = "link_url")

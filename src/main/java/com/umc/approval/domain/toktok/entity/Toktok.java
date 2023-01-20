@@ -1,6 +1,7 @@
 package com.umc.approval.domain.toktok.entity;
 
 import com.umc.approval.domain.BaseTimeEntity;
+import com.umc.approval.domain.toktok.dto.ToktokDto;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.vote.entity.Vote;
 import com.umc.approval.global.type.CategoryType;
@@ -48,6 +49,16 @@ public class Toktok extends BaseTimeEntity {
     @Column(nullable = false)
     private Long view;
 
-    @Column(columnDefinition = "tinyint(1) default 1", nullable = false)
-    private boolean notification; //기본 값을 Boolean = True로 하겠다는 의미
+    @Column(nullable = false)
+    private boolean notification;
+
+    public void update(ToktokDto.PostToktokRequest request, CategoryType categoryType, Vote vote) {
+        this.category = categoryType;
+        this.content = request.getContent();
+        this.vote = vote;
+    }
+
+    public void deleteVote() {
+        this.vote = null;
+    }
 }

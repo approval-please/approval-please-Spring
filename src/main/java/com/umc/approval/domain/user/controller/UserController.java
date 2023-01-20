@@ -24,11 +24,22 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/auth/email")
+    public ResponseEntity<UserDto.EmailCheckResponse> emailCheck(@RequestBody UserDto.EmailCheckRequest requestDto) {
+        return ResponseEntity.ok(userService.emailCheck(requestDto));
+    }
+
     @PostMapping("/auth/signup")
     public ResponseEntity<Void> signup(
-            @RequestBody final UserDto.Request userCreateRequest
+            @RequestBody final UserDto.NormalRequest userCreateNormalRequest
     ) {
-        userService.signup(userCreateRequest);
+        userService.signup(userCreateNormalRequest);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/auth/signup/sns")
+    public ResponseEntity<Void> snsSignup(@RequestBody UserDto.SnsRequest requestDto) {
+        userService.snsSignup(requestDto);
         return ResponseEntity.ok().build();
     }
 
