@@ -106,11 +106,12 @@ public class ToktokService {
         }
     }
 
-    public void updatePost(Long id, ToktokDto.PostToktokRequest request, List<MultipartFile> files) {
+    public void updatePost(Long id, ToktokDto.PostToktokRequest request,
+        List<MultipartFile> files) {
         User user = certifyUser();
-        Toktok toktok =findToktok(id);
+        Toktok toktok = findToktok(id);
 
-        if(user.getId() != toktok.getUser().getId()){
+        if (user.getId() != toktok.getUser().getId()) {
             throw new CustomException(NO_PERMISSION);
         }
 
@@ -141,7 +142,8 @@ public class ToktokService {
         CategoryType categoryType = viewCategory(request.getCategory());
 
         // 투표가 종료된 글의 투표 관련 사항을 수정하려는 경우
-        if(toktok.getVote().getIsEnd().equals(true) && (request.getVoteTitle() != null || request.getVoteOption() != null ||
+        if (toktok.getVote().getIsEnd().equals(true) && (request.getVoteTitle() != null
+            || request.getVoteOption() != null ||
             request.getVoteIsSingle() != null || request.getVoteIsAnonymous() != null)) {
             throw new CustomException(VOTE_IS_END);
         }
@@ -198,38 +200,40 @@ public class ToktokService {
     public void deletePost(Long toktokId) {
         User user = certifyUser();
         Toktok toktok = findToktok(toktokId);
-        if(user.getId() != toktok.getUser().getId()) {
+        if (user.getId() != toktok.getUser().getId()) {
             throw new CustomException(NO_PERMISSION);
         }
 
         // tag 삭제
         List<Tag> tagList = tagRepository.findByToktokId(toktokId);
-        if(tagList != null) {
-            for(Tag tag: tagList) {
+        if (tagList != null) {
+            for (Tag tag : tagList) {
                 tagRepository.deleteById(tag.getId());
             }
         }
 
         //image 삭제
         List<Image> imageList = imageRepository.findByToktokId(toktokId);
-        if(imageList != null) {
+        if (imageList != null) {
             imageRepository.deleteByToktokId(toktokId);
-            for(Image image : imageList) {
+            for (Image image : imageList) {
                 awsS3Service.deleteImage(image.getImageUrl());
             }
         }
 
         //vote 삭제
-        Optional<Vote> vote = voteRepository.findById(toktok.getVote().getId());
-        Vote getVote = vote.get();
-        List<VoteOption> voteOptionList = voteOptionRepository.findByVote(getVote);
-        if(voteOptionList != null) {
-            voteOptionRepository.deleteAll(voteOptionList);
+        if (toktok.getVote() != null) {
+            Optional<Vote> vote = voteRepository.findById(toktok.getVote().getId());
+            Vote getVote = vote.get();
+            List<VoteOption> voteOptionList = voteOptionRepository.findByVote(getVote);
+            if (voteOptionList != null) {
+                voteOptionRepository.deleteAll(voteOptionList);
+            }
+            toktok.deleteVote();
+            entityManager.flush();
+            entityManager.clear();
+            voteRepository.delete(getVote);
         }
-        toktok.deleteVote();
-        entityManager.flush();
-        entityManager.clear();
-        voteRepository.delete(getVote);
     }
 
 
