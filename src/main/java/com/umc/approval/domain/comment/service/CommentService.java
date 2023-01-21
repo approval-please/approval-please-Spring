@@ -78,7 +78,7 @@ public class CommentService {
         User user = userRepository.findById(jwtService.getId())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
-        Comment comment = commentRepository.findById(commentId)
+        Comment comment = commentRepository.findByIdWithUser(commentId)
                 .orElseThrow(() -> new CustomException(COMMENT_NOT_FOUND));
 
         // 본인이 쓴 댓글인지 확인
