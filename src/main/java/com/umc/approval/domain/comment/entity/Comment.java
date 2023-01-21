@@ -53,4 +53,9 @@ public class Comment extends BaseTimeEntity {
     private String content; //255자 최대
 
     private String imageUrl;
+
+    public void update(String content, String imageUrl) {
+        this.content = content;
+        this.imageUrl = imageUrl;
+    }
 }
