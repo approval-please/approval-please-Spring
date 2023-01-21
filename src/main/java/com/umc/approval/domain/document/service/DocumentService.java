@@ -23,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.swing.text.html.Option;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -65,6 +67,44 @@ public class DocumentService {
 
         createTag(request, document);
         createImages(images, document);
+    }
+
+    public DocumentDto.DocumentResponse getDocument(Long documentId){
+
+        Document document = findDocument(documentId);
+        User user = document.getUser();
+
+        List<String> imageUrlList = imageRepository.findImageUrlList(documentId);
+
+        /*
+        List<Tag> tagList = tagRepository.findByDocumentId(documentId);
+        List<String> tagNameList = new ArrayList<String>();
+        for(Tag tag: tagList){
+            tagNameList.add(tag.getTag());
+        }
+        */
+        List<String> tagNameList = tagRepository.findTagNameList(documentId);
+
+        DocumentDto.DocumentResponse response = DocumentDto.DocumentResponse.builder()
+                .profileImage(user.getProfileImage())
+                .nickname(user.getNickname())
+                .level(user.getLevel())
+                .category(document.getCategory().getCategory())
+                .title(document.getTitle())
+                .content(document.getContent())
+                .linkUrl(document.getLinkUrl())
+                .tag(tagNameList)
+                .images(imageUrlList)
+                .state(document.getState())
+                .approveCount(0)
+                .rejectCount(0)
+                .likedCount(0)
+                .commentCount(0)
+                .modifiedAt(document.getModifiedAt().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")))
+                .view(document.getView())
+                .build();
+
+        return response;
     }
 
     public void updateDocument(Long documentId, DocumentDto.DocumentRequest request, List<MultipartFile> images) {
