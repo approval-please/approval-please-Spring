@@ -1,5 +1,6 @@
 package com.umc.approval.domain.document.service;
 
+import com.umc.approval.domain.approval.entity.ApprovalRepository;
 import com.umc.approval.domain.comment.entity.CommentRepository;
 import com.umc.approval.domain.document.dto.DocumentDto;
 import com.umc.approval.domain.document.entity.Document;
@@ -47,6 +48,7 @@ public class DocumentService {
     private final ImageRepository imageRepository;
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
+    private final ApprovalRepository approvalRepository;
 
     public void createDocument(DocumentDto.DocumentRequest request, List<MultipartFile> images) {
         User user = certifyUser();
@@ -75,7 +77,7 @@ public class DocumentService {
 
     public DocumentDto.DocumentResponse getDocument(Long documentId){
 
-        // 조회수 업데이트
+        // 조회 수 업데이트
         documentRepository.updateView(documentId);
 
         // 결재서류 정보
@@ -83,6 +85,10 @@ public class DocumentService {
         User user = document.getUser();
         List<String> imageUrlList = imageRepository.findImageUrlList(documentId);
         List<String> tagNameList = tagRepository.findTagNameList(documentId);
+
+        // 승인, 반려 수
+        int approvalCount = approvalRepository.countApprovalByDocumentId(documentId);
+        int rejectCount = approvalRepository.countRejectByDocumentId(documentId);
 
         // 좋아요 수, 댓글 수
         int likedCount = likeRepository.countByDocumentId(documentId);
@@ -99,8 +105,8 @@ public class DocumentService {
                 .tag(tagNameList)
                 .images(imageUrlList)
                 .state(document.getState())
-                .approveCount(0)
-                .rejectCount(0)
+                .approveCount(approvalCount)
+                .rejectCount(rejectCount)
                 .likedCount(likedCount)
                 .commentCount(commentCount)
                 .modifiedAt(document.getModifiedAt().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")))
