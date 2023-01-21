@@ -75,21 +75,16 @@ public class DocumentService {
 
     public DocumentDto.DocumentResponse getDocument(Long documentId){
 
+        // 조회수 업데이트
+        documentRepository.updateView(documentId);
+
+        // 결재서류 정보
         Document document = findDocument(documentId);
         User user = document.getUser();
-
         List<String> imageUrlList = imageRepository.findImageUrlList(documentId);
-
-        /*
-        List<Tag> tagList = tagRepository.findByDocumentId(documentId);
-        List<String> tagNameList = new ArrayList<String>();
-        for(Tag tag: tagList){
-            tagNameList.add(tag.getTag());
-        }
-        */
         List<String> tagNameList = tagRepository.findTagNameList(documentId);
 
-        // 좋아요 수, 댓글 수, 조회수
+        // 좋아요 수, 댓글 수
         int likedCount = likeRepository.countByDocumentId(documentId);
         int commentCount = commentRepository.countByDocumentId(documentId);
 
