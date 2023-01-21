@@ -52,5 +52,19 @@ public class Comment extends BaseTimeEntity {
     @Column(nullable = false)
     private String content; //255자 최대
 
+    @Column(nullable = false)
+    private Boolean isDeleted;
+
     private String imageUrl;
+
+    public void update(String content, String imageUrl) {
+        this.content = content;
+        this.imageUrl = imageUrl;
+    }
+
+    public void deleteWithChildComment() {
+        this.content = "[삭제된 댓글입니다.]";
+        this.isDeleted = true;
+        this.imageUrl = null;
+    }
 }
