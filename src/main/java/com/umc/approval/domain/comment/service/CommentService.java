@@ -38,8 +38,7 @@ public class CommentService {
 
     public void createComment(CommentDto.CreateRequest requestDto, List<MultipartFile> images) {
 
-        User user = userRepository.findById(jwtService.getId())
-                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+        User user = getUser();
 
         // 부모 댓글 조회
         Comment parentComment = null;
@@ -75,9 +74,7 @@ public class CommentService {
 
     public void updateComment(Long commentId, CommentDto.UpdateRequest requestDto, List<MultipartFile> images) {
 
-        User user = userRepository.findById(jwtService.getId())
-                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
-
+        User user = getUser();
         Comment comment = commentRepository.findByIdWithUser(commentId)
                 .orElseThrow(() -> new CustomException(COMMENT_NOT_FOUND));
 
@@ -97,5 +94,22 @@ public class CommentService {
             imageUrl = awsS3Service.uploadImage(images.get(0));
         }
         comment.update(requestDto.getContent(), imageUrl);
+    }
+
+    public void deleteComment(Long commentId) {
+
+        User user = getUser();
+        Comment comment = commentRepository.findByIdWithUser(commentId)
+                .orElseThrow(() -> new CustomException(COMMENT_NOT_FOUND));
+
+        // 본인이 쓴 댓글인지 확인
+        if (!comment.getUser().getId().equals(user.getId())) {
+            throw new CustomException(NO_PERMISSION);
+        }
+    }
+
+    private User getUser() {
+        return userRepository.findById(jwtService.getId())
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
     }
 }

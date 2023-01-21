@@ -52,6 +52,9 @@ public class Comment extends BaseTimeEntity {
     @Column(nullable = false)
     private String content; //255자 최대
 
+    @Column(nullable = false)
+    private Boolean isDeleted;
+
     private String imageUrl;
 
     public void update(String content, String imageUrl) {
