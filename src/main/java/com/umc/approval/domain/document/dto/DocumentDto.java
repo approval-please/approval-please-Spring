@@ -1,5 +1,6 @@
 package com.umc.approval.domain.document.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.Max;
@@ -25,6 +26,35 @@ public class DocumentDto {
 
         private List<String> tag;
         private String linkUrl;
+    }
+
+    @Builder
+    @Data
+    public static class DocumentResponse{
+        // user
+        private String profileImage;
+        private String nickname;
+        private Integer level;
+
+        // document
+        private String category;
+        private String title;
+        private String content;
+        private String linkUrl;
+        private List<String> tag;
+        private List<String> images;
+
+        // state
+        private Integer state;
+        private Integer approveCount;
+        private Integer rejectCount;
+
+        // etc..
+        private Integer likedCount;
+        private Integer commentCount;
+        private String modifiedAt;
+        private Long view;
+
     }
 
 }
