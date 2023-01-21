@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static org.springframework.http.HttpMethod.PUT;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -223,6 +224,17 @@ public class CommentControllerTest {
                         .file(bodyFile)
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
+    @DisplayName("댓글 삭제에 성공한다")
+    @WithMockUser
+    @Test
+    void delete_comment_success() throws Exception {
+        // given & when & then
+        mvc.perform(delete("/comments/1")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk())
                 .andDo(print());
     }
 }
