@@ -72,4 +72,30 @@ public class CommentService {
 
         commentRepository.save(requestDto.toEntity(user, document, report, toktok, parentComment, imageUrl));
     }
+
+    public void updateComment(Long commentId, CommentDto.UpdateRequest requestDto, List<MultipartFile> images) {
+
+        User user = userRepository.findById(jwtService.getId())
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CustomException(COMMENT_NOT_FOUND));
+
+        // 본인이 쓴 댓글인지 확인
+        if (!comment.getUser().getId().equals(user.getId())) {
+            throw new CustomException(NO_PERMISSION);
+        }
+
+        // 기존 이미지 존재 시 삭제
+        if (comment.getImageUrl() != null) {
+            awsS3Service.deleteImage(comment.getImageUrl());
+        }
+
+        // 변경된 이미지 추가
+        String imageUrl = null;
+        if (images != null && !images.isEmpty()) {
+            imageUrl = awsS3Service.uploadImage(images.get(0));
+        }
+        comment.update(requestDto.getContent(), imageUrl);
+    }
 }
