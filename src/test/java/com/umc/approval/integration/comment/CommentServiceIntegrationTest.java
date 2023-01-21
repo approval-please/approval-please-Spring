@@ -114,6 +114,7 @@ public class CommentServiceIntegrationTest {
                 .user(user)
                 .document(document)
                 .content("content")
+                .isDeleted(false)
                 .build();
         return commentRepository.save(comment);
     }
@@ -306,6 +307,121 @@ public class CommentServiceIntegrationTest {
         // when & then
         CustomException e = assertThrows(CustomException.class,
                 () -> commentService.updateComment(comment.getId(), requestDto, List.of(image)));
+        assertThat(e.getErrorType()).isEqualTo(NO_PERMISSION);
+    }
+
+    @DisplayName("댓글 삭제에 성공한다 - 대댓글 X")
+    @Test
+    void delete_comment_success() {
+
+        // given
+        User user = createUser(1L);
+        Comment comment = createComment(user);
+        loginUser(user);
+
+        // when & then
+        List<Comment> beforeResult = commentRepository.findAll();
+        assertThat(beforeResult.size()).isEqualTo(1);
+        commentService.deleteComment(comment.getId());
+        List<Comment> afterResult = commentRepository.findAll();
+        assertThat(afterResult).isEmpty();
+    }
+
+    @DisplayName("댓글 삭제에 성공한다 - 대댓글 O")
+    @Test
+    void delete_comment_with_child_comment_success() {
+
+        // given
+        User user = createUser(1L);
+        Comment comment = createComment(user);
+        Document document = comment.getDocument();
+        Comment childComment = Comment.builder()
+                .user(user)
+                .document(document)
+                .content("content")
+                .parentComment(comment)
+                .isDeleted(false)
+                .build();
+        commentRepository.save(childComment);
+
+        loginUser(user);
+
+        // when
+        commentService.deleteComment(comment.getId());
+        Comment findComment = commentRepository.findById(comment.getId()).get();
+
+        // then
+        assertThat(findComment.getIsDeleted()).isTrue();
+        assertThat(findComment.getContent()).isEqualTo("[삭제된 댓글입니다.]");
+    }
+
+    @DisplayName("댓글 삭제에 성공한다 - 대댓글 O 이후 대댓글 삭제")
+    @Test
+    void delete_comment_with_child_comment_delete_success() {
+
+        // given
+        User user = createUser(1L);
+        Comment comment = createComment(user);
+        Document document = comment.getDocument();
+        Comment childComment = Comment.builder()
+                .user(user)
+                .document(document)
+                .content("content")
+                .parentComment(comment)
+                .isDeleted(false)
+                .build();
+        commentRepository.save(childComment);
+
+        loginUser(user);
+
+        // when & then
+        commentService.deleteComment(comment.getId());
+        Comment findComment = commentRepository.findById(comment.getId()).get();
+        assertThat(findComment.getIsDeleted()).isTrue();
+        assertThat(findComment.getContent()).isEqualTo("[삭제된 댓글입니다.]");
+
+        // 대댓글까지 삭제
+        commentService.deleteComment(childComment.getId());
+        List<Comment> result = commentRepository.findAll();
+        assertThat(result).isEmpty();
+    }
+
+    @DisplayName("댓글 삭제 시 사용자가 존재하지 않으면 실패한다")
+    @Test
+    void delete_comment_not_found_user_fail() {
+
+        // given
+        User user = createUser(1L);
+        User otherUser = createUser(2L);
+        Comment comment = createComment(user);
+
+        String accessToken = jwtService.createAccessToken(otherUser.getEmail(), user.getId() + 20L);
+        List<SimpleGrantedAuthority> authorities
+                = Collections.singletonList(new SimpleGrantedAuthority(RoleType.USER.getKey()));
+        Authentication authToken = new UsernamePasswordAuthenticationToken(otherUser.getEmail(), accessToken, authorities);
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        // when & then
+        CustomException e = assertThrows(CustomException.class,
+                () -> commentService.deleteComment(comment.getId()));
+        assertThat(e.getErrorType()).isEqualTo(USER_NOT_FOUND);
+    }
+
+    @DisplayName("댓글 삭제 시 자신의 댓글이 아니면 실패한다")
+    @Test
+    void delete_comment_not_own_comment_fail() {
+
+        // given
+        User user = createUser(1L);
+        User otherUser = createUser(2L);
+        userRepository.save(otherUser);
+        Comment comment = createComment(user);
+
+        loginUser(otherUser);
+
+        // when & then
+        CustomException e = assertThrows(CustomException.class,
+                () -> commentService.deleteComment(comment.getId()));
         assertThat(e.getErrorType()).isEqualTo(NO_PERMISSION);
     }
 }
