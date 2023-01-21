@@ -99,12 +99,31 @@ public class CommentService {
     public void deleteComment(Long commentId) {
 
         User user = getUser();
-        Comment comment = commentRepository.findByIdWithUser(commentId)
+        Comment comment = commentRepository.findByIdWithUserAndParentComment(commentId)
                 .orElseThrow(() -> new CustomException(COMMENT_NOT_FOUND));
 
         // 본인이 쓴 댓글인지 확인
         if (!comment.getUser().getId().equals(user.getId())) {
             throw new CustomException(NO_PERMISSION);
+        }
+
+        // 이미지 제거
+        if (comment.getImageUrl() != null) {
+            awsS3Service.deleteImage(comment.getImageUrl());
+        }
+
+        // 대댓글 존재 여부에 따른 삭제 처리
+        if (commentRepository.existsByParentCommentId(commentId)) {
+            comment.deleteWithChildComment();
+        } else {
+            Comment parentComment = comment.getParentComment();
+            commentRepository.delete(comment);
+            // 댓글 삭제 후 삭제된 부모 댓글에 대댓글이 더이상 존재하지 않을 경우, 부모 댓글도 db에서 삭제
+            if (parentComment != null
+                    && !commentRepository.existsByParentCommentId(parentComment.getId())
+                    && parentComment.getIsDeleted()) {
+                commentRepository.delete(parentComment);
+            }
         }
     }
 

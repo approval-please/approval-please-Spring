@@ -33,6 +33,7 @@ public class CommentDto {
                     .toktok(toktok)
                     .parentComment(parentComment)
                     .content(content)
+                    .isDeleted(false)
                     .imageUrl(imageUrl)
                     .build();
         }

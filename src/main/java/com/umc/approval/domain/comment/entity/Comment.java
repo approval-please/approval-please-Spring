@@ -61,4 +61,10 @@ public class Comment extends BaseTimeEntity {
         this.content = content;
         this.imageUrl = imageUrl;
     }
+
+    public void deleteWithChildComment() {
+        this.content = "[삭제된 댓글입니다.]";
+        this.isDeleted = true;
+        this.imageUrl = null;
+    }
 }
