@@ -2,6 +2,7 @@ package com.umc.approval.domain.comment.entity;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
@@ -19,4 +20,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     Optional<Comment> findByIdWithUserAndParentComment(Long commentId);
 
     Boolean existsByParentCommentId(Long parentCommentId);
+
+    @Query(value = "select count(*) from comment where document_id = :document_id", nativeQuery = true)
+    int countByDocumentId(@Param("document_id") Long documentId);
 }
