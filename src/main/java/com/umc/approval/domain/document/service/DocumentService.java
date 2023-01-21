@@ -5,6 +5,7 @@ import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.entity.DocumentRepository;
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
+import com.umc.approval.domain.like.entity.LikeRepository;
 import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.entity.LinkRepository;
 import com.umc.approval.domain.tag.entity.Tag;
@@ -43,6 +44,8 @@ public class DocumentService {
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
     private final ImageRepository imageRepository;
+
+    private final LikeRepository likeRepository;
 
     public void createDocument(DocumentDto.DocumentRequest request, List<MultipartFile> images) {
         User user = certifyUser();
@@ -85,6 +88,8 @@ public class DocumentService {
         */
         List<String> tagNameList = tagRepository.findTagNameList(documentId);
 
+        int likedCount = likeRepository.countByDocumentId(documentId);
+
         DocumentDto.DocumentResponse response = DocumentDto.DocumentResponse.builder()
                 .profileImage(user.getProfileImage())
                 .nickname(user.getNickname())
@@ -98,7 +103,7 @@ public class DocumentService {
                 .state(document.getState())
                 .approveCount(0)
                 .rejectCount(0)
-                .likedCount(0)
+                .likedCount(likedCount)
                 .commentCount(0)
                 .modifiedAt(document.getModifiedAt().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")))
                 .view(document.getView())
