@@ -34,8 +34,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import static com.umc.approval.global.exception.CustomErrorType.DOCUMENT_NOT_FOUND;
-import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
+import static com.umc.approval.global.exception.CustomErrorType.*;
 import static com.umc.approval.global.type.CategoryType.ANIMAL_PLANT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -97,6 +96,26 @@ public class CommentServiceIntegrationTest {
                 = Collections.singletonList(new SimpleGrantedAuthority(RoleType.USER.getKey()));
         Authentication authToken = new UsernamePasswordAuthenticationToken(user.getEmail(), accessToken, authorities);
         SecurityContextHolder.getContext().setAuthentication(authToken);
+    }
+
+    private Comment createComment(User user) {
+        userRepository.save(user);
+        Document document = Document.builder()
+                .user(user)
+                .title("title")
+                .content("content")
+                .view(0L)
+                .category(ANIMAL_PLANT)
+                .state(2)
+                .notification(true)
+                .build();
+        documentRepository.save(document);
+        Comment comment = Comment.builder()
+                .user(user)
+                .document(document)
+                .content("content")
+                .build();
+        return commentRepository.save(comment);
     }
 
     @DisplayName("댓글 등록에 성공한다 - 이미지 X")
@@ -224,5 +243,69 @@ public class CommentServiceIntegrationTest {
         CustomException e = assertThrows(CustomException.class,
                 () -> commentService.createComment(requestDto, null));
         assertThat(e.getErrorType()).isEqualTo(DOCUMENT_NOT_FOUND);
+    }
+
+    @DisplayName("댓글 수정에 성공한다")
+    @Test
+    void update_comment_success() throws IOException {
+
+        // given
+        User user = createUser(1L);
+        Comment comment = createComment(user);
+        CommentDto.UpdateRequest requestDto = new CommentDto.UpdateRequest("new content");
+        MockMultipartFile image = createImage();
+
+        loginUser(user);
+
+        // when
+        commentService.updateComment(comment.getId(), requestDto, List.of(image));
+        Comment findComment = commentRepository.findAll().get(0);
+
+        // then
+        assertThat(findComment.getContent()).isEqualTo(requestDto.getContent());
+        assertThat(findComment.getImageUrl()).isNotNull();
+    }
+
+    @DisplayName("댓글 수정 시 사용자가 존재하지 않으면 실패한다")
+    @Test
+    void update_comment_not_found_user_fail() throws IOException {
+
+        // given
+        User user = createUser(1L);
+        User otherUser = createUser(2L);
+        Comment comment = createComment(user);
+        CommentDto.UpdateRequest requestDto = new CommentDto.UpdateRequest("new content");
+        MockMultipartFile image = createImage();
+
+        String accessToken = jwtService.createAccessToken(otherUser.getEmail(), user.getId() + 20L);
+        List<SimpleGrantedAuthority> authorities
+                = Collections.singletonList(new SimpleGrantedAuthority(RoleType.USER.getKey()));
+        Authentication authToken = new UsernamePasswordAuthenticationToken(otherUser.getEmail(), accessToken, authorities);
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        // when & then
+        CustomException e = assertThrows(CustomException.class,
+                () -> commentService.updateComment(comment.getId(), requestDto, List.of(image)));
+        assertThat(e.getErrorType()).isEqualTo(USER_NOT_FOUND);
+    }
+
+    @DisplayName("댓글 수정 시 자신의 댓글이 아니면 실패한다")
+    @Test
+    void update_comment_not_own_comment_fail() throws IOException {
+
+        // given
+        User user = createUser(1L);
+        User otherUser = createUser(2L);
+        userRepository.save(otherUser);
+        Comment comment = createComment(user);
+        CommentDto.UpdateRequest requestDto = new CommentDto.UpdateRequest(null);
+        MockMultipartFile image = createImage();
+
+        loginUser(otherUser);
+
+        // when & then
+        CustomException e = assertThrows(CustomException.class,
+                () -> commentService.updateComment(comment.getId(), requestDto, List.of(image)));
+        assertThat(e.getErrorType()).isEqualTo(NO_PERMISSION);
     }
 }
