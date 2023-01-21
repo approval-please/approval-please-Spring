@@ -1,5 +1,6 @@
 package com.umc.approval.domain.document.service;
 
+import com.umc.approval.domain.comment.entity.CommentRepository;
 import com.umc.approval.domain.document.dto.DocumentDto;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.entity.DocumentRepository;
@@ -44,8 +45,8 @@ public class DocumentService {
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
     private final ImageRepository imageRepository;
-
     private final LikeRepository likeRepository;
+    private final CommentRepository commentRepository;
 
     public void createDocument(DocumentDto.DocumentRequest request, List<MultipartFile> images) {
         User user = certifyUser();
@@ -88,7 +89,9 @@ public class DocumentService {
         */
         List<String> tagNameList = tagRepository.findTagNameList(documentId);
 
+        // 좋아요 수, 댓글 수, 조회수
         int likedCount = likeRepository.countByDocumentId(documentId);
+        int commentCount = commentRepository.countByDocumentId(documentId);
 
         DocumentDto.DocumentResponse response = DocumentDto.DocumentResponse.builder()
                 .profileImage(user.getProfileImage())
@@ -104,7 +107,7 @@ public class DocumentService {
                 .approveCount(0)
                 .rejectCount(0)
                 .likedCount(likedCount)
-                .commentCount(0)
+                .commentCount(commentCount)
                 .modifiedAt(document.getModifiedAt().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")))
                 .view(document.getView())
                 .build();
