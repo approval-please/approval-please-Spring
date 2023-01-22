@@ -55,7 +55,7 @@ public class DocumentDto {
         private Integer level;
 
         // document
-        private String category;
+        private Integer category;
         private String title;
         private String content;
         private String linkUrl;
@@ -81,7 +81,7 @@ public class DocumentDto {
             this.nickname = user.getNickname();
             this.level = user.getLevel();
 
-            this.category = document.getCategory().getCategory();
+            this.category = document.getCategory().getValue();
             this.title = document.getTitle();
             this.content = document.getContent();
             this.linkUrl = document.getLinkUrl();
