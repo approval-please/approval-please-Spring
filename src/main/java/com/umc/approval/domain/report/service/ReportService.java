@@ -6,6 +6,8 @@ import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
 
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.entity.DocumentRepository;
+import com.umc.approval.domain.image.entity.Image;
+import com.umc.approval.domain.image.entity.ImageRepository;
 import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.entity.LinkRepository;
 import com.umc.approval.domain.report.dto.ReportDto;
@@ -16,6 +18,7 @@ import com.umc.approval.domain.tag.entity.TagRepository;
 import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
+import com.umc.approval.global.aws.service.AwsS3Service;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import java.util.List;
@@ -31,11 +34,13 @@ import org.springframework.web.multipart.MultipartFile;
 public class ReportService {
 
     private final JwtService jwtService;
+    private final AwsS3Service awsS3Service;
     private final UserRepository userRepository;
     private final LinkRepository linkRepository;
     private final TagRepository tagRepository;
     private final ReportRepository reportRepository;
     private final DocumentRepository documentRepository;
+    private final ImageRepository imageRepository;
 
     public void createPost(ReportDto.ReportRequest request, List<MultipartFile> files) {
         User user = certifyUser();
@@ -55,15 +60,17 @@ public class ReportService {
 
         //링크 등록
         if (request.getLinkUrl() != null) {
-            List<String> linkList = request.getLinkUrl();
-            createLink(linkList, report);
+            createLink(request.getLinkUrl(), report);
         }
 
         //태그 등록
         if (request.getTag() != null) {
             List<String> tagList = request.getTag();
-            createTag(tagList, report);
+            createTag(request.getTag(), report);
         }
+
+        //이미지 등록
+        createImages(files, report);
     }
 
     private User certifyUser() {
@@ -91,6 +98,22 @@ public class ReportService {
             .orElseThrow(() -> new CustomException(DOCUMENT_NOT_FOUND));
 
         return document;
+    }
+
+    private void createImages(List<MultipartFile> images, Report report){
+        if (images != null && !images.isEmpty()) {
+            if (images.size() == 1) {
+                String imgUrl = awsS3Service.uploadImage(images.get(0));
+                Image uploadImg = Image.builder().report(report).imageUrl(imgUrl).build();
+                imageRepository.save(uploadImg);
+            } else {
+                List<String> imgUrls = awsS3Service.uploadImage(images);
+                for (String imgUrl : imgUrls) {
+                    Image uploadImg = Image.builder().report(report).imageUrl(imgUrl).build();
+                    imageRepository.save(uploadImg);
+                }
+            }
+        }
     }
 
 }

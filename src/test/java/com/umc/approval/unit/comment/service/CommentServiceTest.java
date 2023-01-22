@@ -1,6 +1,7 @@
 package com.umc.approval.unit.comment.service;
 
 import com.umc.approval.domain.comment.dto.CommentDto;
+import com.umc.approval.domain.comment.entity.Comment;
 import com.umc.approval.domain.comment.entity.CommentRepository;
 import com.umc.approval.domain.comment.service.CommentService;
 import com.umc.approval.domain.document.entity.Document;
@@ -25,8 +26,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import static com.umc.approval.global.exception.CustomErrorType.DOCUMENT_NOT_FOUND;
-import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
+import static com.umc.approval.global.exception.CustomErrorType.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -151,5 +151,78 @@ public class CommentServiceTest {
         CustomException e = assertThrows(CustomException.class,
                 () -> commentService.createComment(requestDto, null));
         assertThat(e.getErrorType()).isEqualTo(DOCUMENT_NOT_FOUND);
+    }
+
+    @DisplayName("댓글 수정에 성공한다")
+    @Test
+    void update_comment_success() throws IOException {
+
+        // given
+        User user = createUser(1L);
+        Comment comment = Comment.builder()
+                .id(1L)
+                .user(user)
+                .content("content")
+                .build();
+        given(userRepository.findById(any())).willReturn(Optional.of(user));
+        given(commentRepository.findByIdWithUser(any())).willReturn(Optional.of(comment));
+        CommentDto.UpdateRequest requestDto = new CommentDto.UpdateRequest("new content");
+
+        MockMultipartFile image = createImage();
+
+        // when & then
+        commentService.updateComment(comment.getId(), requestDto, List.of(image));
+    }
+
+    @DisplayName("댓글 수정 시 사용자가 존재하지 않으면 실패한다")
+    @Test
+    void update_comment_not_found_user_fail() {
+
+        // given
+        given(userRepository.findById(any())).willReturn(Optional.empty());
+        CommentDto.UpdateRequest requestDto = new CommentDto.UpdateRequest("new content");
+
+        // when & then
+        CustomException e = assertThrows(CustomException.class,
+                () -> commentService.updateComment(1L, requestDto, null));
+        assertThat(e.getErrorType()).isEqualTo(USER_NOT_FOUND);
+    }
+
+    @DisplayName("댓글 수정 시 댓글이 존재하지 않으면 실패한다")
+    @Test
+    void update_comment_not_found_comment_fail() {
+
+        // given
+        User user = createUser(1L);
+        given(userRepository.findById(any())).willReturn(Optional.of(user));
+        given(commentRepository.findByIdWithUser(any())).willReturn(Optional.empty());
+        CommentDto.UpdateRequest requestDto = new CommentDto.UpdateRequest("new content");
+
+        // when & then
+        CustomException e = assertThrows(CustomException.class,
+                () -> commentService.updateComment(1L, requestDto, null));
+        assertThat(e.getErrorType()).isEqualTo(COMMENT_NOT_FOUND);
+    }
+
+    @DisplayName("댓글 수정 시 사용자가 쓴 댓글이 아니면 실패한다")
+    @Test
+    void update_comment_not_own_comment_fail() {
+
+        // given
+        User user = createUser(1L);
+        User otherUser = createUser(2L);
+        Comment comment = Comment.builder()
+                .id(1L)
+                .user(user)
+                .content("content")
+                .build();
+        given(userRepository.findById(any())).willReturn(Optional.of(otherUser));
+        given(commentRepository.findByIdWithUser(any())).willReturn(Optional.of(comment));
+        CommentDto.UpdateRequest requestDto = new CommentDto.UpdateRequest("new content");
+
+        // when & then
+        CustomException e = assertThrows(CustomException.class,
+                () -> commentService.updateComment(comment.getId(), requestDto, null));
+        assertThat(e.getErrorType()).isEqualTo(NO_PERMISSION);
     }
 }
