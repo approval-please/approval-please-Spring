@@ -38,3 +38,11 @@ logging:
     com:
       umc:
         approval: debug
+
+#Ncloud SMS API
+ncloud:
+  sms:
+    accessKey: none
+    secretKey: none
+    serviceId: none
+    senderPhone: none
