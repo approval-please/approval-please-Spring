@@ -1,6 +1,8 @@
 package com.umc.approval.domain.report.service;
 
 import static com.umc.approval.global.exception.CustomErrorType.DOCUMENT_NOT_FOUND;
+import static com.umc.approval.global.exception.CustomErrorType.REPORT_ALREADY_EXISTS;
+import static com.umc.approval.global.exception.CustomErrorType.REPORT_NOT_FOUND;
 import static com.umc.approval.global.exception.CustomErrorType.TOKTOKPOST_NOT_FOUND;
 import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
 
@@ -48,6 +50,12 @@ public class ReportService {
         //결재서류 가져오기
         Document document = findDocument(request.getDocumentId());
 
+        //해당 결재서류에 대한 결재보고서가 이미 존재하는 경우
+        Optional getReport = reportRepository.findByDocumentId(request.getDocumentId());
+        if (getReport.isPresent()) {
+            throw new CustomException(REPORT_ALREADY_EXISTS);
+        }
+
         //결재보고서 등록
         Report report = Report.builder()
             .content(request.getContent())
@@ -93,14 +101,14 @@ public class ReportService {
         }
     }
 
-    private Document findDocument(Long documentId){
+    private Document findDocument(Long documentId) {
         Document document = documentRepository.findById(documentId)
             .orElseThrow(() -> new CustomException(DOCUMENT_NOT_FOUND));
 
         return document;
     }
 
-    private void createImages(List<MultipartFile> images, Report report){
+    private void createImages(List<MultipartFile> images, Report report) {
         if (images != null && !images.isEmpty()) {
             if (images.size() == 1) {
                 String imgUrl = awsS3Service.uploadImage(images.get(0));
