@@ -59,19 +59,9 @@ public class DocumentService {
                 .findAny().get();
 
         // 게시글 등록
-        Document document = Document.builder()
-                .user(user)
-                .category(categoryType)
-                .title(request.getTitle())
-                .content(request.getContent())
-                .state(2) //승인대기중
-                .view(0L)
-                .notification(true)
-                .linkUrl(request.getLinkUrl())
-                .build();
+        Document document = request.toEntity(user, categoryType);
         documentRepository.save(document);
-
-        createTag(request, document);
+        createTag(request.getTag(), document);
         createImages(images, document);
     }
 
@@ -83,8 +73,8 @@ public class DocumentService {
         // 결재서류 정보
         Document document = findDocument(documentId);
         User user = document.getUser();
-        List<String> imageUrlList = imageRepository.findImageUrlList(documentId);
         List<String> tagNameList = tagRepository.findTagNameList(documentId);
+        List<String> imageUrlList = imageRepository.findImageUrlList(documentId);
 
         // 승인, 반려 수
         int approvalCount = approvalRepository.countApprovalByDocumentId(documentId);
@@ -94,26 +84,9 @@ public class DocumentService {
         int likedCount = likeRepository.countByDocumentId(documentId);
         int commentCount = commentRepository.countByDocumentId(documentId);
 
-        DocumentDto.DocumentResponse response = DocumentDto.DocumentResponse.builder()
-                .profileImage(user.getProfileImage())
-                .nickname(user.getNickname())
-                .level(user.getLevel())
-                .category(document.getCategory().getCategory())
-                .title(document.getTitle())
-                .content(document.getContent())
-                .linkUrl(document.getLinkUrl())
-                .tag(tagNameList)
-                .images(imageUrlList)
-                .state(document.getState())
-                .approveCount(approvalCount)
-                .rejectCount(rejectCount)
-                .likedCount(likedCount)
-                .commentCount(commentCount)
-                .modifiedAt(document.getModifiedAt().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")))
-                .view(document.getView())
-                .build();
+        return new DocumentDto.DocumentResponse(document, user, tagNameList, imageUrlList,
+                approvalCount, rejectCount, likedCount, commentCount);
 
-        return response;
     }
 
     public void updateDocument(Long documentId, DocumentDto.DocumentRequest request, List<MultipartFile> images) {
@@ -133,7 +106,7 @@ public class DocumentService {
 
         // tag 수정
         deleteTag(documentId);
-        createTag(request, document);
+        createTag(request.getTag(), document);
 
         // image 수정
         deleteImages(documentId);
@@ -174,9 +147,9 @@ public class DocumentService {
         return document.get();
     }
 
-    private void createTag(DocumentDto.DocumentRequest request, Document document){
-        if (request.getTag() != null) {
-            for (String tag : request.getTag()) {
+    private void createTag(List<String> tags, Document document){
+        if (tags != null) {
+            for (String tag : tags) {
                 Tag newTag = Tag.builder().document(document).tag(tag).build();
                 tagRepository.save(newTag);
             }

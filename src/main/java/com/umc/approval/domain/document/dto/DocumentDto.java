@@ -1,5 +1,8 @@
 package com.umc.approval.domain.document.dto;
 
+import com.umc.approval.domain.document.entity.Document;
+import com.umc.approval.domain.user.entity.User;
+import com.umc.approval.global.type.CategoryType;
 import lombok.Builder;
 import lombok.Data;
 
@@ -7,6 +10,8 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.xml.datatype.DatatypeConstants;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class DocumentDto {
@@ -26,9 +31,22 @@ public class DocumentDto {
 
         private List<String> tag;
         private String linkUrl;
+
+        // DTO -> Entity
+        public Document toEntity(User user, CategoryType categoryType){
+            return Document.builder()
+                    .user(user)
+                    .category(categoryType)
+                    .title(title)
+                    .content(content)
+                    .state(2) //승인대기중
+                    .view(0L)
+                    .notification(true)
+                    .linkUrl(linkUrl)
+                    .build();
+        }
     }
 
-    @Builder
     @Data
     public static class DocumentResponse{
         // user
@@ -55,6 +73,30 @@ public class DocumentDto {
         private String modifiedAt;
         private Long view;
 
+
+        // Entity -> DTO
+        public DocumentResponse(Document document, User user, List<String> tagNameList, List<String> imageUrlList,
+                int approveCount, int rejectCount, int likedCount, int commentCount) {
+            this.profileImage = user.getProfileImage();
+            this.nickname = user.getNickname();
+            this.level = user.getLevel();
+
+            this.category = document.getCategory().getCategory();
+            this.title = document.getTitle();
+            this.content = document.getContent();
+            this.linkUrl = document.getLinkUrl();
+            this.tag = tagNameList;
+            this.images = imageUrlList;
+
+            this.state = document.getState();
+            this.approveCount = approveCount;
+            this.rejectCount = rejectCount;
+
+            this.likedCount = likedCount;
+            this.commentCount = commentCount;
+            this.modifiedAt = document.getModifiedAt().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"));
+            this.view = document.getView();
+        }
     }
 
 }
