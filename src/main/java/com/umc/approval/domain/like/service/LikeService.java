@@ -31,7 +31,7 @@ public class LikeService {
 
         // 팔로우 처리
         Long userId = jwtService.getIdDirectHeader(request);
-        List<LikeDto.Response> response = null;
+        List<LikeDto.Response> response;
         if (userId != null) {
             // 로그인 O
             List<Long> userIds = likes.stream().map(l -> l.getUser().getId()).collect(Collectors.toList());
