@@ -65,7 +65,7 @@ public class DocumentService {
         createImages(images, document);
     }
 
-    public DocumentDto.DocumentResponse getDocument(Long documentId){
+    public DocumentDto.GetDocumentResponse getDocument(Long documentId){
 
         // 조회 수 업데이트
         documentRepository.updateView(documentId);
@@ -77,16 +77,15 @@ public class DocumentService {
         List<String> imageUrlList = imageRepository.findImageUrlList(documentId);
 
         // 승인, 반려 수
-        int approvalCount = approvalRepository.countApprovalByDocumentId(documentId);
+        int approveCount = approvalRepository.countApproveByDocumentId(documentId);
         int rejectCount = approvalRepository.countRejectByDocumentId(documentId);
 
         // 좋아요 수, 댓글 수
         int likedCount = likeRepository.countByDocumentId(documentId);
         int commentCount = commentRepository.countByDocumentId(documentId);
 
-        return new DocumentDto.DocumentResponse(document, user, tagNameList, imageUrlList,
-                approvalCount, rejectCount, likedCount, commentCount);
-
+        return new DocumentDto.GetDocumentResponse(document, user, tagNameList, imageUrlList,
+                approveCount, rejectCount, likedCount, commentCount);
     }
 
     public void updateDocument(Long documentId, DocumentDto.DocumentRequest request, List<MultipartFile> images) {
