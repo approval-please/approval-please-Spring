@@ -51,7 +51,4 @@ public class ToktokController {
         toktokService.deletePost(id);
         return ResponseEntity.ok().build();
     }
-
-
-
 }
