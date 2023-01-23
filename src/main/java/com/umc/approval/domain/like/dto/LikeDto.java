@@ -19,7 +19,7 @@ public class LikeDto {
     }
 
     @Getter
-    @Builder(access = AccessLevel.PRIVATE)
+    @Builder
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class ListResponse {
         private Integer page;
@@ -38,7 +38,7 @@ public class LikeDto {
     }
 
     @Getter
-    @Builder(access = AccessLevel.PRIVATE)
+    @Builder
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Response {
         private Long userId;

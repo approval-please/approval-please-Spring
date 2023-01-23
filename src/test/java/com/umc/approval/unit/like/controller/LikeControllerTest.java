@@ -21,9 +21,14 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @MockBean(JpaMetamodelMappingContext.class)
@@ -60,8 +65,25 @@ public class LikeControllerTest {
         LikeDto.ListRequest requestDto = LikeDto.ListRequest.builder()
                 .documentId(1L)
                 .build();
-
         String body = mapper.writeValueAsString(requestDto);
+
+        List<LikeDto.Response> content = List.of(
+                LikeDto.Response.builder()
+                .userId(1L)
+                        .nickname("nick")
+                        .level(1)
+                        .isFollow(true)
+                        .build()
+                );
+
+        LikeDto.ListResponse response = LikeDto.ListResponse.builder()
+                .page(1)
+                .totalPage(3)
+                .totalElement(50L)
+                .content(content)
+                .build();
+
+        given(likeService.getLikeList(any(), any(), any())).willReturn(response);
 
         // when & then
         mvc.perform(get("/likes")
@@ -69,6 +91,10 @@ public class LikeControllerTest {
                         .contentType(APPLICATION_JSON)
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page").value(response.getPage()))
+                .andExpect(jsonPath("$.totalPage").value(response.getTotalPage()))
+                .andExpect(jsonPath("$.totalElement").value(response.getTotalElement()))
+                .andExpect(jsonPath("$.content[0].nickname").value(content.get(0).getNickname()))
                 .andDo(print());
     }
 
