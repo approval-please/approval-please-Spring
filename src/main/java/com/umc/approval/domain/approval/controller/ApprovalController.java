@@ -16,10 +16,9 @@ public class ApprovalController {
     private final ApprovalService approvalService;
 
     @PostMapping("/documents/{documentId}")
-    public ResponseEntity<?> approveOtherDocument(@PathVariable("documentId") Long documentId,
-                                                  @RequestBody ApprovalDTO.PostOtherApprovalRequest request){
-        ApprovalDTO.PostOtherApprovalResponse response = approvalService.approveOtherDocument(request, documentId);
-        return ResponseEntity.ok().body(response);
+    public ResponseEntity<ApprovalDTO.PostOtherApprovalResponse> approveOtherDocument(@PathVariable("documentId") Long documentId,
+                                                                                      @RequestBody ApprovalDTO.PostOtherApprovalRequest request){
+        return ResponseEntity.ok().body(approvalService.approveOtherDocument(request, documentId));
     }
 
 }
