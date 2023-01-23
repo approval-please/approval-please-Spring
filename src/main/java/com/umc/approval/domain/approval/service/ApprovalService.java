@@ -35,12 +35,16 @@ public class ApprovalService {
         if(document.getUser().getId() == user.getId()){ // 내 게시글인 경우
             throw new CustomException(CANNOT_APPROVE_MINE);
         }else{ // 타 게시글인 경우
-            int isApproved = approvalRepository.countByUserIdAndDocumentId(user.getId(), documentId);
-            if(isApproved == 0){
-                Approval approval = request.toEntity(user, document);
-                approvalRepository.save(approval);
+            if(document.getState() == 2){ // 승인 대기 중인 경우
+                int isApproved = approvalRepository.countByUserIdAndDocumentId(user.getId(), documentId);
+                if(isApproved == 0){
+                    Approval approval = request.toEntity(user, document);
+                    approvalRepository.save(approval);
+                }else{
+                    throw new CustomException(APPROVAL_ALREADY_EXISTS);
+                }
             }else{
-                throw new CustomException(APPROVAL_ALREADY_EXISTS);
+                throw new CustomException(ALREADY_APPROVED);
             }
         }
 
@@ -55,14 +59,14 @@ public class ApprovalService {
         Document document = findDocument(request.getDocumentId());
 
         if(document.getUser().getId() == user.getId()){ // 내 게시글인 경우
-            if(document.getState() == 2){
-                if(request.getIsApprove() == true){
+            if(document.getState() == 2){ // 승인 대기 중인 경우
+                if(request.getIsApprove() == true){ // 최종 승인 처리
                     documentRepository.updateStateApproved(document.getId());
                 }else{
                     documentRepository.updateStateRejected(document.getId());
                 }
-            }else{ // 이미 최종 선택한 경우
-                throw new CustomException(CANNOT_CHANGE_APPROVAL);
+            }else{
+                throw new CustomException(ALREADY_APPROVED);
             }
         }else{ // 타 게시글인 경우
             throw new CustomException(CANNOT_APPROVE_OTHER);
