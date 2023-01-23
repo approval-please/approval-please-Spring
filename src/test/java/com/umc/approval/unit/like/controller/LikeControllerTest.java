@@ -6,6 +6,7 @@ import com.umc.approval.domain.like.controller.LikeController;
 import com.umc.approval.domain.like.dto.LikeDto;
 import com.umc.approval.domain.like.entity.LikeRepository;
 import com.umc.approval.domain.like.service.LikeService;
+import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.security.SecurityConfig;
 import com.umc.approval.global.security.service.JwtService;
 import org.junit.jupiter.api.DisplayName;
@@ -21,11 +22,13 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -54,6 +57,9 @@ public class LikeControllerTest {
 
     @MockBean
     FollowRepository followRepository;
+
+    @MockBean
+    UserRepository userRepository;
 
     @DisplayName("좋아요 목록 조회에 성공한다")
     @WithMockUser
@@ -97,13 +103,48 @@ public class LikeControllerTest {
                 .andDo(print());
     }
 
-    @DisplayName("좋아요 목록 조회 시, body가 없으면 실패한다")
+    @DisplayName("좋아요 목록 조회 시 body가 없으면 실패한다")
     @WithMockUser
     @Test
     void get_like_list_no_body_fail() throws Exception {
 
         // given & when & then
         mvc.perform(get("/likes")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isInternalServerError())
+                .andDo(print());
+    }
+
+    @DisplayName("좋아요에 성공한다")
+    @WithMockUser
+    @Test
+    void like_success() throws Exception {
+
+        // given
+        LikeDto.Request requestDto = LikeDto.Request.builder()
+                .documentId(1L)
+                .build();
+        String body = mapper.writeValueAsString(requestDto);
+
+        given(likeService.like(any())).willReturn(new LikeDto.UpdateResponse(true));
+
+        // when & then
+        mvc.perform(post("/likes")
+                        .content(body)
+                        .contentType(APPLICATION_JSON)
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isLike").value(true))
+                .andDo(print());
+    }
+
+    @DisplayName("좋아요 시 body가 없으면 실패한다")
+    @WithMockUser
+    @Test
+    void like_no_body_fail() throws Exception {
+
+        // given & when & then
+        mvc.perform(post("/likes")
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isInternalServerError())
                 .andDo(print());
