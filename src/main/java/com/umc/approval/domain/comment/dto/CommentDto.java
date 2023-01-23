@@ -2,14 +2,29 @@ package com.umc.approval.domain.comment.dto;
 
 import com.umc.approval.domain.comment.entity.Comment;
 import com.umc.approval.domain.document.entity.Document;
+import com.umc.approval.domain.like.dto.LikeDto;
+import com.umc.approval.domain.like.entity.Like;
 import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.user.entity.User;
+import com.umc.approval.global.util.DateUtil;
 import lombok.*;
+import org.springframework.data.domain.Page;
 
 import javax.validation.constraints.NotBlank;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class CommentDto {
+
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class Request {
+        private Long documentId;
+        private Long toktokId;
+        private Long reportId;
+    }
 
     @Getter
     @Builder
@@ -35,6 +50,107 @@ public class CommentDto {
                     .content(content)
                     .isDeleted(false)
                     .imageUrl(imageUrl)
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class ListResponse {
+        private Integer page;
+        private Integer totalPage;
+        private Integer totalCommentCount;
+        private List<ParentResponse> content;
+
+        public static ListResponse from(
+                Page<Comment> comments, Integer commentCount, Long userId, Long writerId, List<Like> likes
+        ) {
+            List<ParentResponse> content = comments.getContent().stream()
+                    .map(c -> ParentResponse.from(c, userId, writerId, likes))
+                    .collect(Collectors.toList());
+            return ListResponse.builder()
+                    .page(comments.getNumber())
+                    .totalPage(comments.getTotalPages())
+                    .totalCommentCount(commentCount)
+                    .content(content)
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class ParentResponse {
+        private Long commentId;
+        private Long userId;
+        private String profileImage;
+        private String nickname;
+        private Integer level;
+        private String content;
+        private String imageUrl;
+        private List<ChildResponse> childComment;
+        private Boolean isWriter;
+        private Boolean isMy;
+        private Boolean isLike;
+        private Boolean isDeleted;
+        private Integer likeCount;
+        private String datetime;
+
+        public static ParentResponse from(Comment comment, Long userId, Long writerId, List<Like> likes) {
+            List<ChildResponse> childComment = comment.getChildComment().stream()
+                    .map(c -> ChildResponse.from(c, userId, writerId, likes))
+                    .collect(Collectors.toList());
+            return ParentResponse.builder()
+                    .commentId(comment.getId())
+                    .userId(comment.getUser().getId())
+                    .profileImage(comment.getUser().getProfileImage())
+                    .nickname(comment.getUser().getNickname())
+                    .level(comment.getUser().getLevel())
+                    .content(comment.getContent())
+                    .imageUrl(comment.getImageUrl())
+                    .childComment(childComment)
+                    .isWriter(writerId.equals(comment.getUser().getId()))
+                    .isMy(userId != null && userId.equals(comment.getUser().getId()))
+                    .isLike(likes.stream().anyMatch(l -> l.getComment().getId() == comment.getId()))
+                    .isDeleted(comment.getIsDeleted())
+                    .likeCount(comment.getLikes().size())
+                    .datetime(DateUtil.convert(comment.getCreatedAt()))
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class ChildResponse {
+        private Long commentId;
+        private Long userId;
+        private String profileImage;
+        private String nickname;
+        private Integer level;
+        private String content;
+        private String imageUrl;
+        private Boolean isWriter;
+        private Boolean isMy;
+        private Boolean isLike;
+        private Integer likeCount;
+        private String datetime;
+
+        public static ChildResponse from(Comment comment, Long userId, Long writerId, List<Like> likes) {
+            return ChildResponse.builder()
+                    .commentId(comment.getId())
+                    .userId(comment.getUser().getId())
+                    .profileImage(comment.getUser().getProfileImage())
+                    .nickname(comment.getUser().getNickname())
+                    .level(comment.getUser().getLevel())
+                    .content(comment.getContent())
+                    .imageUrl(comment.getImageUrl())
+                    .isWriter(writerId.equals(comment.getUser().getId()))
+                    .isMy(userId != null && userId.equals(comment.getUser().getId()))
+                    .isLike(likes.stream().anyMatch(l -> l.getComment().getId() == comment.getId()))
+                    .likeCount(comment.getLikes().size())
+                    .datetime(DateUtil.convert(comment.getCreatedAt()))
                     .build();
         }
     }

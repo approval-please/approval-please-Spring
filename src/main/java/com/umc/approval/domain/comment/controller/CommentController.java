@@ -3,10 +3,13 @@ package com.umc.approval.domain.comment.controller;
 import com.umc.approval.domain.comment.dto.CommentDto;
 import com.umc.approval.domain.comment.service.CommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -16,6 +19,16 @@ import java.util.List;
 public class CommentController {
 
     private final CommentService commentService;
+
+
+    @GetMapping
+    public ResponseEntity<CommentDto.ListResponse> getCommentList(
+            HttpServletRequest request,
+            @PageableDefault(size = 20) Pageable pageable,
+            @RequestBody CommentDto.Request requestDto
+    ) {
+        return ResponseEntity.ok(commentService.getCommentList(request, pageable, requestDto));
+    }
 
     @PostMapping
     public ResponseEntity<Void> createComment(

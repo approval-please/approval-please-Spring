@@ -27,6 +27,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional(readOnly = true)
     public void emailDuplicateCheck(UserDto.EmailCheckRequest emailCheckRequest) {
         // 이메일 중복 체크
         userRepository.findByEmail(emailCheckRequest.getEmail())
@@ -35,6 +36,7 @@ public class UserService {
                 });
     }
 
+    @Transactional(readOnly = true)
     public UserDto.EmailCheckResponse emailCheck(UserDto.EmailCheckRequest requestDto) {
         User user = userRepository.findByEmail(requestDto.getEmail())
                 .orElse(null);
