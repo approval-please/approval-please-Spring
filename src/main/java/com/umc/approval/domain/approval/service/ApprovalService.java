@@ -50,6 +50,25 @@ public class ApprovalService {
         return new ApprovalDTO.PostOtherApprovalResponse(approveCount, rejectCount);
     }
 
+    public void approveMyDocument(ApprovalDTO.PostMyApprovalRequest request){
+        User user = certifyUser();
+        Document document = findDocument(request.getDocumentId());
+
+        if(document.getUser().getId() == user.getId()){ // 내 게시글인 경우
+            if(document.getState() == 2){
+                if(request.getIsApprove() == true){
+                    documentRepository.updateStateApproved(document.getId());
+                }else{
+                    documentRepository.updateStateRejected(document.getId());
+                }
+            }else{ // 이미 최종 선택한 경우
+                throw new CustomException(CANNOT_CHANGE_APPROVAL);
+            }
+        }else{ // 타 게시글인 경우
+            throw new CustomException(CANNOT_APPROVE_OTHER);
+        }
+    }
+
     private User certifyUser(){
         User user = userRepository.findById(jwtService.getId())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));

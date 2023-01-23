@@ -29,6 +29,8 @@ public enum CustomErrorType {
     DOCUMENT_NOT_FOUND(NOT_FOUND, 30001, "존재하지 않는 결재서류입니다."),
     CANNOT_APPROVE_MINE(FORBIDDEN, 30002, "자신의 게시글에는 [승인/반려] 선택이 불가합니다."),
     APPROVAL_ALREADY_EXISTS(FORBIDDEN, 30003, "[승인/반려] 선택은 한 번만 가능합니다."),
+    CANNOT_APPROVE_OTHER(FORBIDDEN, 30004, "결재서류 최종 결재에 대한 권한이 없습니다."),
+    CANNOT_CHANGE_APPROVAL(FORBIDDEN, 30005, "이미 최종 결재된 결재서류입니다. "),
 
     // Toktok (4xxxx)
     TOKTOKPOST_NOT_FOUND(NOT_FOUND, 40001, "존재하지 않는 결재톡톡입니다."),
