@@ -2,12 +2,8 @@ package com.umc.approval.domain.report.service;
 
 import static com.umc.approval.global.exception.CustomErrorType.DOCUMENT_NOT_FOUND;
 import static com.umc.approval.global.exception.CustomErrorType.REPORT_ALREADY_EXISTS;
-import static com.umc.approval.global.exception.CustomErrorType.REPORT_NOT_FOUND;
-import static com.umc.approval.global.exception.CustomErrorType.TOKTOKPOST_NOT_FOUND;
 import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
 
-import com.umc.approval.domain.document.dto.DocumentDto;
-import com.umc.approval.domain.document.dto.DocumentDto.ReportGetDocument;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.entity.DocumentRepository;
 import com.umc.approval.domain.image.entity.Image;
@@ -19,7 +15,6 @@ import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.report.entity.ReportRepository;
 import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.tag.entity.TagRepository;
-import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.aws.service.AwsS3Service;
@@ -27,6 +22,7 @@ import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -88,7 +84,7 @@ public class ReportService {
         createImages(files, report);
     }
 
-    public Page<DocumentDto.ReportGetDocument> selectDocument(Integer page) {
+    public ReportDto.ReportGetDocumentResponse selectDocument(Integer page) {
         User user = certifyUser();
 
         //페이징
@@ -98,10 +94,14 @@ public class ReportService {
         Page<Document> documents = documentRepository.findByUserId(user.getId(), pageable);
 
         // Dto로 변환
-        Page<DocumentDto.ReportGetDocument> map = documents
-            .map(d -> new ReportGetDocument(d.getId(), d.getTitle(), d.getState(), d.getCreatedAt()));
+        List<ReportDto.Response> response;
+        //        Page<DocumentDto.ReportGetDocumentResponse> map = documents
+//            .map(d -> new ReportGetDocumentResponse(d.getId(), d.getTitle(), d.getState(), d.getCreatedAt()));
+        response = documents.getContent().stream()
+            .map(d -> ReportDto.Response.fromEntity(d))
+            .collect(Collectors.toList());
 
-        return map;
+        return ReportDto.ReportGetDocumentResponse.from(documents, response);
     }
 
 

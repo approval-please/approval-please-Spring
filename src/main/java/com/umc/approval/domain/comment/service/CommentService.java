@@ -5,6 +5,8 @@ import com.umc.approval.domain.comment.entity.Comment;
 import com.umc.approval.domain.comment.entity.CommentRepository;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.entity.DocumentRepository;
+import com.umc.approval.domain.like.entity.Like;
+import com.umc.approval.domain.like.entity.LikeRepository;
 import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.report.entity.ReportRepository;
 import com.umc.approval.domain.toktok.entity.Toktok;
@@ -15,11 +17,16 @@ import com.umc.approval.global.aws.service.AwsS3Service;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.umc.approval.global.exception.CustomErrorType.*;
 
@@ -35,6 +42,7 @@ public class CommentService {
     private final DocumentRepository documentRepository;
     private final ReportRepository reportRepository;
     private final ToktokRepository toktokRepository;
+    private final LikeRepository likeRepository;
 
     public void createComment(CommentDto.CreateRequest requestDto, List<MultipartFile> images) {
 
@@ -130,5 +138,38 @@ public class CommentService {
     private User getUser() {
         return userRepository.findById(jwtService.getId())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+    }
+
+    public CommentDto.ListResponse getCommentList(HttpServletRequest request, Pageable pageable, CommentDto.Request requestDto) {
+
+        Page<Comment> comments = commentRepository.findAllByPost(pageable, requestDto);
+        Integer commentCount = commentRepository.countByPost(requestDto);
+
+        // 글쓴이 조회
+        User writer;
+        if (requestDto.getDocumentId() != null) {
+            Document document = documentRepository.findByIdWithUser(requestDto.getDocumentId())
+                    .orElseThrow(() -> new CustomException(DOCUMENT_NOT_FOUND));
+            writer = document.getUser();
+        } else if (requestDto.getReportId() != null) {
+            Report report = reportRepository.findByIdWithUser(requestDto.getReportId())
+                    .orElseThrow(() -> new CustomException(REPORT_NOT_FOUND));
+            writer = report.getDocument().getUser();
+        } else {
+            Toktok toktok = toktokRepository.findByIdWithUser(requestDto.getToktokId())
+                    .orElseThrow(() -> new CustomException(TOKTOKPOST_NOT_FOUND));
+            writer = toktok.getUser();
+        }
+
+        // (로그인 시) 사용자가 좋아요 누른 댓글 리스트 조회
+        Long userId = jwtService.getIdDirectHeader(request);
+        List<Comment> allComments = new ArrayList<>(comments.getContent());
+        comments.getContent().forEach(c -> {
+            if (c.getChildComment() != null) allComments.addAll(c.getChildComment());
+        });
+        List<Long> commentIds = allComments.stream().map(Comment::getId).collect(Collectors.toList());
+        List<Like> likes = likeRepository.findAllByUserAndCommentIn(userId, commentIds);
+
+        return CommentDto.ListResponse.from(comments, commentCount, userId, writer.getId(), likes);
     }
 }

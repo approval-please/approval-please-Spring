@@ -37,8 +37,8 @@ public class ReportController {
     }
 
     @GetMapping("/documents")
-    public Page<DocumentDto.ReportGetDocument> selectDocument(@RequestParam("page") Integer page) {
-        return reportService.selectDocument(page);
+    public ResponseEntity<ReportDto.ReportGetDocumentResponse> selectDocument(@RequestParam("page") Integer page) {
+        return ResponseEntity.ok(reportService.selectDocument(page));
     }
 
 }

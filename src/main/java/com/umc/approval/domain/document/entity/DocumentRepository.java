@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface DocumentRepository extends JpaRepository<Document, Long> {
 
     @Modifying
@@ -16,4 +18,8 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
     @Query("select i from Document i where i.user.id = :user_id and i.state = 0 or i.state = 1")
     Page<Document> findByUserId(@Param("user_id") Long userId, Pageable pageable);
 
+    @Query("select d from Document d " +
+            "join fetch d.user u " +
+            "where d.id = :documentId")
+    Optional<Document> findByIdWithUser(Long documentId);
 }

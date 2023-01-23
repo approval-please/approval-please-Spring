@@ -24,6 +24,8 @@ public class QComment extends EntityPathBase<Comment> {
 
     public final com.umc.approval.domain.QBaseTimeEntity _super = new com.umc.approval.domain.QBaseTimeEntity(this);
 
+    public final ListPath<Comment, QComment> childComment = this.<Comment, QComment>createList("childComment", Comment.class, QComment.class, PathInits.DIRECT2);
+
     public final StringPath content = createString("content");
 
     //inherited
@@ -36,6 +38,8 @@ public class QComment extends EntityPathBase<Comment> {
     public final StringPath imageUrl = createString("imageUrl");
 
     public final BooleanPath isDeleted = createBoolean("isDeleted");
+
+    public final ListPath<com.umc.approval.domain.like.entity.Like, com.umc.approval.domain.like.entity.QLike> likes = this.<com.umc.approval.domain.like.entity.Like, com.umc.approval.domain.like.entity.QLike>createList("likes", com.umc.approval.domain.like.entity.Like.class, com.umc.approval.domain.like.entity.QLike.class, PathInits.DIRECT2);
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
