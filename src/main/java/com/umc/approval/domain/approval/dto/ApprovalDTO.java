@@ -21,6 +21,13 @@ public class ApprovalDTO {
         }
     }
 
+    // 내 게시글 승인/반려 request
+    @Data
+    public static class PostMyApprovalRequest{
+        Long documentId;
+        Boolean isApprove;
+    }
+
     // 타 게시글 승인/반려 response
     @Data
     public static class PostOtherApprovalResponse{

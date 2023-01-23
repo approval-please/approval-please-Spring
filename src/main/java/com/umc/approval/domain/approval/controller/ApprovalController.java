@@ -21,4 +21,10 @@ public class ApprovalController {
         return ResponseEntity.ok().body(approvalService.approveOtherDocument(request, documentId));
     }
 
+    @PostMapping("/approvals")
+    public ResponseEntity<Void> approveMyDocument(@RequestBody ApprovalDTO.PostMyApprovalRequest request){
+        approvalService.approveMyDocument(request);
+        return ResponseEntity.ok().build();
+    }
+
 }
