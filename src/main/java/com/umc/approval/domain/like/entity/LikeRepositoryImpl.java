@@ -25,7 +25,7 @@ public class LikeRepositoryImpl implements LikeRepositoryCustom {
     }
 
     @Override
-    public Page<Like> findAllByPost(Pageable pageable, LikeDto.ListRequest requestDto) {
+    public Page<Like> findAllByPost(Pageable pageable, LikeDto.Request requestDto) {
         List<Like> likes = queryFactory
                 .selectFrom(like)
                 .innerJoin(like.user, user).fetchJoin()

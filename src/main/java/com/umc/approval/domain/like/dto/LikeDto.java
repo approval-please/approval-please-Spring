@@ -12,10 +12,11 @@ public class LikeDto {
     @Getter
     @Builder
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class ListRequest {
+    public static class Request {
         private Long documentId;
         private Long toktokId;
         private Long reportId;
+        private Long commentId;
     }
 
     @Getter
@@ -35,6 +36,12 @@ public class LikeDto {
                     .content(content)
                     .build();
         }
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class UpdateResponse {
+        Boolean isLike;
     }
 
     @Getter

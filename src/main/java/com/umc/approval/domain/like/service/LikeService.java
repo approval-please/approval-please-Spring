@@ -25,7 +25,7 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final FollowRepository followRepository;
 
-    public LikeDto.ListResponse getLikeList(HttpServletRequest request, Pageable pageable, LikeDto.ListRequest requestDto) {
+    public LikeDto.ListResponse getLikeList(HttpServletRequest request, Pageable pageable, LikeDto.Request requestDto) {
 
         Page<Like> likes = likeRepository.findAllByPost(pageable, requestDto);
 
