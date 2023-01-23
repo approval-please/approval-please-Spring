@@ -10,10 +10,10 @@ import java.util.Optional;
 public interface ApprovalRepository extends JpaRepository<Approval, Long> {
 
     @Query(value = "select count(*) from approval where user_id = :user_id and document_id = :document_id", nativeQuery = true)
-    int findByUserIdAndDocumentId(@Param("user_id") Long userId, @Param("document_id") Long documentId);
+    int countByUserIdAndDocumentId(@Param("user_id") Long userId, @Param("document_id") Long documentId);
 
     @Query(value = "select count(*) from approval where document_id = :document_id and is_approve = 1", nativeQuery = true)
-    int countApprovalByDocumentId(@Param("document_id") Long documentId);
+    int countApproveByDocumentId(@Param("document_id") Long documentId);
 
     @Query(value = "select count(*) from approval where document_id = :document_id and is_approve = 0", nativeQuery = true)
     int countRejectByDocumentId(@Param("document_id") Long documentId);
