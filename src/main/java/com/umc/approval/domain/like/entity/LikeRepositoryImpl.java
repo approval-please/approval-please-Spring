@@ -10,6 +10,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Optional;
 
 import static com.umc.approval.domain.like.entity.QLike.like;
 import static com.umc.approval.domain.user.entity.QUser.user;
@@ -50,6 +51,26 @@ public class LikeRepositoryImpl implements LikeRepositoryCustom {
         return PageableExecutionUtils.getPage(likes, pageable, countQuery::fetchOne);
     }
 
+    @Override
+    public Optional<Like> findByUserAndPost(Long userId, LikeDto.Request requestDto) {
+        Like result = queryFactory
+                .selectFrom(like)
+                .where(
+                        userEq(userId),
+                        documentEq(requestDto.getDocumentId()),
+                        toktokEq(requestDto.getToktokId()),
+                        reportEq(requestDto.getReportId()),
+                        commentEq(requestDto.getCommentId())
+                )
+                .fetchOne();
+
+        return Optional.ofNullable(result);
+    }
+
+    private BooleanExpression userEq(Long userId) {
+        return like.user.id.eq(userId);
+    }
+
     private BooleanExpression documentEq(Long documentId) {
         return documentId == null ? null : like.document.id.eq(documentId);
     }
@@ -60,5 +81,9 @@ public class LikeRepositoryImpl implements LikeRepositoryCustom {
 
     private BooleanExpression reportEq(Long reportId) {
         return reportId == null ? null : like.report.id.eq(reportId);
+    }
+
+    private BooleanExpression commentEq(Long commentId) {
+        return commentId == null ? null : like.comment.id.eq(commentId);
     }
 }
