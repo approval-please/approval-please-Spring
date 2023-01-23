@@ -3,7 +3,6 @@ package com.umc.approval.domain.document.dto;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.global.type.CategoryType;
-import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.Max;
@@ -47,6 +46,7 @@ public class DocumentDto {
         }
     }
 
+    // 결재서류 상세 조회
     @Data
     public static class DocumentResponse{
         // user
@@ -70,7 +70,7 @@ public class DocumentDto {
         // etc..
         private Integer likedCount;
         private Integer commentCount;
-        private String createdAt;
+        private String updatedAt;
         private Long view;
 
 
@@ -94,9 +94,45 @@ public class DocumentDto {
 
             this.likedCount = likedCount;
             this.commentCount = commentCount;
-            this.createdAt = document.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"));
+            this.updatedAt = document.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"));
             this.view = document.getView();
         }
     }
 
+    // 결재서류 목록 조회
+    @Data
+    public static class DocumentListResponse {
+        // document
+        private Integer category;
+        private String title;
+        private String content;
+        private List<String> tag;
+        private List<String> images;
+
+        // state
+        private Integer state;
+        private Integer approveCount;
+        private Integer rejectCount;
+
+        // etc..
+        private String updatedAt;
+        private Long view;
+
+        // Entity -> DTO
+        public DocumentListResponse(Document document, List<String> tagNameList, List<String> imageUrlList,
+                                int approveCount, int rejectCount) {
+            this.category = document.getCategory().getValue();
+            this.title = document.getTitle();
+            this.content = document.getContent();
+            this.tag = tagNameList;
+            this.images = imageUrlList;
+
+            this.state = document.getState();
+            this.approveCount = approveCount;
+            this.rejectCount = rejectCount;
+
+            this.updatedAt = document.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"));
+            this.view = document.getView();
+        }
+    }
 }

@@ -86,7 +86,6 @@ public class DocumentService {
 
         return new DocumentDto.DocumentResponse(document, user, tagNameList, imageUrlList,
                 approvalCount, rejectCount, likedCount, commentCount);
-
     }
 
     public void updateDocument(Long documentId, DocumentDto.DocumentRequest request, List<MultipartFile> images) {
