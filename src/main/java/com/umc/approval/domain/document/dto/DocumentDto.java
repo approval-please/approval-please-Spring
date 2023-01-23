@@ -69,7 +69,6 @@ public class DocumentDto {
         // etc..
         private Integer likedCount;
         private Integer commentCount;
-        private String updatedAt;
         private String datetime;
         private Long view;
 
@@ -94,7 +93,6 @@ public class DocumentDto {
 
             this.likedCount = likedCount;
             this.commentCount = commentCount;
-            this.updatedAt = document.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"));
             this.datetime = DateUtil.convert(document.getCreatedAt());
             this.view = document.getView();
         }
@@ -116,7 +114,7 @@ public class DocumentDto {
         private Integer rejectCount;
 
         // etc..
-        private String updatedAt;
+        private String datetime;
         private Long view;
 
         // Entity -> DTO
@@ -132,7 +130,7 @@ public class DocumentDto {
             this.approveCount = approveCount;
             this.rejectCount = rejectCount;
 
-            this.updatedAt = document.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"));
+            this.datetime = DateUtil.convert(document.getCreatedAt());
             this.view = document.getView();
         }
     }
