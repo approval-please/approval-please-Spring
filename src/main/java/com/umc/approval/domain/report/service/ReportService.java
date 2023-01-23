@@ -94,11 +94,9 @@ public class ReportService {
         Page<Document> documents = documentRepository.findByUserId(user.getId(), pageable);
 
         // Dto로 변환
-        List<ReportDto.Response> response;
-        //        Page<DocumentDto.ReportGetDocumentResponse> map = documents
-//            .map(d -> new ReportGetDocumentResponse(d.getId(), d.getTitle(), d.getState(), d.getCreatedAt()));
+        List<ReportDto.DocumentListResponse> response;
         response = documents.getContent().stream()
-            .map(d -> ReportDto.Response.fromEntity(d))
+            .map(d -> ReportDto.DocumentListResponse.fromEntity(d))
             .collect(Collectors.toList());
 
         return ReportDto.ReportGetDocumentResponse.from(documents, response);

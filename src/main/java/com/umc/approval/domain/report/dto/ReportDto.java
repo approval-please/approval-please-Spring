@@ -42,9 +42,9 @@ public class ReportDto {
         private Integer page;
         private Integer totalPage;
         private Long totalElement;
-        private List<Response> content;
+        private List<DocumentListResponse> content;
 
-        public static ReportGetDocumentResponse from(Page<Document> page, List<Response> content) {
+        public static ReportGetDocumentResponse from(Page<Document> page, List<DocumentListResponse> content) {
             return ReportGetDocumentResponse.builder()
                 .page(page.getNumber())
                 .totalPage(page.getTotalPages())
@@ -58,14 +58,14 @@ public class ReportDto {
     @Getter
     @Builder
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class Response {
+    public static class DocumentListResponse {
         private Long documentId;
         private String title;
         private Integer state;
         private String datetime;
 
-        public static Response fromEntity(Document document) {
-            return Response.builder()
+        public static DocumentListResponse fromEntity(Document document) {
+            return DocumentListResponse.builder()
                 .documentId(document.getId())
                 .title(document.getTitle())
                 .state(document.getState())
