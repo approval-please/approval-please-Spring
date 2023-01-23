@@ -26,9 +26,8 @@ public class DocumentController {
         return ResponseEntity.ok().build();
     }
     @GetMapping("/{documentId}")
-    public ResponseEntity<?> getDocument(@PathVariable("documentId") Long documentId){
-        DocumentDto.DocumentResponse response = documentService.getDocument(documentId);
-        return ResponseEntity.ok().body(response);
+    public ResponseEntity<DocumentDto.GetDocumentResponse> getDocument(@PathVariable("documentId") Long documentId){
+        return ResponseEntity.ok().body(documentService.getDocument(documentId));
     }
 
 
