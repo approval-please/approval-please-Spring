@@ -26,8 +26,8 @@ public class ApprovalService {
     private final UserRepository userRepository;
     private final DocumentRepository documentRepository;
 
-    public ApprovalDTO.PostApprovalResponse approveOtherDocument(ApprovalDTO.PostApprovalRequest request,
-                                                                 Long documentId) {
+    public ApprovalDTO.PostOtherApprovalResponse approveOtherDocument(ApprovalDTO.PostOtherApprovalRequest request,
+                                                                      Long documentId) {
 
         User user = certifyUser();
         Document document = findDocument(documentId);
@@ -47,7 +47,7 @@ public class ApprovalService {
         int approveCount = approvalRepository.countApprovalByDocumentId(documentId);
         int rejectCount = approvalRepository.countRejectByDocumentId(documentId);
 
-        return new ApprovalDTO.PostApprovalResponse(approveCount, rejectCount);
+        return new ApprovalDTO.PostOtherApprovalResponse(approveCount, rejectCount);
     }
 
     private User certifyUser(){
