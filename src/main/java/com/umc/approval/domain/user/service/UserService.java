@@ -27,6 +27,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    //TODO: type 반환
     public void emailDuplicateCheck(UserDto.EmailCheckRequest emailCheckRequest) {
         // 이메일 중복 체크
         userRepository.findByEmail(emailCheckRequest.getEmail())

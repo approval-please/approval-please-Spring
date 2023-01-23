@@ -21,7 +21,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -46,15 +45,8 @@ public class SmsService {
     @Value("${ncloud.sms.senderPhone}")
     private String fromPhoneNumber;
 
-    // TODO: 테스트용 메서드 testService 삭제
-    public void testService() {
-        System.out.println(accessKey);
-        System.out.println(secretKey);
-        System.out.println(serviceId);
-        System.out.println(fromPhoneNumber);
-    }
-
-    public CertDto.CertSmsResponse sendCertSms(CertDto.MessageDto messageDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
+    public CertDto.SmsResponse sendCertSms(CertDto.MessageDto messageDto)
+            throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         Long time = System.currentTimeMillis();
 
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -66,11 +58,11 @@ public class SmsService {
         List<CertDto.MessageDto> messages = new ArrayList<>();
         messages.add(messageDto);
 
-        CertDto.CertSmsRequest certSmsRequest = CertDto.CertSmsRequest.builder()
+        CertDto.SmsRequest certSmsRequest = CertDto.SmsRequest.builder()
                 .type("SMS")
                 .contentType("COMM")
                 .countryCode("82")
-                .fromPhoneNumber(fromPhoneNumber)
+                .from(this.fromPhoneNumber)
                 .content(messageDto.getContent())
                 .messages(messages)
                 .build();
@@ -81,16 +73,17 @@ public class SmsService {
 
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
-        CertDto.CertSmsResponse certSmsResponse = restTemplate.postForObject(new URI("https://sens.apigw.ntruss.com/sms/v2/services/"+ serviceId +"/messages"), httpEntity, CertDto.CertSmsResponse.class);
 
-        return certSmsResponse;
+        return restTemplate.postForObject(
+                new URI("https://sens.apigw.ntruss.com/sms/v2/services/"+ serviceId +"/messages"),
+                httpEntity, CertDto.SmsResponse.class);
     }
 
     public String makeSignature(Long time) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {
         String space = " ";
         String newLine = "\n";
         String method = "POST";
-        String url = "/sms/v2/services" + this.serviceId + "/messages";
+        String url = "/sms/v2/services/" + this.serviceId + "/messages";
         String timestamp = time.toString();
         String accessKey = this.accessKey;
         String secretKey = this.secretKey;
@@ -104,11 +97,11 @@ public class SmsService {
                 newLine +
                 accessKey;
 
-        SecretKeySpec signingKey = new SecretKeySpec(secretKey.getBytes("UTF-8"), "HmacSHA256");
+        SecretKeySpec signingKey = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(signingKey);
 
-        byte[] rawHmac = mac.doFinal(message.getBytes("UTF-8"));
+        byte[] rawHmac = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
         return Base64.encodeBase64String(rawHmac);
     }
 }

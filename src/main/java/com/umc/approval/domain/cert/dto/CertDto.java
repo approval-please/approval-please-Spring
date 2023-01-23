@@ -1,23 +1,40 @@
 package com.umc.approval.domain.cert.dto;
 
 import com.umc.approval.domain.cert.entity.Cert;
-import com.umc.approval.domain.user.entity.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public class CertDto {
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CertRequest {
+        private String phoneNumber;
+        private String certNumber;
+
+        public Cert toEntity() {
+            return Cert.builder()
+                    .phoneNumber(this.phoneNumber)
+                    .certNumber(this.certNumber)
+                    .build();
+        }
+    }
 
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class MessageDto { //전화번호 인증 메시지 전송 Request
-        private String toPhoneNumber;
+    public static class AuthorizeRequest {  // 전화번호 인증 Request
+        private String phoneNumber;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MessageDto { // 메시지 Dto
+        private String to;
+        // private String subject;
         private String content;
     }
 
@@ -25,11 +42,11 @@ public class CertDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class CertSmsRequest{
+    public static class SmsRequest{ // 문자 발송 request
         private String type;
         private String contentType;
-        private String countryCode = "82";
-        private String fromPhoneNumber;
+        private String countryCode;
+        private String from;
         private String content;
         private List<MessageDto> messages;
     }
@@ -37,7 +54,7 @@ public class CertDto {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
-    public class CertSmsResponse{
+    public static class SmsResponse{ // 문자 발송 response
         private String requestId;
         private LocalDateTime requestTime;
         private String statusCode;
