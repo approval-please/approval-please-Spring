@@ -4,6 +4,7 @@ import com.umc.approval.domain.approval.entity.ApprovalRepository;
 import com.umc.approval.domain.document.dto.DocumentDto;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.entity.DocumentRepository;
+import com.umc.approval.domain.follow.entity.FollowRepository;
 import com.umc.approval.domain.image.entity.ImageRepository;
 import com.umc.approval.domain.tag.entity.TagRepository;
 import com.umc.approval.domain.user.entity.User;
@@ -32,6 +33,7 @@ public class ProfileService {
     private final TagRepository tagRepository;
     private final ImageRepository imageRepository;
     private final ApprovalRepository approvalRepository;
+    private final FollowRepository followRepository;
 
     // 마이페이지 - 결재서류 조회
     public JSONObject findDocuments (Long userId, Integer state, Boolean isApproved) {
@@ -64,15 +66,15 @@ public class ProfileService {
 
         for (int i = 0 ; i < documents.size() ; i++) {
             documentList.add(new DocumentDto.DocumentListResponse(documents.get(i), tagRepository.findTagNameList(documents.get(i).getId()), imageRepository.findImageUrlList(documents.get(i).getId()),
-                        approvalRepository.countApprovalByDocumentId(documents.get(i).getId()), approvalRepository.countRejectByDocumentId(documents.get(i).getId())));
+                        approvalRepository.countApproveByDocumentId(documents.get(i).getId()), approvalRepository.countRejectByDocumentId(documents.get(i).getId())));
         }
 
         profile.put("profileImage", user.getProfileImage());
         profile.put("nickname", user.getNickname());
         profile.put("level", user.getLevel());
         profile.put("promotionPoint", user.getPromotionPoint());
-        profile.put("follows", 12);
-        profile.put("followings", 5);
+        profile.put("follows", followRepository.countByToUser(user.getId()));
+        profile.put("followings", followRepository.countByFromUser(user.getId()));
 
         result.put("totalCount", documents.size());
         result.put("profile", profile);
