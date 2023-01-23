@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+import java.util.List;
+
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PRIVATE;
@@ -48,6 +50,9 @@ public class Comment extends BaseTimeEntity {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "parent_comment_id")
     private Comment parentComment; // 대댓글
+
+    @OneToMany(mappedBy = "parentComment")
+    private List<Comment> childComment;
 
     @Column(nullable = false)
     private String content; //255자 최대
