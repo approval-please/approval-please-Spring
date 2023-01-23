@@ -5,6 +5,7 @@ import com.umc.approval.domain.comment.entity.Comment;
 import com.umc.approval.domain.comment.entity.CommentRepository;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.entity.DocumentRepository;
+import com.umc.approval.domain.like.entity.Like;
 import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.report.entity.ReportRepository;
 import com.umc.approval.domain.toktok.entity.Toktok;
@@ -15,10 +16,13 @@ import com.umc.approval.global.aws.service.AwsS3Service;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 import static com.umc.approval.global.exception.CustomErrorType.*;
@@ -130,5 +134,11 @@ public class CommentService {
     private User getUser() {
         return userRepository.findById(jwtService.getId())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+    }
+
+    public CommentDto.ListResponse getCommentList(HttpServletRequest request, Pageable pageable, CommentDto.Request requestDto) {
+
+        Page<Comment> comments = commentRepository.findAllByPost(pageable, requestDto);
+        return null;
     }
 }
