@@ -77,7 +77,7 @@ public class DocumentService {
         List<String> imageUrlList = imageRepository.findImageUrlList(documentId);
 
         // 승인, 반려 수
-        int approvalCount = approvalRepository.countApprovalByDocumentId(documentId);
+        int approveCount = approvalRepository.countApproveByDocumentId(documentId);
         int rejectCount = approvalRepository.countRejectByDocumentId(documentId);
 
         // 좋아요 수, 댓글 수
@@ -85,7 +85,7 @@ public class DocumentService {
         int commentCount = commentRepository.countByDocumentId(documentId);
 
         return new DocumentDto.GetDocumentResponse(document, user, tagNameList, imageUrlList,
-                approvalCount, rejectCount, likedCount, commentCount);
+                approveCount, rejectCount, likedCount, commentCount);
 
     }
 

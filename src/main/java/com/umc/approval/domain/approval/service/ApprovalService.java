@@ -35,7 +35,7 @@ public class ApprovalService {
         if(document.getUser().getId() == user.getId()){ // 내 게시글인 경우
             throw new CustomException(CANNOT_APPROVE_MINE);
         }else{ // 타 게시글인 경우
-            int isApproved = approvalRepository.findByUserIdAndDocumentId(user.getId(), documentId);
+            int isApproved = approvalRepository.countByUserIdAndDocumentId(user.getId(), documentId);
             if(isApproved == 0){
                 Approval approval = request.toEntity(user, document);
                 approvalRepository.save(approval);
@@ -44,7 +44,7 @@ public class ApprovalService {
             }
         }
 
-        int approveCount = approvalRepository.countApprovalByDocumentId(documentId);
+        int approveCount = approvalRepository.countApproveByDocumentId(documentId);
         int rejectCount = approvalRepository.countRejectByDocumentId(documentId);
 
         return new ApprovalDTO.PostOtherApprovalResponse(approveCount, rejectCount);
