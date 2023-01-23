@@ -5,11 +5,15 @@ import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.user.entity.User;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 public class ApprovalDTO {
 
     // 타 게시글 승인/반려 request
     @Data
     public static class PostOtherApprovalRequest{
+        @NotNull(message = "결재 서류에 대한 [승인/반려] 선택은 필수 값입니다.")
         Boolean isApprove;
 
         public Approval toEntity(User user, Document document){
@@ -24,7 +28,10 @@ public class ApprovalDTO {
     // 내 게시글 승인/반려 request
     @Data
     public static class PostMyApprovalRequest{
+        @NotNull(message = "결재서류의 id는 필수 값입니다.")
         Long documentId;
+
+        @NotNull(message = "결재서류에 대한 [승인/반려] 선택은 필수 값입니다.")
         Boolean isApprove;
     }
 

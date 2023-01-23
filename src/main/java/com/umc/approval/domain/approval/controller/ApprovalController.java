@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 @RestController
 @RequiredArgsConstructor
 public class ApprovalController {
@@ -17,12 +19,12 @@ public class ApprovalController {
 
     @PostMapping("/documents/{documentId}")
     public ResponseEntity<ApprovalDTO.PostOtherApprovalResponse> approveOtherDocument(@PathVariable("documentId") Long documentId,
-                                                                                      @RequestBody ApprovalDTO.PostOtherApprovalRequest request){
+                                                                                      @Valid @RequestBody ApprovalDTO.PostOtherApprovalRequest request){
         return ResponseEntity.ok().body(approvalService.approveOtherDocument(request, documentId));
     }
 
     @PostMapping("/approvals")
-    public ResponseEntity<Void> approveMyDocument(@RequestBody ApprovalDTO.PostMyApprovalRequest request){
+    public ResponseEntity<Void> approveMyDocument(@Valid @RequestBody ApprovalDTO.PostMyApprovalRequest request){
         approvalService.approveMyDocument(request);
         return ResponseEntity.ok().build();
     }
