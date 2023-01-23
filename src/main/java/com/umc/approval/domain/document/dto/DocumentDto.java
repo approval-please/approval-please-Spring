@@ -70,7 +70,7 @@ public class DocumentDto {
         // etc..
         private Integer likedCount;
         private Integer commentCount;
-        private String modifiedAt;
+        private String createdAt;
         private Long view;
 
 
@@ -94,7 +94,7 @@ public class DocumentDto {
 
             this.likedCount = likedCount;
             this.commentCount = commentCount;
-            this.modifiedAt = document.getModifiedAt().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"));
+            this.createdAt = document.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"));
             this.view = document.getView();
         }
     }
