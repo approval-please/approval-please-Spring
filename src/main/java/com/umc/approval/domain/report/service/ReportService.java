@@ -6,6 +6,8 @@ import static com.umc.approval.global.exception.CustomErrorType.REPORT_NOT_FOUND
 import static com.umc.approval.global.exception.CustomErrorType.TOKTOKPOST_NOT_FOUND;
 import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
 
+import com.umc.approval.domain.document.dto.DocumentDto;
+import com.umc.approval.domain.document.dto.DocumentDto.ReportGetDocument;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.entity.DocumentRepository;
 import com.umc.approval.domain.image.entity.Image;
@@ -26,6 +28,11 @@ import com.umc.approval.global.security.service.JwtService;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -80,6 +87,19 @@ public class ReportService {
         //이미지 등록
         createImages(files, report);
     }
+
+    public Page<DocumentDto.ReportGetDocument> selectDocument(Integer page) {
+        User user = certifyUser();
+        Pageable pageable =
+            PageRequest.of(page, 20, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<Document> documents = documentRepository.findByUserId(user.getId(), pageable);
+        Page<DocumentDto.ReportGetDocument> map = documents
+            .map(d -> new ReportGetDocument(d.getId(), d.getTitle(), d.getState(), d.getCreatedAt()));
+
+        return map;
+    }
+
 
     private User certifyUser() {
         User user = userRepository.findById(jwtService.getId())

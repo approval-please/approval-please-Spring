@@ -3,6 +3,7 @@ package com.umc.approval.domain.document.dto;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.global.type.CategoryType;
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Data;
 
@@ -97,6 +98,22 @@ public class DocumentDto {
             this.createdAt = document.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"));
             this.view = document.getView();
         }
+    }
+
+    @Data
+    public static class ReportGetDocument {
+        private Long documentId;
+        private String title;
+        private Integer state;
+        private LocalDateTime createdAt;
+
+        public ReportGetDocument (Long id, String title, Integer state, LocalDateTime localDateTime) {
+            this.documentId = id;
+            this.title = title;
+            this.state = state;
+            this.createdAt = localDateTime;
+        }
+
     }
 
 }
