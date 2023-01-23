@@ -6,5 +6,5 @@ import org.springframework.data.domain.Pageable;
 
 public interface LikeRepositoryCustom {
 
-    Page<Like> findAllByPost(Pageable pageable, LikeDto.ListRequest requestDto);
+    Page<Like> findAllByPost(Pageable pageable, LikeDto.Request requestDto);
 }

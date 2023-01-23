@@ -13,15 +13,12 @@ import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.security.service.JwtService;
 import com.umc.approval.global.type.RoleType;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -130,7 +127,7 @@ public class LikeServiceIntegrationTest {
         follow(user1, user2);
         follow(user1, user3);
 
-        LikeDto.ListRequest requestDto = LikeDto.ListRequest.builder()
+        LikeDto.Request requestDto = LikeDto.Request.builder()
                 .documentId(document.getId())
                 .build();
 
@@ -169,7 +166,7 @@ public class LikeServiceIntegrationTest {
         follow(user1, user2);
         follow(user1, user3);
 
-        LikeDto.ListRequest requestDto = LikeDto.ListRequest.builder()
+        LikeDto.Request requestDto = LikeDto.Request.builder()
                 .documentId(document.getId())
                 .build();
 

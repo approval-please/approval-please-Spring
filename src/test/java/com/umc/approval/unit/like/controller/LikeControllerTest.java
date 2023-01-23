@@ -16,7 +16,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
-import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
@@ -62,7 +61,7 @@ public class LikeControllerTest {
     void get_like_list_success() throws Exception {
 
         // given
-        LikeDto.ListRequest requestDto = LikeDto.ListRequest.builder()
+        LikeDto.Request requestDto = LikeDto.Request.builder()
                 .documentId(1L)
                 .build();
         String body = mapper.writeValueAsString(requestDto);
