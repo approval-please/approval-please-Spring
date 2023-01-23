@@ -4,6 +4,7 @@ import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.global.type.CategoryType;
 import com.umc.approval.global.util.DateUtil;
+
 import lombok.Data;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -44,8 +45,9 @@ public class DocumentDto {
         }
     }
 
+    // 결재서류 상세 조회
     @Data
-    public static class DocumentResponse{
+    public static class GetDocumentResponse{
         // user
         private String profileImage;
         private String nickname;
@@ -67,12 +69,13 @@ public class DocumentDto {
         // etc..
         private Integer likedCount;
         private Integer commentCount;
+        private String updatedAt;
         private String datetime;
         private Long view;
 
 
         // Entity -> DTO
-        public DocumentResponse(Document document, User user, List<String> tagNameList, List<String> imageUrlList,
+        public GetDocumentResponse(Document document, User user, List<String> tagNameList, List<String> imageUrlList,
                 int approveCount, int rejectCount, int likedCount, int commentCount) {
             this.profileImage = user.getProfileImage();
             this.nickname = user.getNickname();
@@ -91,7 +94,45 @@ public class DocumentDto {
 
             this.likedCount = likedCount;
             this.commentCount = commentCount;
+            this.updatedAt = document.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"));
             this.datetime = DateUtil.convert(document.getCreatedAt());
+            this.view = document.getView();
+        }
+    }
+
+    // 결재서류 목록 조회
+    @Data
+    public static class DocumentListResponse {
+        // document
+        private Integer category;
+        private String title;
+        private String content;
+        private List<String> tag;
+        private List<String> images;
+
+        // state
+        private Integer state;
+        private Integer approveCount;
+        private Integer rejectCount;
+
+        // etc..
+        private String updatedAt;
+        private Long view;
+
+        // Entity -> DTO
+        public DocumentListResponse(Document document, List<String> tagNameList, List<String> imageUrlList,
+                                int approveCount, int rejectCount) {
+            this.category = document.getCategory().getValue();
+            this.title = document.getTitle();
+            this.content = document.getContent();
+            this.tag = tagNameList;
+            this.images = imageUrlList;
+
+            this.state = document.getState();
+            this.approveCount = approveCount;
+            this.rejectCount = rejectCount;
+
+            this.updatedAt = document.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"));
             this.view = document.getView();
         }
     }
