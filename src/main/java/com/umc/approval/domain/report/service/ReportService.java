@@ -90,10 +90,14 @@ public class ReportService {
 
     public Page<DocumentDto.ReportGetDocument> selectDocument(Integer page) {
         User user = certifyUser();
+
+        //페이징
         Pageable pageable =
             PageRequest.of(page, 20, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<Document> documents = documentRepository.findByUserId(user.getId(), pageable);
+
+        // Dto로 변환
         Page<DocumentDto.ReportGetDocument> map = documents
             .map(d -> new ReportGetDocument(d.getId(), d.getTitle(), d.getState(), d.getCreatedAt()));
 
