@@ -47,7 +47,7 @@ public class DocumentDto {
     }
 
     @Data
-    public static class DocumentResponse{
+    public static class GetDocumentResponse{
         // user
         private String profileImage;
         private String nickname;
@@ -74,7 +74,7 @@ public class DocumentDto {
 
 
         // Entity -> DTO
-        public DocumentResponse(Document document, User user, List<String> tagNameList, List<String> imageUrlList,
+        public GetDocumentResponse(Document document, User user, List<String> tagNameList, List<String> imageUrlList,
                 int approveCount, int rejectCount, int likedCount, int commentCount) {
             this.profileImage = user.getProfileImage();
             this.nickname = user.getNickname();

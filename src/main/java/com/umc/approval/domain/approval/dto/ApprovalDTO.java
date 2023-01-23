@@ -9,7 +9,7 @@ public class ApprovalDTO {
 
     // 타 게시글 승인/반려 request
     @Data
-    public static class PostApprovalRequest{
+    public static class PostOtherApprovalRequest{
         Boolean isApprove;
 
         public Approval toEntity(User user, Document document){
@@ -23,11 +23,11 @@ public class ApprovalDTO {
 
     // 타 게시글 승인/반려 response
     @Data
-    public static class PostApprovalResponse{
+    public static class PostOtherApprovalResponse{
         Integer approveCount;
         Integer rejectCount;
 
-        public PostApprovalResponse(int approveCount, int rejectCount){
+        public PostOtherApprovalResponse(int approveCount, int rejectCount){
             this.approveCount = approveCount;
             this.rejectCount = rejectCount;
         }

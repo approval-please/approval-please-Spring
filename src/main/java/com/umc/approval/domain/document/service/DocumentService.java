@@ -65,7 +65,7 @@ public class DocumentService {
         createImages(images, document);
     }
 
-    public DocumentDto.DocumentResponse getDocument(Long documentId){
+    public DocumentDto.GetDocumentResponse getDocument(Long documentId){
 
         // 조회 수 업데이트
         documentRepository.updateView(documentId);
@@ -84,7 +84,7 @@ public class DocumentService {
         int likedCount = likeRepository.countByDocumentId(documentId);
         int commentCount = commentRepository.countByDocumentId(documentId);
 
-        return new DocumentDto.DocumentResponse(document, user, tagNameList, imageUrlList,
+        return new DocumentDto.GetDocumentResponse(document, user, tagNameList, imageUrlList,
                 approvalCount, rejectCount, likedCount, commentCount);
 
     }
