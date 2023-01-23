@@ -27,14 +27,7 @@ public class LikeService {
 
     public LikeDto.ListResponse getLikeList(HttpServletRequest request, Pageable pageable, LikeDto.ListRequest requestDto) {
 
-        Page<Like> likes = null;
-        if (requestDto.getDocumentId() != null) {
-            likes = likeRepository.findAllByDocumentId(pageable, requestDto.getDocumentId());
-        } else if (requestDto.getToktokId() != null) {
-            likes = likeRepository.findAllByToktokId(pageable, requestDto.getToktokId());
-        } else {
-            likes = likeRepository.findAllByReportId(pageable, requestDto.getReportId());
-        }
+        Page<Like> likes = likeRepository.findAllByPost(pageable, requestDto);
 
         // 팔로우 처리
         Long userId = jwtService.getIdDirectHeader(request);
