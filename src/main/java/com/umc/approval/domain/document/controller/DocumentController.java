@@ -25,11 +25,11 @@ public class DocumentController {
         documentService.createDocument(request, images);
         return ResponseEntity.ok().build();
     }
-
     @GetMapping("/{documentId}")
     public ResponseEntity<DocumentDto.GetDocumentResponse> getDocument(@PathVariable("documentId") Long documentId){
         return ResponseEntity.ok().body(documentService.getDocument(documentId));
     }
+
 
 
     @PutMapping("/{documentId}")
