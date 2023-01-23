@@ -2,7 +2,10 @@ package com.umc.approval.domain.like.dto;
 
 import com.umc.approval.domain.like.entity.Like;
 import com.umc.approval.domain.user.entity.User;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
