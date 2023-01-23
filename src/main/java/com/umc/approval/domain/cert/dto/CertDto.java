@@ -1,6 +1,7 @@
 package com.umc.approval.domain.cert.dto;
 
 import com.umc.approval.domain.cert.entity.Cert;
+import com.umc.approval.global.type.SocialType;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -25,8 +26,18 @@ public class CertDto {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class AuthorizeRequest {  // 전화번호 인증 Request
+    public static class PhoneRequest {  // 전화번호 인증 Request
         private String phoneNumber;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class CertCheckResponse {
+        private Boolean isDuplicate;
+        private String email;
+        private SocialType socialType;
     }
 
     @Getter

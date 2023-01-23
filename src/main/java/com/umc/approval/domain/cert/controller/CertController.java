@@ -22,9 +22,17 @@ public class CertController {
 
     @PostMapping("/auth/cert")
     public ResponseEntity<CertDto.SmsResponse> requestCert(
-            @RequestBody final CertDto.AuthorizeRequest authorizeRequest
-    ) throws UnsupportedEncodingException, URISyntaxException, NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException {
-        CertDto.SmsResponse data = certService.requestCert(authorizeRequest);
+            @RequestBody final CertDto.PhoneRequest phoneRequest
+    ) throws URISyntaxException, NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException {
+        CertDto.SmsResponse data = certService.requestCert(phoneRequest);
+        return ResponseEntity.ok().body(data);
+    }
+
+    @PostMapping("/auth/cert/check")
+    public ResponseEntity<CertDto.CertCheckResponse> certCheck(
+            @RequestBody final CertDto.CertRequest certRequest
+    ) {
+        CertDto.CertCheckResponse data = certService.certCheck(certRequest);
         return ResponseEntity.ok().body(data);
     }
 }

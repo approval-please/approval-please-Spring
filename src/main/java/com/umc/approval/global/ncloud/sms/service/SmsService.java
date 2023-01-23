@@ -46,7 +46,7 @@ public class SmsService {
     private String fromPhoneNumber;
 
     public CertDto.SmsResponse sendCertSms(CertDto.MessageDto messageDto)
-            throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
+            throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException {
         Long time = System.currentTimeMillis();
 
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -58,7 +58,7 @@ public class SmsService {
         List<CertDto.MessageDto> messages = new ArrayList<>();
         messages.add(messageDto);
 
-        CertDto.SmsRequest certSmsRequest = CertDto.SmsRequest.builder()
+        CertDto.SmsRequest smsRequest = CertDto.SmsRequest.builder()
                 .type("SMS")
                 .contentType("COMM")
                 .countryCode("82")
@@ -68,7 +68,7 @@ public class SmsService {
                 .build();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String httpBody = objectMapper.writeValueAsString(certSmsRequest);
+        String httpBody = objectMapper.writeValueAsString(smsRequest);
         HttpEntity<String> httpEntity = new HttpEntity<>(httpBody, httpHeaders);
 
         RestTemplate restTemplate = new RestTemplate();
@@ -79,7 +79,7 @@ public class SmsService {
                 httpEntity, CertDto.SmsResponse.class);
     }
 
-    public String makeSignature(Long time) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {
+    private String makeSignature(Long time) throws NoSuchAlgorithmException, InvalidKeyException {
         String space = " ";
         String newLine = "\n";
         String method = "POST";
