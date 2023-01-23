@@ -23,7 +23,6 @@ public class LikeDto {
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class ListResponse {
         private Integer page;
-        private Integer size;
         private Integer totalPage;
         private Long totalElement;
         private List<Response> content;
@@ -31,7 +30,6 @@ public class LikeDto {
         public static ListResponse from(Page<Like> page, List<Response> content) {
             return ListResponse.builder()
                     .page(page.getNumber())
-                    .size(page.getSize())
                     .totalPage(page.getTotalPages())
                     .totalElement(page.getTotalElements())
                     .content(content)

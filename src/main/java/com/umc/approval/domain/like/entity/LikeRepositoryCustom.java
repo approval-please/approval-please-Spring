@@ -1,13 +1,10 @@
 package com.umc.approval.domain.like.entity;
 
+import com.umc.approval.domain.like.dto.LikeDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface LikeRepositoryCustom {
 
-    Page<Like> findAllByDocumentId(Pageable pageable, Long documentId);
-
-    Page<Like> findAllByToktokId(Pageable pageable, Long toktokId);
-
-    Page<Like> findAllByReportId(Pageable pageable, Long reportId);
+    Page<Like> findAllByPost(Pageable pageable, LikeDto.ListRequest requestDto);
 }
