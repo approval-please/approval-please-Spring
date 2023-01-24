@@ -34,7 +34,6 @@ public class ReportController {
             @Valid @RequestBody ReportDto.ReportRequest request,
             @PathVariable("reportId") Long id
     ) {
-
         reportService.updatePost(id, request);
         return ResponseEntity.ok().build();
     }

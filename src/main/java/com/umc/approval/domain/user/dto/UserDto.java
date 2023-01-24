@@ -126,5 +126,6 @@ public class UserDto {
     public static class ProfileRequest {
         private String nickname;
         private String introduction;
+        private String image;
     }
 }
