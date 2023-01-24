@@ -139,6 +139,9 @@ public class DocumentService {
         // image 삭제
         deleteImages(documentId);
 
+        // link 삭제
+        linkRepository.findByDocumentId(documentId).ifPresent(linkRepository::delete);
+
         // document 삭제
         documentRepository.deleteById(documentId);
     }
