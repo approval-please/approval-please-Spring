@@ -108,7 +108,8 @@ public class ReportService {
     public void updatePost(Long id, ReportDto.ReportRequest request, List<MultipartFile> files) {
         User user = certifyUser();
         Report report = findReport(id);
-        Document document = findDocument(report.getDocument().getId());
+        // 현재 결재서류
+        Document document = report.getDocument();
 
         // 변경된 결재서류
         Document updateDocument = findDocument(request.getDocumentId());
