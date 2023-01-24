@@ -117,6 +117,7 @@ public class DocumentService {
         linkRepository.findByDocumentId(documentId).ifPresent(linkRepository::delete);
         if (request.getLink() != null) {
             Link link = Link.builder()
+                    .document(document)
                     .url(request.getLink().getUrl())
                     .title(request.getLink().getTitle())
                     .image(request.getLink().getImage())
