@@ -2,6 +2,7 @@ package com.umc.approval.domain.report.entity;
 
 import com.umc.approval.domain.BaseTimeEntity;
 import com.umc.approval.domain.document.entity.Document;
+import com.umc.approval.domain.report.dto.ReportDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,4 +39,9 @@ public class Report extends BaseTimeEntity {
 
     @Column(nullable = false)
     private Boolean notification;
+
+    public void update(ReportDto.ReportRequest request, Document document) {
+        this.document = document;
+        this.content = request.getContent();
+    }
 }
