@@ -128,11 +128,8 @@ public class ReportService {
         if (links != null && !links.isEmpty()) {
             linkRepository.deleteAll(links);
         }
-        if (request.getLinkUrl() != null) {
-            List<String> linkList = request.getLinkUrl();
-            if (linkList != null && !linkList.isEmpty()) {
-                createLink(linkList, report);
-            }
+        if (request.getLink() != null && !request.getLink().isEmpty()) {
+            createLink(request.getLink(), report);
         }
 
         // 이미지 수정
