@@ -6,10 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RequiredArgsConstructor
 @RequestMapping("/community/reports")
@@ -32,12 +30,12 @@ public class ReportController {
     }
 
     @PutMapping("/{reportId}")
-    public ResponseEntity<Void> updatePost(@Valid
-                                           @RequestPart(value = "data", required = false) ReportDto.ReportRequest request,
-                                           @RequestPart(value = "images", required = false) List<MultipartFile> files,
-                                           @PathVariable("reportId") Long id) {
+    public ResponseEntity<Void> updatePost(
+            @Valid @RequestBody ReportDto.ReportRequest request,
+            @PathVariable("reportId") Long id
+    ) {
 
-        reportService.updatePost(id, request, files);
+        reportService.updatePost(id, request);
         return ResponseEntity.ok().build();
     }
 }
