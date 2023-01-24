@@ -32,4 +32,15 @@ public class Cert extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String certNumber;
+
+    @Column(nullable = false)
+    private Boolean isChecked;
+
+    public void updateCertNumber (String certNumber) {
+        this.certNumber = certNumber;
+    }
+
+    public void setIsChecked(Boolean isChecked) {
+        this.isChecked = isChecked;
+    }
 }

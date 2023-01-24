@@ -8,18 +8,17 @@ import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.ncloud.sms.service.SmsService;
-import com.umc.approval.global.security.service.JwtService;
-import com.umc.approval.global.type.SocialType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Optional;
+import java.time.LocalDateTime;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.umc.approval.global.exception.CustomErrorType.*;
 
@@ -28,7 +27,6 @@ import static com.umc.approval.global.exception.CustomErrorType.*;
 @Service
 public class CertService {
 
-    private final JwtService jwtService;
     private final SmsService smsService;
     private final UserRepository userRepository;
     private final CertRepository certRepository;
@@ -38,11 +36,19 @@ public class CertService {
             throws URISyntaxException, NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException {
         // 인증번호 생성
         String certNumber = createCertNumber();
-        // 전화번호, 인증번호 등록
-        CertDto.CertRequest certRequest = new CertDto.CertRequest(phoneRequest.getPhoneNumber(), certNumber);
-        saveCert(certRequest);
 
-        // 인증 문자 내용
+        Cert cert = certRepository.findByPhoneNumber(phoneRequest.getPhoneNumber()).orElse(null);
+
+        // 기존 인증요청 있었다면 인증번호만 업데이트
+        if(cert != null){
+            cert.updateCertNumber(certNumber);
+        }
+        // 없었다면 전화번호, 인증번호 등록
+        else {
+            CertDto.CertRequest certRequest = new CertDto.CertRequest(phoneRequest.getPhoneNumber(), certNumber);
+            saveCert(certRequest);
+        }
+
         String content = "[결재부탁] 인증번호 [" + certNumber + "]를 입력해주세요.";
 
         // 인증번호 요청
@@ -51,28 +57,34 @@ public class CertService {
 
     // 전화번호 인증 메서드
     public CertDto.CertCheckResponse certCheck(CertDto.CertRequest certRequest) {
-        //TODO: 5분 이내에 입력했는지 체크, 코드 리팩토링
-
-        //전화번호 중복 체크 - userRepository
-        Optional<User> user = userRepository.findByPhoneNumber(certRequest.getPhoneNumber());
-        if (user.isPresent()){
-            return CertDto.CertCheckResponse.builder()
-                    .isDuplicate(true)
-                    .email(maskEmail(user.get().getEmail()))
-                    .socialType(user.get().getSocialType())
-                    .build();
-        }
-
         Cert cert = certRepository.findByPhoneNumber(certRequest.getPhoneNumber())
                 .orElseThrow(() -> new CustomException(CERT_NOT_FOUND));
 
-        if(cert.getCertNumber().equals(certRequest.getCertNumber())) {
-            certRepository.deleteByPhoneNumber(certRequest.getPhoneNumber());
-            return CertDto.CertCheckResponse.builder()
-                    .isDuplicate(false)
-                    .build();
+        // 인증 시간 5분 초과 체크
+        if(LocalDateTime.now().minusMinutes(5).isAfter(cert.getModifiedAt())){
+            throw new CustomException(CERT_TIME_OVER);
         }
-        certRepository.deleteByPhoneNumber(certRequest.getPhoneNumber());
+
+        if(cert.getCertNumber().equals(certRequest.getCertNumber())) {
+            if(cert.getIsChecked()) {
+                // 전화번호 중복 체크
+                User user = userRepository.findByPhoneNumber(certRequest.getPhoneNumber()).orElse(null);
+
+                if (user != null) {
+                    return CertDto.CertCheckResponse.builder()
+                            .isDuplicate(true)
+                            .email(maskEmail(user.getEmail()))
+                            .socialType(user.getSocialType())
+                            .build();
+                }
+            } else {
+                cert.setIsChecked(true);
+                return CertDto.CertCheckResponse.builder()
+                        .isDuplicate(false)
+                        .build();
+            }
+        }
+
         throw new CustomException(CERT_NUMBER_NOT_EQUAL);
     }
 
@@ -97,23 +109,31 @@ public class CertService {
         certRepository.save(cert);
     }
 
-    // TODO: 이메일 가리기 메서드 간결하게 수정
-    // 이메일 일부 가리기 메서드
-    private String maskEmail(String email) {
-        String[] splitEmail = email.split("@");
-
-        StringBuilder maskedEmailId = new StringBuilder();
-        StringBuilder maskedEmailDomain = new StringBuilder();
-
-        maskedEmailId
-                .append(splitEmail[0])
-                .replace(1, 4, "***")
-                .append("@");
-
-        maskedEmailDomain
-                .append(splitEmail[1])
-                .replace(1, 4, "***");
-
-        return maskedEmailId + maskedEmailDomain.toString();
+    // TODO: 이메일 마스킹 메서드 구현
+    private static String maskEmail(String email) {
+        /*
+         * 요구되는 메일 포맷
+         * {userId}@{domain}.com
+         */
+        String regex = "\\b(\\S+)+@(\\S+)\\.(\\S+)";
+        Matcher matcher = Pattern.compile(regex).matcher(email);
+        if (matcher.find()) {
+            String id = matcher.group(1);
+            String domain = matcher.group(2);
+            /*
+             * userId의 길이를 기준으로 세글자 초과인 경우 첫 글자 뒤 세자리를 마스킹 처리하고,
+             * 세글자인 경우 뒤 두글자만 마스킹,
+             * 세글자 미만인 경우 첫 글자 제외 마스킹 처리
+             */
+            int length = id.length();
+            if (length < 3) {
+                return email.replaceAll("","");
+            } else if (length == 3) {
+                return email.replaceAll("\\b(\\S+)[^@][^@]+@(\\S+)", "$1**@$2");
+            } else {
+                return email.replaceAll("\\b(\\S+)[^@][^@][^@]+@(\\S+)", "$1***@$2");
+            }
+        }
+        return email;
     }
 }

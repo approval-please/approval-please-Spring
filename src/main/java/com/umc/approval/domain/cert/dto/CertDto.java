@@ -19,6 +19,7 @@ public class CertDto {
             return Cert.builder()
                     .phoneNumber(this.phoneNumber)
                     .certNumber(this.certNumber)
+                    .isChecked(false)   // 최초 저장 시 기본 false
                     .build();
         }
     }
