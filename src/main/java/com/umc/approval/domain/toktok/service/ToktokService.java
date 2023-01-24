@@ -16,7 +16,6 @@ import com.umc.approval.domain.vote.entity.Vote;
 import com.umc.approval.domain.vote.entity.VoteOption;
 import com.umc.approval.domain.vote.entity.VoteOptionRepository;
 import com.umc.approval.domain.vote.entity.VoteRepository;
-import com.umc.approval.global.aws.service.AwsS3Service;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import com.umc.approval.global.type.CategoryType;
@@ -37,7 +36,6 @@ import static com.umc.approval.global.exception.CustomErrorType.*;
 public class ToktokService {
 
     private final JwtService jwtService;
-    private final AwsS3Service awsS3Service;
     private final ToktokRepository toktokRepository;
     private final UserRepository userRepository;
     private final VoteRepository voteRepository;
