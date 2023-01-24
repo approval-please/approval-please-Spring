@@ -6,10 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequestMapping("/documents")
@@ -32,10 +30,11 @@ public class DocumentController {
 
 
     @PutMapping("/{documentId}")
-    public ResponseEntity<Void> updateDocument(@PathVariable("documentId") Long documentId,
-                                               @Valid @RequestPart(value = "data", required = false) DocumentDto.DocumentRequest request,
-                                               @RequestPart(value = "images", required = false) List<MultipartFile> images) {
-        documentService.updateDocument(documentId, request, images);
+    public ResponseEntity<Void> updateDocument(
+            @PathVariable("documentId") Long documentId,
+            @Valid @RequestBody DocumentDto.DocumentRequest request
+    ) {
+        documentService.updateDocument(documentId, request);
         return ResponseEntity.ok().build();
     }
 

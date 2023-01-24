@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.List;
@@ -82,7 +81,7 @@ public class DocumentService {
                 approveCount, rejectCount, likedCount, commentCount);
     }
 
-    public void updateDocument(Long documentId, DocumentDto.DocumentRequest request, List<MultipartFile> images) {
+    public void updateDocument(Long documentId, DocumentDto.DocumentRequest request) {
         // 게시글 존재 유무, 수정 권한 확인
         Document document = findDocument(documentId);
         User user = certifyUser();
@@ -103,7 +102,7 @@ public class DocumentService {
 
         // image 수정
         deleteImages(documentId);
-        createImages(images, document);
+        createImages(request.getImages(), document);
     }
 
 
@@ -169,11 +168,8 @@ public class DocumentService {
 
     private void deleteImages(Long documentId) {
         List<Image> imageList = imageRepository.findByDocumentId(documentId);
-        if (imageList != null) {
-            imageRepository.deleteByDocumentId(documentId);
-            for (Image image : imageList) {
-                awsS3Service.deleteImage(image.getImageUrl());
-            }
+        if (imageList != null && !imageList.isEmpty()) {
+            imageRepository.deleteAll(imageList);
         }
     }
 
