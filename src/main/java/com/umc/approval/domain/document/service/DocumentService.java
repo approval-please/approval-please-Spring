@@ -8,26 +8,18 @@ import com.umc.approval.domain.document.entity.DocumentRepository;
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
 import com.umc.approval.domain.like.entity.LikeRepository;
-import com.umc.approval.domain.link.entity.Link;
-import com.umc.approval.domain.link.entity.LinkRepository;
 import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.tag.entity.TagRepository;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
-import com.umc.approval.global.aws.service.AwsS3Service;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import com.umc.approval.global.type.CategoryType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.swing.text.html.Option;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +33,6 @@ import static com.umc.approval.global.exception.CustomErrorType.*;
 public class DocumentService {
 
     private final JwtService jwtService;
-    private final AwsS3Service awsS3Service;
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
@@ -50,7 +41,7 @@ public class DocumentService {
     private final CommentRepository commentRepository;
     private final ApprovalRepository approvalRepository;
 
-    public void createDocument(DocumentDto.DocumentRequest request, List<MultipartFile> images) {
+    public void createDocument(DocumentDto.DocumentRequest request) {
         User user = certifyUser();
 
         // 해당하는 카테고리 찾기
@@ -62,10 +53,10 @@ public class DocumentService {
         Document document = request.toEntity(user, categoryType);
         documentRepository.save(document);
         createTag(request.getTag(), document);
-        createImages(images, document);
+        createImages(request.getImages(), document);
     }
 
-    public DocumentDto.GetDocumentResponse getDocument(Long documentId){
+    public DocumentDto.GetDocumentResponse getDocument(Long documentId) {
 
         // 조회 수 업데이트
         documentRepository.updateView(documentId);
@@ -88,11 +79,11 @@ public class DocumentService {
                 approveCount, rejectCount, likedCount, commentCount);
     }
 
-    public void updateDocument(Long documentId, DocumentDto.DocumentRequest request, List<MultipartFile> images) {
+    public void updateDocument(Long documentId, DocumentDto.DocumentRequest request) {
         // 게시글 존재 유무, 수정 권한 확인
         Document document = findDocument(documentId);
         User user = certifyUser();
-        if(user.getId() != document.getUser().getId()){
+        if (user.getId() != document.getUser().getId()) {
             throw new CustomException(NO_PERMISSION);
         }
 
@@ -109,7 +100,7 @@ public class DocumentService {
 
         // image 수정
         deleteImages(documentId);
-        createImages(images, document);
+        createImages(request.getImages(), document);
     }
 
 
@@ -117,7 +108,7 @@ public class DocumentService {
         // 게시글 존재 유무, 삭제 권한 확인
         Document document = findDocument(documentId);
         User user = certifyUser();
-        if(user.getId() != document.getUser().getId()){
+        if (user.getId() != document.getUser().getId()) {
             throw new CustomException(NO_PERMISSION);
         }
 
@@ -132,21 +123,21 @@ public class DocumentService {
     }
 
 
-    private User certifyUser(){
+    private User certifyUser() {
         User user = userRepository.findById(jwtService.getId())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
         return user;
     }
 
-    private Document findDocument(Long documentId){
+    private Document findDocument(Long documentId) {
         Optional<Document> document = documentRepository.findById(documentId);
-        if(document.isEmpty()){
+        if (document.isEmpty()) {
             throw new CustomException(DOCUMENT_NOT_FOUND);
         }
         return document.get();
     }
 
-    private void createTag(List<String> tags, Document document){
+    private void createTag(List<String> tags, Document document) {
         if (tags != null) {
             for (String tag : tags) {
                 Tag newTag = Tag.builder().document(document).tag(tag).build();
@@ -155,38 +146,28 @@ public class DocumentService {
         }
     }
 
-    private void createImages(List<MultipartFile> images, Document document){
+    private void createImages(List<String> images, Document document) {
         if (images != null) {
-            if (images.size() == 1) {
-                String imgUrl = awsS3Service.uploadImage(images.get(0));
+            for (String imgUrl : images) {
                 Image uploadImg = Image.builder().document(document).imageUrl(imgUrl).build();
                 imageRepository.save(uploadImg);
-            } else {
-                List<String> imgUrls = awsS3Service.uploadImage(images);
-                for (String imgUrl : imgUrls) {
-                    Image uploadImg = Image.builder().document(document).imageUrl(imgUrl).build();
-                    imageRepository.save(uploadImg);
-                }
             }
         }
     }
 
-    private void deleteTag(Long documentId){
+    private void deleteTag(Long documentId) {
         List<Tag> tagList = tagRepository.findByDocumentId(documentId);
-        if(tagList != null){
-            for(Tag tag: tagList){
+        if (tagList != null) {
+            for (Tag tag : tagList) {
                 tagRepository.deleteById(tag.getId());
             }
         }
     }
 
-    private void deleteImages(Long documentId){
+    private void deleteImages(Long documentId) {
         List<Image> imageList = imageRepository.findByDocumentId(documentId);
-        if(imageList != null){
-            imageRepository.deleteByDocumentId(documentId);
-            for(Image image: imageList){
-                awsS3Service.deleteImage(image.getImageUrl());
-            }
+        if (imageList != null && !imageList.isEmpty()) {
+            imageRepository.deleteAll(imageList);
         }
     }
 

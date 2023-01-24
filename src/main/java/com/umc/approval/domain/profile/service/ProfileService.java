@@ -5,13 +5,11 @@ import com.umc.approval.domain.document.dto.DocumentDto;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.entity.DocumentRepository;
 import com.umc.approval.domain.follow.entity.FollowRepository;
-import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
 import com.umc.approval.domain.tag.entity.TagRepository;
 import com.umc.approval.domain.user.dto.UserDto;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
-import com.umc.approval.global.aws.service.AwsS3Service;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +17,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -32,7 +29,6 @@ import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
 @SuppressWarnings("unchecked")
 public class ProfileService {
     private final JwtService jwtService;
-    private final AwsS3Service awsS3Service;
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
@@ -41,7 +37,7 @@ public class ProfileService {
     private final FollowRepository followRepository;
 
     // 결재서류 조회
-    public JSONObject findDocuments (Long userId, Integer state, Boolean isApproved) {
+    public JSONObject findDocuments(Long userId, Integer state, Boolean isApproved) {
         User user;
         List<Document> documents;
 
@@ -60,7 +56,7 @@ public class ProfileService {
             documents = documentRepository.findAllByUserId(user.getId());
         }
 
-        if(documents.isEmpty()){
+        if (documents.isEmpty()) {
             throw new CustomException(DOCUMENT_NOT_FOUND);
         }
 
@@ -68,7 +64,7 @@ public class ProfileService {
         JSONObject profile = new JSONObject();
         JSONArray documentList = new JSONArray();
 
-        for (int i = 0 ; i < documents.size() ; i++) {
+        for (int i = 0; i < documents.size(); i++) {
             documentList.add(new DocumentDto.DocumentListResponse(documents.get(i), tagRepository.findTagNameList(documents.get(i).getId()), imageRepository.findImageUrlList(documents.get(i).getId()),
                     approvalRepository.countApproveByDocumentId(documents.get(i).getId()), approvalRepository.countRejectByDocumentId(documents.get(i).getId())));
         }
@@ -89,22 +85,14 @@ public class ProfileService {
     }
 
     // 사원증 프로필 수정
-    public void updateProfile (UserDto.ProfileRequest request, MultipartFile image) {
+    public void updateProfile(UserDto.ProfileRequest request) {
         User user = certifyUser();
-        // image 수정
-        String profileImage = null;
-        if (user.getProfileImage() != null) {
-            awsS3Service.deleteImage(user.getProfileImage());
-        }
-        if (image != null) {
-            profileImage = awsS3Service.uploadImage(image);
-        }
-        user.update(request.getNickname(), request.getIntroduction(), profileImage);
+        user.update(request.getNickname(), request.getIntroduction(), request.getImage());
     }
 
 
     // 로그인 확인
-    private User certifyUser(){
+    private User certifyUser() {
         User user = userRepository.findById(jwtService.getId())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
         return user;

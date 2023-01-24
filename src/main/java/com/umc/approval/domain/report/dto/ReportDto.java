@@ -35,6 +35,8 @@ public class ReportDto {
 
         @Size(max = 4, message = "태그 첨부는 최대 4개까지 가능합니다")
         private List<String> tag;
+
+        private List<String> images;
     }
 
     @Getter
@@ -103,6 +105,7 @@ public class ReportDto {
         private List<String> reportTag;
 
         private Long likedCount;
+        private Boolean likeOrNot;
         private Long scrapCount;
         private Long commentCount;
         private String datetime;
@@ -111,7 +114,7 @@ public class ReportDto {
         public GetReportResponse(User user, Document document, Report report,
             List<String> documentTagList, List<String> documentImageUrlList,
             List<String> reportTagList, List<String> reportImageUrlList,
-            List<String> reportLinkList, Long likedCount, Long scrapCount, Long commentCount) {
+            List<String> reportLinkList, Long likedCount, Long scrapCount, Long commentCount, Boolean likeOrNot) {
             this.profileImage = user.getProfileImage();
             this.nickname = user.getNickname();
             this.level = user.getLevel();
@@ -133,6 +136,7 @@ public class ReportDto {
             this.datetime = DateUtil.convert(report.getCreatedAt());
             this.commentCount = commentCount;
             this.view = report.getView();
+            this.likeOrNot = likeOrNot;
         }
 
 

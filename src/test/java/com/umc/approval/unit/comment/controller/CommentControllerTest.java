@@ -9,7 +9,6 @@ import com.umc.approval.domain.document.entity.DocumentRepository;
 import com.umc.approval.domain.report.entity.ReportRepository;
 import com.umc.approval.domain.toktok.entity.ToktokRepository;
 import com.umc.approval.domain.user.entity.UserRepository;
-import com.umc.approval.global.aws.service.AwsS3Service;
 import com.umc.approval.global.security.SecurityConfig;
 import com.umc.approval.global.security.service.JwtService;
 import org.junit.jupiter.api.DisplayName;
@@ -20,18 +19,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
-import static org.springframework.http.HttpMethod.PUT;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -56,9 +49,6 @@ public class CommentControllerTest {
     JwtService jwtService;
 
     @MockBean
-    AwsS3Service awsS3Service;
-
-    @MockBean
     CommentRepository commentRepository;
 
     @MockBean
@@ -73,14 +63,7 @@ public class CommentControllerTest {
     @MockBean
     ToktokRepository toktokRepository;
 
-    private MockMultipartFile createImage() throws IOException {
-        String fileName = "test";
-        String contentType = "image/png";
-        String filePath = "src/test/resources/img/test.png";
-        return new MockMultipartFile("images", fileName, contentType, new FileInputStream(filePath));
-    }
-
-    @DisplayName("댓글 등록에 성공한다 - 이미지 X")
+    @DisplayName("댓글 등록에 성공한다")
     @WithMockUser
     @Test
     void create_comment_success() throws Exception {
@@ -91,35 +74,11 @@ public class CommentControllerTest {
                 .content("test")
                 .build();
         String body = mapper.writeValueAsString(requestDto);
-        MockMultipartFile bodyFile = new MockMultipartFile("data", "data",
-                "application/json", body.getBytes(StandardCharsets.UTF_8));
 
         // when & then
-        mvc.perform(multipart("/comments")
-                        .file(bodyFile)
-                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
-                .andExpect(status().isOk())
-                .andDo(print());
-    }
-
-    @DisplayName("댓글 등록에 성공한다 - 이미지 O")
-    @WithMockUser
-    @Test
-    void create_comment_with_image_success() throws Exception {
-
-        // given
-        CommentDto.CreateRequest requestDto = CommentDto.CreateRequest.builder()
-                .documentId(1L)
-                .content("test")
-                .build();
-        String body = mapper.writeValueAsString(requestDto);
-        MockMultipartFile bodyFile = new MockMultipartFile("data", "data",
-                "application/json", body.getBytes(StandardCharsets.UTF_8));
-
-        // when & then
-        mvc.perform(multipart("/comments")
-                        .file(bodyFile)
-                        .file(createImage())
+        mvc.perform(post("/comments")
+                        .content(body)
+                        .contentType(APPLICATION_JSON)
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -130,7 +89,7 @@ public class CommentControllerTest {
     @Test
     void create_comment_no_body_fail() throws Exception {
         // given & when & then
-        mvc.perform(multipart("/comments")
+        mvc.perform(post("/comments")
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isInternalServerError())
                 .andDo(print());
@@ -146,52 +105,29 @@ public class CommentControllerTest {
                 .documentId(1L)
                 .build();
         String body = mapper.writeValueAsString(requestDto);
-        MockMultipartFile bodyFile = new MockMultipartFile("data", "data",
-                "application/json", body.getBytes(StandardCharsets.UTF_8));
 
         // when & then
-        mvc.perform(multipart("/comments")
-                        .file(bodyFile)
+        mvc.perform(post("/comments")
+                        .content(body)
+                        .contentType(APPLICATION_JSON)
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isBadRequest())
                 .andDo(print());
     }
 
-    @DisplayName("댓글 수정에 성공한다 - 이미지 X")
+    @DisplayName("댓글 수정에 성공한다")
     @WithMockUser
     @Test
     void update_comment_success() throws Exception {
 
         // given
-        CommentDto.UpdateRequest requestDto = new CommentDto.UpdateRequest("updateContent");
+        CommentDto.UpdateRequest requestDto = new CommentDto.UpdateRequest("updateContent", null);
         String body = mapper.writeValueAsString(requestDto);
-        MockMultipartFile bodyFile = new MockMultipartFile("data", "data",
-                "application/json", body.getBytes(StandardCharsets.UTF_8));
 
         // when & then
-        mvc.perform(multipart(PUT, "/comments/1")
-                        .file(bodyFile)
-                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
-                .andExpect(status().isOk())
-                .andDo(print());
-    }
-
-    @DisplayName("댓글 수정에 성공한다 - 이미지 O")
-    @WithMockUser
-    @Test
-    void update_comment_with_image_success() throws Exception {
-
-        // given
-        CommentDto.UpdateRequest requestDto = new CommentDto.UpdateRequest("updateContent");
-        String body = mapper.writeValueAsString(requestDto);
-        MockMultipartFile bodyFile = new MockMultipartFile("data", "data",
-                "application/json", body.getBytes(StandardCharsets.UTF_8));
-        MockMultipartFile image = createImage();
-
-        // when & then
-        mvc.perform(multipart(PUT, "/comments/1")
-                        .file(bodyFile)
-                        .file(image)
+        mvc.perform(put("/comments/1")
+                        .content(body)
+                        .contentType(APPLICATION_JSON)
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -202,7 +138,7 @@ public class CommentControllerTest {
     @Test
     void update_comment_no_body_fail() throws Exception {
         // given & when & then
-        mvc.perform(multipart(PUT, "/comments/1")
+        mvc.perform(put("/comments/1")
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isInternalServerError())
                 .andDo(print());
@@ -214,14 +150,13 @@ public class CommentControllerTest {
     void update_comment_no_content_fail() throws Exception {
 
         // given
-        CommentDto.UpdateRequest requestDto = new CommentDto.UpdateRequest(null);
+        CommentDto.UpdateRequest requestDto = new CommentDto.UpdateRequest(null, null);
         String body = mapper.writeValueAsString(requestDto);
-        MockMultipartFile bodyFile = new MockMultipartFile("data", "data",
-                "application/json", body.getBytes(StandardCharsets.UTF_8));
 
         // when & then
-        mvc.perform(multipart(PUT, "/comments/1")
-                        .file(bodyFile)
+        mvc.perform(put("/comments/1")
+                        .content(body)
+                        .contentType(APPLICATION_JSON)
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isBadRequest())
                 .andDo(print());

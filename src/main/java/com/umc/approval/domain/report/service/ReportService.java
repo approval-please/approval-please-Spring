@@ -23,22 +23,26 @@ import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.tag.entity.TagRepository;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
-import com.umc.approval.global.aws.service.AwsS3Service;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.umc.approval.global.exception.CustomErrorType.*;
 
 @Transactional
 @RequiredArgsConstructor
@@ -46,7 +50,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class ReportService {
 
     private final JwtService jwtService;
-    private final AwsS3Service awsS3Service;
     private final UserRepository userRepository;
     private final LinkRepository linkRepository;
     private final TagRepository tagRepository;
@@ -57,25 +60,24 @@ public class ReportService {
     private final CommentRepository commentRepository;
     private final ScrapRepository scrapRepository;
 
-    public void createPost(ReportDto.ReportRequest request, List<MultipartFile> files) {
-        User user = certifyUser();
+    public void createPost(ReportDto.ReportRequest request) {
 
         //결재서류 가져오기
         Document document = findDocument(request.getDocumentId());
 
         //해당 결재서류에 대한 결재보고서가 이미 존재하는 경우
-        Optional getReport = reportRepository.findByDocumentId(request.getDocumentId());
+        Optional<Report> getReport = reportRepository.findByDocumentId(request.getDocumentId());
         if (getReport.isPresent()) {
             throw new CustomException(REPORT_ALREADY_EXISTS);
         }
 
         //결재보고서 등록
         Report report = Report.builder()
-            .content(request.getContent())
-            .document(document)
-            .notification(true)
-            .view(0L)
-            .build();
+                .content(request.getContent())
+                .document(document)
+                .notification(true)
+                .view(0L)
+                .build();
 
         reportRepository.save(report);
 
@@ -86,12 +88,11 @@ public class ReportService {
 
         //태그 등록
         if (request.getTag() != null) {
-            List<String> tagList = request.getTag();
             createTag(request.getTag(), report);
         }
 
         //이미지 등록
-        createImages(files, report);
+        createImages(request.getImages(), report);
     }
 
     // 결재서류 글 작성시 결재서류 선택 리스트
@@ -100,20 +101,20 @@ public class ReportService {
 
         //페이징
         Pageable pageable =
-            PageRequest.of(page, 20, Sort.by(Sort.Direction.DESC, "createdAt"));
+                PageRequest.of(page, 20, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<Document> documents = documentRepository.findByUserId(user.getId(), pageable);
 
         // Dto로 변환
         List<ReportDto.DocumentListResponse> response;
         response = documents.getContent().stream()
-            .map(d -> ReportDto.DocumentListResponse.fromEntity(d))
-            .collect(Collectors.toList());
+                .map(ReportDto.DocumentListResponse::fromEntity)
+                .collect(Collectors.toList());
 
         return ReportDto.ReportGetDocumentResponse.from(documents, response);
     }
 
-    public void updatePost(Long id, ReportDto.ReportRequest request, List<MultipartFile> files) {
+    public void updatePost(Long id, ReportDto.ReportRequest request) {
         User user = certifyUser();
         Report report = findReport(id);
         // 현재 결재서류
@@ -155,7 +156,7 @@ public class ReportService {
         if (images != null && !images.isEmpty()) {
             imageRepository.deleteAll(images);
         }
-        createImages(files, report);
+        createImages(request.getImages(), report);
 
         report.update(request, updateDocument);
 
@@ -183,19 +184,25 @@ public class ReportService {
         Long likedCount = likeRepository.countByReport(report);
         Long commentCount = commentRepository.countByReportId(report.getId());
         Long scrapCount = scrapRepository.countByReport(report);
+        Long likeReportOrNot = likeRepository.countByUserAndReport(user, report);
+        Boolean likeOrNot = true;
+
+        if(likeReportOrNot == 0) {
+            likeOrNot = false;
+        }
 
 
         return new GetReportResponse(user, document, report,
             documentTagList, documentImageUrlList,
             reportTagList, reportImageUrlList,
-            reportLinkList, likedCount, scrapCount, commentCount);
+            reportLinkList, likedCount, scrapCount, commentCount, likeOrNot);
     }
 
 
 
     private User certifyUser() {
         User user = userRepository.findById(jwtService.getId())
-            .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
         return user;
     }
 
@@ -215,32 +222,24 @@ public class ReportService {
 
     private Document findDocument(Long documentId) {
         Document document = documentRepository.findById(documentId)
-            .orElseThrow(() -> new CustomException(DOCUMENT_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(DOCUMENT_NOT_FOUND));
 
         return document;
     }
 
     private Report findReport(Long reportId) {
         Report report = reportRepository.findById(reportId)
-            .orElseThrow(() -> new CustomException(REPORT_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(REPORT_NOT_FOUND));
 
         return report;
     }
 
-    private void createImages(List<MultipartFile> images, Report report) {
+    private void createImages(List<String> images, Report report) {
         if (images != null && !images.isEmpty()) {
-            if (images.size() == 1) {
-                String imgUrl = awsS3Service.uploadImage(images.get(0));
+            for (String imgUrl : images) {
                 Image uploadImg = Image.builder().report(report).imageUrl(imgUrl).build();
                 imageRepository.save(uploadImg);
-            } else {
-                List<String> imgUrls = awsS3Service.uploadImage(images);
-                for (String imgUrl : imgUrls) {
-                    Image uploadImg = Image.builder().report(report).imageUrl(imgUrl).build();
-                    imageRepository.save(uploadImg);
-                }
             }
         }
     }
-
 }
