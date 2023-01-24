@@ -10,7 +10,6 @@ import com.umc.approval.domain.report.entity.ReportRepository;
 import com.umc.approval.domain.toktok.entity.ToktokRepository;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
-import com.umc.approval.global.aws.service.AwsS3Service;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import org.junit.jupiter.api.DisplayName;
@@ -19,11 +18,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mock.web.MockMultipartFile;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 
 import static com.umc.approval.global.exception.CustomErrorType.*;
@@ -40,9 +36,6 @@ public class CommentServiceTest {
 
     @Mock
     JwtService jwtService;
-
-    @Mock
-    AwsS3Service awsS3Service;
 
     @Mock
     CommentRepository commentRepository;
@@ -68,14 +61,7 @@ public class CommentServiceTest {
                 .build();
     }
 
-    private MockMultipartFile createImage() throws IOException {
-        String fileName = "test";
-        String contentType = "image/png";
-        String filePath = "src/test/resources/img/test.png";
-        return new MockMultipartFile("images", fileName, contentType, new FileInputStream(filePath));
-    }
-
-    @DisplayName("댓글 등록에 성공한다 - 이미지 X")
+    @DisplayName("댓글 등록에 성공한다")
     @Test
     void create_comment_success() {
 
@@ -93,30 +79,7 @@ public class CommentServiceTest {
                 .build();
 
         // when & then
-        commentService.createComment(requestDto, null);
-    }
-
-    @DisplayName("댓글 등록에 성공한다 - 이미지 O")
-    @Test
-    void create_comment_with_image_success() throws Exception {
-
-        // given
-        User user = createUser(1L);
-        Document document = Document.builder()
-                .id(1L)
-                .title("title")
-                .content("content")
-                .build();
-        given(userRepository.findById(any())).willReturn(Optional.of(user));
-        given(documentRepository.findById(any())).willReturn(Optional.of(document));
-        CommentDto.CreateRequest requestDto = CommentDto.CreateRequest.builder()
-                .documentId(1L)
-                .build();
-
-        MockMultipartFile image = createImage();
-
-        // when & then
-        commentService.createComment(requestDto, List.of(image));
+        commentService.createComment(requestDto);
     }
 
     @DisplayName("댓글 등록 시 사용자가 존재하지 않으면 실패한다")
@@ -131,7 +94,7 @@ public class CommentServiceTest {
 
         // when & then
         CustomException e = assertThrows(CustomException.class,
-                () -> commentService.createComment(requestDto, null));
+                () -> commentService.createComment(requestDto));
         assertThat(e.getErrorType()).isEqualTo(USER_NOT_FOUND);
     }
 
@@ -149,7 +112,7 @@ public class CommentServiceTest {
 
         // when & then
         CustomException e = assertThrows(CustomException.class,
-                () -> commentService.createComment(requestDto, null));
+                () -> commentService.createComment(requestDto));
         assertThat(e.getErrorType()).isEqualTo(DOCUMENT_NOT_FOUND);
     }
 
@@ -166,12 +129,10 @@ public class CommentServiceTest {
                 .build();
         given(userRepository.findById(any())).willReturn(Optional.of(user));
         given(commentRepository.findByIdWithUser(any())).willReturn(Optional.of(comment));
-        CommentDto.UpdateRequest requestDto = new CommentDto.UpdateRequest("new content");
-
-        MockMultipartFile image = createImage();
+        CommentDto.UpdateRequest requestDto = new CommentDto.UpdateRequest("new content", null);
 
         // when & then
-        commentService.updateComment(comment.getId(), requestDto, List.of(image));
+        commentService.updateComment(comment.getId(), requestDto);
     }
 
     @DisplayName("댓글 수정 시 사용자가 존재하지 않으면 실패한다")
@@ -180,11 +141,11 @@ public class CommentServiceTest {
 
         // given
         given(userRepository.findById(any())).willReturn(Optional.empty());
-        CommentDto.UpdateRequest requestDto = new CommentDto.UpdateRequest("new content");
+        CommentDto.UpdateRequest requestDto = new CommentDto.UpdateRequest("new content", null);
 
         // when & then
         CustomException e = assertThrows(CustomException.class,
-                () -> commentService.updateComment(1L, requestDto, null));
+                () -> commentService.updateComment(1L, requestDto));
         assertThat(e.getErrorType()).isEqualTo(USER_NOT_FOUND);
     }
 
@@ -196,11 +157,11 @@ public class CommentServiceTest {
         User user = createUser(1L);
         given(userRepository.findById(any())).willReturn(Optional.of(user));
         given(commentRepository.findByIdWithUser(any())).willReturn(Optional.empty());
-        CommentDto.UpdateRequest requestDto = new CommentDto.UpdateRequest("new content");
+        CommentDto.UpdateRequest requestDto = new CommentDto.UpdateRequest("new content", null);
 
         // when & then
         CustomException e = assertThrows(CustomException.class,
-                () -> commentService.updateComment(1L, requestDto, null));
+                () -> commentService.updateComment(1L, requestDto));
         assertThat(e.getErrorType()).isEqualTo(COMMENT_NOT_FOUND);
     }
 
@@ -218,11 +179,11 @@ public class CommentServiceTest {
                 .build();
         given(userRepository.findById(any())).willReturn(Optional.of(otherUser));
         given(commentRepository.findByIdWithUser(any())).willReturn(Optional.of(comment));
-        CommentDto.UpdateRequest requestDto = new CommentDto.UpdateRequest("new content");
+        CommentDto.UpdateRequest requestDto = new CommentDto.UpdateRequest("new content", null);
 
         // when & then
         CustomException e = assertThrows(CustomException.class,
-                () -> commentService.updateComment(comment.getId(), requestDto, null));
+                () -> commentService.updateComment(comment.getId(), requestDto));
         assertThat(e.getErrorType()).isEqualTo(NO_PERMISSION);
     }
 }
