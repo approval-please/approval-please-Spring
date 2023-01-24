@@ -55,7 +55,7 @@ public class LikeService {
         if (userId != null) {
             // 로그인 O
             List<Long> userIds = likes.stream().map(l -> l.getUser().getId()).collect(Collectors.toList());
-            List<Follow> follows = followRepository.findAllByToUserIn(userId, userIds);
+            List<Follow> follows = followRepository.findAllByToUserId(userId, userIds);
 
             response = likes.getContent().stream()
                     .map(l -> {
