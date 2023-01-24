@@ -23,7 +23,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -100,7 +99,7 @@ public class ReportService {
         return ReportDto.ReportGetDocumentResponse.from(documents, response);
     }
 
-    public void updatePost(Long id, ReportDto.ReportRequest request, List<MultipartFile> files) {
+    public void updatePost(Long id, ReportDto.ReportRequest request) {
         User user = certifyUser();
         Report report = findReport(id);
         // 현재 결재서류
@@ -142,7 +141,7 @@ public class ReportService {
         if (images != null && !images.isEmpty()) {
             imageRepository.deleteAll(images);
         }
-        createImages(files, report);
+        createImages(request.getImages(), report);
 
         report.update(request, updateDocument);
 
