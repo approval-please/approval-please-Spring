@@ -1,6 +1,7 @@
 package com.umc.approval.domain.document.dto;
 
 import com.umc.approval.domain.document.entity.Document;
+import com.umc.approval.domain.link.dto.LinkDto;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.global.type.CategoryType;
 import com.umc.approval.global.util.DateUtil;
@@ -28,8 +29,8 @@ public class DocumentDto {
         private String content;
 
         private List<String> tag;
-        private String linkUrl;
         private List<String> images;
+        private LinkDto.Request link;
 
         // DTO -> Entity
         public Document toEntity(User user, CategoryType categoryType){
@@ -41,7 +42,6 @@ public class DocumentDto {
                     .state(2) //승인대기중
                     .view(0L)
                     .notification(true)
-                    .linkUrl(linkUrl)
                     .build();
         }
     }
