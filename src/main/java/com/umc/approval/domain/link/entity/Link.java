@@ -28,6 +28,10 @@ public class Link extends BaseTimeEntity {
     @Column(name = "link_id")
     private Long id;
 
+    @OneToOne(fetch = LAZY)
+    @JoinColumn(name = "document_id")
+    private Document document;
+
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "toktok_id")
     private Toktok toktok;
