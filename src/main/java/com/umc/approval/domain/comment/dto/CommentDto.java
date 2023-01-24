@@ -36,6 +36,7 @@ public class CommentDto {
         private Long parentCommentId;
         @NotBlank(message = "댓글의 내용은 필수 값입니다.")
         private String content;
+        private String image;
 
         public Comment toEntity(
                 User user, Document document, Report report,
