@@ -6,15 +6,19 @@ import static com.umc.approval.global.exception.CustomErrorType.REPORT_ALREADY_E
 import static com.umc.approval.global.exception.CustomErrorType.REPORT_NOT_FOUND;
 import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
 
+import com.umc.approval.domain.comment.entity.CommentRepository;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.entity.DocumentRepository;
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
+import com.umc.approval.domain.like.entity.LikeRepository;
 import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.entity.LinkRepository;
 import com.umc.approval.domain.report.dto.ReportDto;
+import com.umc.approval.domain.report.dto.ReportDto.GetReportResponse;
 import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.report.entity.ReportRepository;
+import com.umc.approval.domain.scrap.entity.ScrapRepository;
 import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.tag.entity.TagRepository;
 import com.umc.approval.domain.user.entity.User;
@@ -22,6 +26,7 @@ import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.aws.service.AwsS3Service;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -48,6 +53,9 @@ public class ReportService {
     private final ReportRepository reportRepository;
     private final DocumentRepository documentRepository;
     private final ImageRepository imageRepository;
+    private final LikeRepository likeRepository;
+    private final CommentRepository commentRepository;
+    private final ScrapRepository scrapRepository;
 
     public void createPost(ReportDto.ReportRequest request, List<MultipartFile> files) {
         User user = certifyUser();
@@ -152,6 +160,37 @@ public class ReportService {
         report.update(request, updateDocument);
 
     }
+
+    // 게시글 상세 조회
+    public ReportDto.GetReportResponse getReport(Long reportId) {
+        reportRepository.updateView(reportId);
+
+        Report report = findReport(reportId);
+        Document document = report.getDocument();
+        User user = certifyUser();
+
+        // 결재서류 정보
+        List<String> documentTagList = tagRepository.findTagNameList(document.getId());
+        List<String> documentImageUrlList = imageRepository.findImageUrlList(document.getId());
+
+        // 결재보고서 정보
+        List<String> reportTagList = tagRepository.findTagNameListByReportId(reportId);
+        List<String> reportImageUrlList = imageRepository.findImageUrlListByReportId(reportId);
+        List<String> reportLinkList = linkRepository.findLinkUrlList(reportId);
+
+
+        // 좋아요, 스크랩, 댓글 수
+        Long likedCount = likeRepository.countByReport(report);
+        Long commentCount = commentRepository.countByReportId(report.getId());
+        Long scrapCount = scrapRepository.countByReport(report);
+
+
+        return new GetReportResponse(user, document, report,
+            documentTagList, documentImageUrlList,
+            reportTagList, reportImageUrlList,
+            reportLinkList, likedCount, scrapCount, commentCount);
+    }
+
 
 
     private User certifyUser() {

@@ -1,5 +1,6 @@
 package com.umc.approval.domain.comment.entity;
 
+import com.umc.approval.domain.report.entity.Report;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,4 +24,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
 
     @Query(value = "select count(*) from comment where document_id = :document_id", nativeQuery = true)
     int countByDocumentId(@Param("document_id") Long documentId);
+
+    @Query(value = "select count(*) from comment where report_id = :report_id and comment.is_deleted = 0", nativeQuery = true)
+    Long countByReportId(@Param("report_id") Long reportId);
 }

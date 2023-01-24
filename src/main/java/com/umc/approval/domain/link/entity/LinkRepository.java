@@ -11,5 +11,8 @@ public interface LinkRepository extends JpaRepository<Link, Long> {
     List<Link> findByToktokId(@Param("toktokId") Long toktokId);
 
     List<Link> findByReportId(Long reportId);
+
+    @Query(value = "select link_url from link where report_id = :report_id", nativeQuery = true)
+    List<String> findLinkUrlList(@Param("report_id") Long reportId);
 }
 

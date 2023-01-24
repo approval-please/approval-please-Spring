@@ -5,6 +5,7 @@ import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
 import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.entity.LinkRepository;
+import com.umc.approval.domain.report.dto.ReportDto;
 import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.tag.entity.TagRepository;
 import com.umc.approval.domain.toktok.dto.ToktokDto;
@@ -241,7 +242,6 @@ public class ToktokService {
 
         toktokRepository.deleteById(toktokId);
     }
-
 
     public CategoryType viewCategory(int category) {
         CategoryType categoryType = Arrays.stream(CategoryType.values())

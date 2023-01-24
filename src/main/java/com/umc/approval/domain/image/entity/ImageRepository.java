@@ -28,4 +28,7 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
 
     @Query(value = "select image_url from image where document_id = :document_id", nativeQuery = true)
     List<String> findImageUrlList(@Param("document_id") Long documentId);
+
+    @Query(value = "select image_url from image where report_id = :report_id", nativeQuery = true)
+    List<String> findImageUrlListByReportId(@Param("report_id") Long reportId);
 }
