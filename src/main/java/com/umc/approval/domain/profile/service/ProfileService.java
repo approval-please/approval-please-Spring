@@ -92,16 +92,6 @@ public class ProfileService {
         String introduction = request.getIntroduction();
         String image = request.getImage();
 
-        if (nickname == null) {
-            nickname = user.getNickname();
-        }
-        if (introduction == null) {
-            introduction = user.getIntroduction();
-        }
-        if (image == null) {
-            image = user.getProfileImage();
-        }
-
         user.update(nickname, introduction, image);
     }
 
