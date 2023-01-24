@@ -29,6 +29,7 @@ public class DocumentDto {
 
         private List<String> tag;
         private String linkUrl;
+        private List<String> images;
 
         // DTO -> Entity
         public Document toEntity(User user, CategoryType categoryType){
