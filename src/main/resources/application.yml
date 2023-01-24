@@ -23,16 +23,6 @@ spring:
         format_sql: true
         default_batch_fetch_size: 100
 
-# AWS
-cloud:
-  aws:
-    stack:
-      auto: false
-    region:
-      static: ap-northeast-2
-    s3:
-      bucket: approval-s3
-
 # Logging level
 logging:
   level:
