@@ -27,16 +27,22 @@ public class QLink extends EntityPathBase<Link> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
 
+    public final com.umc.approval.domain.document.entity.QDocument document;
+
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    public final StringPath linkUrl = createString("linkUrl");
+    public final StringPath image = createString("image");
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
 
     public final com.umc.approval.domain.report.entity.QReport report;
 
+    public final StringPath title = createString("title");
+
     public final com.umc.approval.domain.toktok.entity.QToktok toktok;
+
+    public final StringPath url = createString("url");
 
     public QLink(String variable) {
         this(Link.class, forVariable(variable), INITS);
@@ -56,6 +62,7 @@ public class QLink extends EntityPathBase<Link> {
 
     public QLink(Class<? extends Link> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
+        this.document = inits.isInitialized("document") ? new com.umc.approval.domain.document.entity.QDocument(forProperty("document"), inits.get("document")) : null;
         this.report = inits.isInitialized("report") ? new com.umc.approval.domain.report.entity.QReport(forProperty("report"), inits.get("report")) : null;
         this.toktok = inits.isInitialized("toktok") ? new com.umc.approval.domain.toktok.entity.QToktok(forProperty("toktok"), inits.get("toktok")) : null;
     }

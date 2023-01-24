@@ -28,6 +28,10 @@ public class Link extends BaseTimeEntity {
     @Column(name = "link_id")
     private Long id;
 
+    @OneToOne(fetch = LAZY)
+    @JoinColumn(name = "document_id")
+    private Document document;
+
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "toktok_id")
     private Toktok toktok;
@@ -37,5 +41,9 @@ public class Link extends BaseTimeEntity {
     private Report report;
 
     @Column(nullable = false)
-    private String linkUrl;
+    private String url;
+
+    private String title;
+
+    private String image;
 }

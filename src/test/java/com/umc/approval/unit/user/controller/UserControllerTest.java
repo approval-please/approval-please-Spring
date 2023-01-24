@@ -1,12 +1,10 @@
 package com.umc.approval.unit.user.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.umc.approval.domain.user.controller.UserController;
 import com.umc.approval.domain.user.dto.UserDto;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.domain.user.service.UserService;
-import com.umc.approval.global.aws.service.AwsS3Service;
 import com.umc.approval.global.security.SecurityConfig;
 import com.umc.approval.global.security.service.JwtService;
 import com.umc.approval.global.type.SocialType;
@@ -44,9 +42,6 @@ public class UserControllerTest {
 
     @MockBean
     private UserService userService;
-
-    @MockBean
-    private AwsS3Service awsS3Service;
 
     @MockBean
     private JwtService jwtService;

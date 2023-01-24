@@ -4,6 +4,7 @@ import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.like.dto.LikeDto;
 import com.umc.approval.domain.like.dto.LikeDto.Response;
 import com.umc.approval.domain.like.entity.Like;
+import com.umc.approval.domain.link.dto.LinkDto;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.global.util.DateUtil;
 import java.time.LocalDateTime;
@@ -29,10 +30,12 @@ public class ReportDto {
         private String content;
 
         @Size(max = 4, message = "링크 첨부는 최대 4개까지 가능합니다")
-        private List<String> linkUrl;
+        private List<LinkDto.Request> link;
 
         @Size(max = 4, message = "태그 첨부는 최대 4개까지 가능합니다")
         private List<String> tag;
+
+        private List<String> images;
     }
 
     @Getter

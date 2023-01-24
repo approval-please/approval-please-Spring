@@ -13,7 +13,6 @@ import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.toktok.entity.ToktokRepository;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
-import com.umc.approval.global.aws.service.AwsS3Service;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +20,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -36,7 +34,6 @@ import static com.umc.approval.global.exception.CustomErrorType.*;
 public class CommentService {
 
     private final JwtService jwtService;
-    private final AwsS3Service awsS3Service;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final DocumentRepository documentRepository;
@@ -44,7 +41,7 @@ public class CommentService {
     private final ToktokRepository toktokRepository;
     private final LikeRepository likeRepository;
 
-    public void createComment(CommentDto.CreateRequest requestDto, List<MultipartFile> images) {
+    public void createComment(CommentDto.CreateRequest requestDto) {
 
         User user = getUser();
 
@@ -71,16 +68,10 @@ public class CommentService {
                     .orElseThrow(() -> new CustomException(TOKTOKPOST_NOT_FOUND));
         }
 
-        // 이미지
-        String imageUrl = null;
-        if (images != null && !images.isEmpty()) {
-            imageUrl = awsS3Service.uploadImage(images.get(0));
-        }
-
-        commentRepository.save(requestDto.toEntity(user, document, report, toktok, parentComment, imageUrl));
+        commentRepository.save(requestDto.toEntity(user, document, report, toktok, parentComment, requestDto.getImage()));
     }
 
-    public void updateComment(Long commentId, CommentDto.UpdateRequest requestDto, List<MultipartFile> images) {
+    public void updateComment(Long commentId, CommentDto.UpdateRequest requestDto) {
 
         User user = getUser();
         Comment comment = commentRepository.findByIdWithUser(commentId)
@@ -91,17 +82,7 @@ public class CommentService {
             throw new CustomException(NO_PERMISSION);
         }
 
-        // 기존 이미지 존재 시 삭제
-        if (comment.getImageUrl() != null) {
-            awsS3Service.deleteImage(comment.getImageUrl());
-        }
-
-        // 변경된 이미지 추가
-        String imageUrl = null;
-        if (images != null && !images.isEmpty()) {
-            imageUrl = awsS3Service.uploadImage(images.get(0));
-        }
-        comment.update(requestDto.getContent(), imageUrl);
+        comment.update(requestDto.getContent(), requestDto.getImage());
     }
 
     public void deleteComment(Long commentId) {
@@ -113,11 +94,6 @@ public class CommentService {
         // 본인이 쓴 댓글인지 확인
         if (!comment.getUser().getId().equals(user.getId())) {
             throw new CustomException(NO_PERMISSION);
-        }
-
-        // 이미지 제거
-        if (comment.getImageUrl() != null) {
-            awsS3Service.deleteImage(comment.getImageUrl());
         }
 
         // 대댓글 존재 여부에 따른 삭제 처리
