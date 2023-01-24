@@ -70,8 +70,9 @@ public class User extends BaseTimeEntity {
     }
 
     // 사원증 프로필 수정
-    public void update(String nickname, String introduction) {
+    public void update(String nickname, String introduction, String profileImage) {
         this.nickname = nickname;
         this.introduction = introduction;
+        this.profileImage = profileImage;
     }
 }
