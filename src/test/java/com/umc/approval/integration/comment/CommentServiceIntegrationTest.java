@@ -200,7 +200,7 @@ public class CommentServiceIntegrationTest {
         // given
         User user = createUser(1L);
         Comment comment = createComment(user);
-        CommentDto.UpdateRequest requestDto = new CommentDto.UpdateRequest("new content", null);
+        CommentDto.UpdateRequest requestDto = new CommentDto.UpdateRequest("new content", "http://~");
 
         loginUser(user);
 
@@ -210,7 +210,7 @@ public class CommentServiceIntegrationTest {
 
         // then
         assertThat(findComment.getContent()).isEqualTo(requestDto.getContent());
-        assertThat(findComment.getImageUrl()).isNotNull();
+        assertThat(findComment.getImageUrl()).isEqualTo("http://~");
     }
 
     @DisplayName("댓글 수정 시 사용자가 존재하지 않으면 실패한다")
