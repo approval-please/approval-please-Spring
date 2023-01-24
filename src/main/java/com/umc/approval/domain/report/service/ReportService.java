@@ -9,6 +9,7 @@ import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
 import com.umc.approval.domain.comment.entity.CommentRepository;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.entity.DocumentRepository;
+import com.umc.approval.domain.follow.entity.FollowRepository;
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
 import com.umc.approval.domain.like.entity.LikeRepository;
@@ -59,6 +60,7 @@ public class ReportService {
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
     private final ScrapRepository scrapRepository;
+    private final FollowRepository followRepository;
 
     public void createPost(ReportDto.ReportRequest request) {
 
@@ -186,16 +188,29 @@ public class ReportService {
         Long scrapCount = scrapRepository.countByReport(report);
         Long likeReportOrNot = likeRepository.countByUserAndReport(user, report);
         Boolean likeOrNot = true;
+        Boolean followOrNot = true;
 
+        // 해당 유저가 게시글을 눌렀는지 여부
         if(likeReportOrNot == 0) {
             likeOrNot = false;
         }
+
+        // 게시글 상세 조회를 한 유저가 글을 쓴 유저를 팔로우 했는지 여부
+        Long from_userId = user.getId();
+        Long to_userId = document.getUser().getId();
+        Integer follow = followRepository.countFollowOrNot(from_userId, to_userId);
+        if (from_userId == to_userId) {
+            followOrNot = null;
+        } else if(follow == 0) {
+            followOrNot = false;
+        }
+
 
 
         return new GetReportResponse(user, document, report,
             documentTagList, documentImageUrlList,
             reportTagList, reportImageUrlList,
-            reportLinkList, likedCount, scrapCount, commentCount, likeOrNot);
+            reportLinkList, likedCount, scrapCount, commentCount, likeOrNot, followOrNot);
     }
 
 
