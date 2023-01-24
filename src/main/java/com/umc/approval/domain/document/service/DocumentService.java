@@ -102,7 +102,7 @@ public class DocumentService {
                 .filter(c -> c.getValue() == request.getCategory())
                 .findAny().get();
 
-        document.update(categoryType, request.getTitle(), request.getContent(), request.getLinkUrl());
+        document.update(categoryType, request.getTitle(), request.getContent());
 
         // tag 수정
         deleteTag(documentId);
@@ -111,6 +111,17 @@ public class DocumentService {
         // image 수정
         deleteImages(documentId);
         createImages(request.getImages(), document);
+
+        // link 수정
+        linkRepository.findByDocumentId(documentId).ifPresent(linkRepository::delete);
+        if (request.getLink() != null) {
+            Link link = Link.builder()
+                    .url(request.getLink().getUrl())
+                    .title(request.getLink().getTitle())
+                    .image(request.getLink().getImage())
+                    .build();
+            linkRepository.save(link);
+        }
     }
 
 
