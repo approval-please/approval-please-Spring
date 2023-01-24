@@ -7,6 +7,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import com.umc.approval.domain.link.dto.LinkDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,7 +43,7 @@ public class ToktokDto {
         private List<String> voteOption;
 
         @Size(max = 4, message = "링크 첨부는 최대 4개까지 가능합니다")
-        private List<String> linkUrl;
+        private List<LinkDto.Request> link;
 
         @Size(max = 4, message = "태그 첨부는 최대 4개까지 가능합니다")
         private List<String> tag;

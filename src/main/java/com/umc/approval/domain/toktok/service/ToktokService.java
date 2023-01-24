@@ -3,6 +3,7 @@ package com.umc.approval.domain.toktok.service;
 
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
+import com.umc.approval.domain.link.dto.LinkDto;
 import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.entity.LinkRepository;
 import com.umc.approval.domain.tag.entity.Tag;
@@ -70,9 +71,9 @@ public class ToktokService {
 
         toktokRepository.save(toktok);
 
-        //링크 등록
-        if (request.getLinkUrl() != null) {
-            List<String> linkList = request.getLinkUrl();
+        // 링크 등록
+        if (request.getLink() != null && !request.getLink().isEmpty()) {
+            List<LinkDto.Request> linkList = request.getLink();
             createLink(linkList, toktok);
         }
 
@@ -242,10 +243,15 @@ public class ToktokService {
         }
     }
 
-    public void createLink(List<String> linkList, Toktok toktok) {
-        for (String link : linkList) {
-            Link newLink = Link.builder().toktok(toktok).linkUrl(link).build();
-            linkRepository.save(newLink);
+    public void createLink(List<LinkDto.Request> linkList, Toktok toktok) {
+        for (LinkDto.Request l : linkList) {
+            Link link = Link.builder()
+                    .toktok(toktok)
+                    .url(l.getUrl())
+                    .title(l.getTitle())
+                    .image(l.getImage())
+                    .build();
+            linkRepository.save(link);
         }
     }
 
