@@ -37,5 +37,9 @@ public class Link extends BaseTimeEntity {
     private Report report;
 
     @Column(nullable = false)
-    private String linkUrl;
+    private String url;
+
+    private String title;
+
+    private String image;
 }
