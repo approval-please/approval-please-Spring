@@ -125,7 +125,7 @@ public class ToktokService {
         CategoryType categoryType = viewCategory(request.getCategory());
 
         // 투표가 종료된 글의 투표 관련 사항을 수정하려는 경우
-        if (toktok.getVote().getIsEnd().equals(true) && (request.getVoteTitle() != null
+        if (toktok.getVote() != null && toktok.getVote().getIsEnd().equals(true) && (request.getVoteTitle() != null
                 || request.getVoteOption() != null ||
                 request.getVoteIsSingle() != null || request.getVoteIsAnonymous() != null)) {
             throw new CustomException(VOTE_IS_END);
