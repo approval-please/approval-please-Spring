@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static com.umc.approval.global.exception.CustomErrorType.DOCUMENT_NOT_FOUND;
@@ -30,6 +29,7 @@ import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
 @Transactional
 @RequiredArgsConstructor
 @Service
+@SuppressWarnings("unchecked")
 public class ProfileService {
     private final JwtService jwtService;
     private final AwsS3Service awsS3Service;
@@ -73,7 +73,7 @@ public class ProfileService {
                     approvalRepository.countApproveByDocumentId(documents.get(i).getId()), approvalRepository.countRejectByDocumentId(documents.get(i).getId())));
         }
 
-        profile.put("profileImage", imageRepository.findImageUrl(user.getId()));
+        profile.put("profileImage", user.getProfileImage());
         profile.put("introduction", user.getIntroduction());
         profile.put("nickname", user.getNickname());
         profile.put("level", user.getLevel());
@@ -91,31 +91,17 @@ public class ProfileService {
     // 사원증 프로필 수정
     public void updateProfile (UserDto.ProfileRequest request, MultipartFile image) {
         User user = certifyUser();
-
-        user.update(request.getNickname(), request.getIntroduction());
-
         // image 수정
-        if (image != null) {
-            deleteImage(user.getId());
-            createImage(image, user);
+        String profileImage = null;
+        if (user.getProfileImage() != null) {
+            awsS3Service.deleteImage(user.getProfileImage());
         }
+        if (image != null) {
+            profileImage = awsS3Service.uploadImage(image);
+        }
+        user.update(request.getNickname(), request.getIntroduction(), profileImage);
     }
 
-    private void createImage(MultipartFile image, User user){
-        if (image != null) {
-            String imgUrl = awsS3Service.uploadImage(image);
-            Image uploadImg = Image.builder().user(user).imageUrl(imgUrl).build();
-            imageRepository.save(uploadImg);
-        }
-    }
-
-    private void deleteImage(Long userId){
-        Image image = imageRepository.findByUserId(userId);
-        if (image != null) {
-            imageRepository.deleteByUserId(userId);
-            awsS3Service.deleteImage(image.getImageUrl());
-        }
-    }
 
     // 로그인 확인
     private User certifyUser(){

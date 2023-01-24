@@ -33,15 +33,11 @@ public class ProfileController {
     // @GetMapping("/my/performances")
 
     // 사원증 프로필 수정
-    @PatchMapping("/update")
-    public ResponseEntity<Void> updateProfile (@Valid @RequestPart(value = "data", required = false) UserDto.ProfileRequest request,
-                                               @RequestPart(value = "image", required = false) MultipartFile image) {
+        @PatchMapping("/update")
+        public ResponseEntity<Void> updateProfile (@Valid @RequestPart(value = "data", required = false) UserDto.ProfileRequest request,
+                @RequestPart(value = "image", required = false) MultipartFile image) {
 
-        if (image.isEmpty()) {
-            profileService.updateProfile(request, null);
-        } else {
             profileService.updateProfile(request, image);
-        }
 
         return ResponseEntity.ok().build();
     }

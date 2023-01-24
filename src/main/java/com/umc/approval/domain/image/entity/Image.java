@@ -30,10 +30,6 @@ public class Image extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "document_id")
     private Document document;
 

@@ -24,18 +24,8 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     @Query(value = "delete from image where document_id = :document_id", nativeQuery = true)
     void deleteByDocumentId(@Param("document_id") Long documentId);
 
-    @Query("select i from Image i where i.user.id = :userId")
-    Image findByUserId(Long userId);
-
-    @Modifying
-    @Query(value = "delete from image where user_id = :user_id", nativeQuery = true)
-    void deleteByUserId(@Param("user_id") Long userId);
-
     List<Image> findByReportId(Long reportId);
 
     @Query(value = "select image_url from image where document_id = :document_id", nativeQuery = true)
     List<String> findImageUrlList(@Param("document_id") Long documentId);
-
-    @Query(value = "select image_url from image where user_id = :user_id", nativeQuery = true)
-    String findImageUrl(@Param("user_id") Long userId);
 }
