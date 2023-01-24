@@ -44,7 +44,7 @@ public class CommentService {
     private final ToktokRepository toktokRepository;
     private final LikeRepository likeRepository;
 
-    public void createComment(CommentDto.CreateRequest requestDto, List<MultipartFile> images) {
+    public void createComment(CommentDto.CreateRequest requestDto) {
 
         User user = getUser();
 
@@ -71,13 +71,7 @@ public class CommentService {
                     .orElseThrow(() -> new CustomException(TOKTOKPOST_NOT_FOUND));
         }
 
-        // 이미지
-        String imageUrl = null;
-        if (images != null && !images.isEmpty()) {
-            imageUrl = awsS3Service.uploadImage(images.get(0));
-        }
-
-        commentRepository.save(requestDto.toEntity(user, document, report, toktok, parentComment, imageUrl));
+        commentRepository.save(requestDto.toEntity(user, document, report, toktok, parentComment, requestDto.getImage()));
     }
 
     public void updateComment(Long commentId, CommentDto.UpdateRequest requestDto, List<MultipartFile> images) {

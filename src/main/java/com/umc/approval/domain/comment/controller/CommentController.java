@@ -32,10 +32,9 @@ public class CommentController {
 
     @PostMapping
     public ResponseEntity<Void> createComment(
-            @Valid @RequestPart(value = "data") CommentDto.CreateRequest requestDto,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images
+            @Valid @RequestBody CommentDto.CreateRequest requestDto
     ) {
-        commentService.createComment(requestDto, images);
+        commentService.createComment(requestDto);
         return ResponseEntity.ok().build();
     }
 
