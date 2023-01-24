@@ -4,6 +4,7 @@ import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.entity.DocumentRepository;
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
+import com.umc.approval.domain.link.dto.LinkDto;
 import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.entity.LinkRepository;
 import com.umc.approval.domain.report.dto.ReportDto;
@@ -11,6 +12,7 @@ import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.report.entity.ReportRepository;
 import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.tag.entity.TagRepository;
+import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.exception.CustomException;
@@ -64,8 +66,8 @@ public class ReportService {
         reportRepository.save(report);
 
         //링크 등록
-        if (request.getLinkUrl() != null) {
-            createLink(request.getLinkUrl(), report);
+        if (request.getLink() != null && !request.getLink().isEmpty()) {
+            createLink(request.getLink(), report);
         }
 
         //태그 등록
@@ -151,10 +153,15 @@ public class ReportService {
         return user;
     }
 
-    public void createLink(List<String> linkList, Report report) {
-        for (String link : linkList) {
-            Link newLink = Link.builder().report(report).linkUrl(link).build();
-            linkRepository.save(newLink);
+    public void createLink(List<LinkDto.Request> linkList, Report report) {
+        for (LinkDto.Request l : linkList) {
+            Link link = Link.builder()
+                    .report(report)
+                    .url(l.getUrl())
+                    .title(l.getTitle())
+                    .image(l.getImage())
+                    .build();
+            linkRepository.save(link);
         }
     }
 
