@@ -20,9 +20,16 @@ import com.umc.approval.global.security.service.JwtService;
 import com.umc.approval.global.type.CategoryType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.swing.text.html.Option;
@@ -31,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.umc.approval.global.exception.CustomErrorType.*;
 
@@ -129,6 +137,45 @@ public class DocumentService {
 
         // document 삭제
         documentRepository.deleteById(documentId);
+    }
+
+    public DocumentDto.GetDocumentListResponse getDocumentList(Integer page, Integer category){
+        Pageable pageable = PageRequest.of(page, 20, Sort.by("createdAt").descending()); // 최신순
+
+        Page<Document> documents;
+        if(category == null){ // 전체 조회
+            documents = documentRepository.findAll(pageable);
+        }else{ // 부서별 조회
+            if(category<0 || category>17){
+                throw new CustomException(INVALID_VALUE, "카테고리는 0부터 17까지의 정수 값입니다.");
+            }
+            CategoryType categoryType = Arrays.stream(CategoryType.values())
+                    .filter(c -> c.getValue() == category)
+                    .findAny().get();
+            documents = documentRepository.findAllByCategory(categoryType, pageable);
+        }
+
+        /*
+        List<Document> documentList = documents.getContent();
+        for(Document document: documentList){
+            List<String> tagList = tagRepository.findTagNameList(document.getId());
+            List<String> imageList = imageRepository.findImageUrlList(document.getId());
+            int approveCount = approvalRepository.countApproveByDocumentId(document.getId());
+            int rejectCount = approvalRepository.countRejectByDocumentId(document.getId());
+            new DocumentDto.DocumentListResponse(document, tagList, imageList, approveCount, rejectCount);
+        }
+        */
+
+        List<DocumentDto.DocumentListResponse> response = documents.getContent().stream()
+                .map(document ->
+                    new DocumentDto.DocumentListResponse(document,
+                            tagRepository.findTagNameList(document.getId()),
+                            imageRepository.findImageUrlList(document.getId()),
+                            approvalRepository.countApproveByDocumentId(document.getId()),
+                            approvalRepository.countRejectByDocumentId(document.getId())))
+                .collect(Collectors.toList());
+
+        return new DocumentDto.GetDocumentListResponse(documents, response);
     }
 
 

@@ -1,11 +1,15 @@
 package com.umc.approval.domain.document.dto;
 
 import com.umc.approval.domain.document.entity.Document;
+import com.umc.approval.domain.report.dto.ReportDto;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.global.type.CategoryType;
 import com.umc.approval.global.util.DateUtil;
 
+import lombok.Builder;
 import lombok.Data;
+import org.springframework.data.domain.Page;
+
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -98,6 +102,21 @@ public class DocumentDto {
         }
     }
 
+    @Data
+    public static class GetDocumentListResponse {
+        private Integer page;
+        private Integer totalPage;
+        private Long totalElement;
+        private List<DocumentDto.DocumentListResponse> content;
+
+        public GetDocumentListResponse(Page<Document> documents, List<DocumentDto.DocumentListResponse> content){
+            this.page = documents.getNumber();
+            this.totalPage = documents.getTotalPages();
+            this.totalElement = documents.getTotalElements();
+            this.content = content;
+        }
+    }
+
     // 결재서류 목록 조회
     @Data
     public static class DocumentListResponse {
@@ -134,4 +153,5 @@ public class DocumentDto {
             this.view = document.getView();
         }
     }
+
 }
