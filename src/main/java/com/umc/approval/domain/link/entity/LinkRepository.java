@@ -9,5 +9,7 @@ import org.springframework.data.repository.query.Param;
 public interface LinkRepository extends JpaRepository<Link, Long> {
     @Query("select l from Link l where l.toktok.id = :toktokId")
     List<Link> findByToktokId(@Param("toktokId") Long toktokId);
+
+    List<Link> findByReportId(Long reportId);
 }
 

@@ -1,7 +1,9 @@
 package com.umc.approval.domain.report.service;
 
 import static com.umc.approval.global.exception.CustomErrorType.DOCUMENT_NOT_FOUND;
+import static com.umc.approval.global.exception.CustomErrorType.NO_PERMISSION;
 import static com.umc.approval.global.exception.CustomErrorType.REPORT_ALREADY_EXISTS;
+import static com.umc.approval.global.exception.CustomErrorType.REPORT_NOT_FOUND;
 import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
 
 import com.umc.approval.domain.document.entity.Document;
@@ -84,6 +86,7 @@ public class ReportService {
         createImages(files, report);
     }
 
+    // 결재서류 글 작성시 결재서류 선택 리스트
     public ReportDto.ReportGetDocumentResponse selectDocument(Integer page) {
         User user = certifyUser();
 
@@ -100,6 +103,53 @@ public class ReportService {
             .collect(Collectors.toList());
 
         return ReportDto.ReportGetDocumentResponse.from(documents, response);
+    }
+
+    public void updatePost(Long id, ReportDto.ReportRequest request, List<MultipartFile> files) {
+        User user = certifyUser();
+        Report report = findReport(id);
+        Document document = findDocument(report.getDocument().getId());
+
+        // 변경된 결재서류
+        Document updateDocument = findDocument(request.getDocumentId());
+
+        if (user.getId() != document.getUser().getId() || user.getId() != updateDocument.getUser().getId()) {
+            throw new CustomException(NO_PERMISSION);
+        }
+
+        // 태그 수정
+        List<Tag> tags = tagRepository.findByReportId(report.getId());
+        if (tags != null && !tags.isEmpty()) {
+            tagRepository.deleteAll(tags);
+        }
+        if (request.getTag() != null) {
+            List<String> tagList = request.getTag();
+            if (tagList != null && !tagList.isEmpty()) {
+                createTag(tagList, report);
+            }
+        }
+
+        // 링크 수정
+        List<Link> links = linkRepository.findByReportId(report.getId());
+        if (links != null && !links.isEmpty()) {
+            linkRepository.deleteAll(links);
+        }
+        if (request.getLinkUrl() != null) {
+            List<String> linkList = request.getLinkUrl();
+            if (linkList != null && !linkList.isEmpty()) {
+                createLink(linkList, report);
+            }
+        }
+
+        // 이미지 수정
+        List<Image> images = imageRepository.findByReportId(report.getId());
+        if (images != null && !images.isEmpty()) {
+            imageRepository.deleteAll(images);
+        }
+        createImages(files, report);
+
+        report.update(request, updateDocument);
+
     }
 
 
@@ -128,6 +178,13 @@ public class ReportService {
             .orElseThrow(() -> new CustomException(DOCUMENT_NOT_FOUND));
 
         return document;
+    }
+
+    private Report findReport(Long reportId) {
+        Report report = reportRepository.findById(reportId)
+            .orElseThrow(() -> new CustomException(REPORT_NOT_FOUND));
+
+        return report;
     }
 
     private void createImages(List<MultipartFile> images, Report report) {
