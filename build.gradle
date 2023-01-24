@@ -25,7 +25,6 @@ dependencies {
 	implementation 'com.auth0:java-jwt:4.0.0'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 	compileOnly 'org.projectlombok:lombok'
 	testImplementation 'io.findify:s3mock_2.12:0.2.6'
 	runtimeOnly 'com.h2database:h2'
