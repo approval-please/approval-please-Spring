@@ -5,10 +5,13 @@ import com.umc.approval.domain.document.dto.DocumentDto;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.entity.DocumentRepository;
 import com.umc.approval.domain.follow.entity.FollowRepository;
+import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
 import com.umc.approval.domain.tag.entity.TagRepository;
+import com.umc.approval.domain.user.dto.UserDto;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
+import com.umc.approval.global.aws.service.AwsS3Service;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +19,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -28,6 +32,7 @@ import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
 @Service
 public class ProfileService {
     private final JwtService jwtService;
+    private final AwsS3Service awsS3Service;
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
@@ -35,14 +40,13 @@ public class ProfileService {
     private final ApprovalRepository approvalRepository;
     private final FollowRepository followRepository;
 
-    // 마이페이지 - 결재서류 조회
+    // 결재서류 조회
     public JSONObject findDocuments (Long userId, Integer state, Boolean isApproved) {
         User user;
         List<Document> documents;
 
         if (userId == null) { // 내 사원증 조회
-            user = userRepository.findById(jwtService.getId())
-                    .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+            user = certifyUser();
         } else { // 타 사원증 조회
             user = userRepository.findById(userId)
                     .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
@@ -66,10 +70,11 @@ public class ProfileService {
 
         for (int i = 0 ; i < documents.size() ; i++) {
             documentList.add(new DocumentDto.DocumentListResponse(documents.get(i), tagRepository.findTagNameList(documents.get(i).getId()), imageRepository.findImageUrlList(documents.get(i).getId()),
-                        approvalRepository.countApproveByDocumentId(documents.get(i).getId()), approvalRepository.countRejectByDocumentId(documents.get(i).getId())));
+                    approvalRepository.countApproveByDocumentId(documents.get(i).getId()), approvalRepository.countRejectByDocumentId(documents.get(i).getId())));
         }
 
-        profile.put("profileImage", user.getProfileImage());
+        profile.put("profileImage", imageRepository.findImageUrl(user.getId()));
+        profile.put("introduction", user.getIntroduction());
         profile.put("nickname", user.getNickname());
         profile.put("level", user.getLevel());
         profile.put("promotionPoint", user.getPromotionPoint());
@@ -81,5 +86,41 @@ public class ProfileService {
         result.put("documentList", documentList);
 
         return result;
+    }
+
+    // 사원증 프로필 수정
+    public void updateProfile (UserDto.ProfileRequest request, MultipartFile image) {
+        User user = certifyUser();
+
+        user.update(request.getNickname(), request.getIntroduction());
+
+        // image 수정
+        if (image != null) {
+            deleteImage(user.getId());
+            createImage(image, user);
+        }
+    }
+
+    private void createImage(MultipartFile image, User user){
+        if (image != null) {
+            String imgUrl = awsS3Service.uploadImage(image);
+            Image uploadImg = Image.builder().user(user).imageUrl(imgUrl).build();
+            imageRepository.save(uploadImg);
+        }
+    }
+
+    private void deleteImage(Long userId){
+        Image image = imageRepository.findByUserId(userId);
+        if (image != null) {
+            imageRepository.deleteByUserId(userId);
+            awsS3Service.deleteImage(image.getImageUrl());
+        }
+    }
+
+    // 로그인 확인
+    private User certifyUser(){
+        User user = userRepository.findById(jwtService.getId())
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+        return user;
     }
 }

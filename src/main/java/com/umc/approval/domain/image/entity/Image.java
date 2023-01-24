@@ -4,6 +4,7 @@ import com.umc.approval.domain.BaseTimeEntity;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.toktok.entity.Toktok;
+import com.umc.approval.domain.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,6 +28,10 @@ public class Image extends BaseTimeEntity {
     @GeneratedValue(strategy = IDENTITY)
     @Column(name = "image_id")
     private Long id;
+
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "document_id")

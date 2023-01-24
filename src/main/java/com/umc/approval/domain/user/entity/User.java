@@ -44,6 +44,8 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false)
     private String nickname;
 
+    private String introduction;
+
     @Column(nullable = false)
     private String phoneNumber;
 
@@ -65,5 +67,11 @@ public class User extends BaseTimeEntity {
 
     public void encodePassword(String encodedPassword) {
         this.password = encodedPassword;
+    }
+
+    // 사원증 프로필 수정
+    public void update(String nickname, String introduction) {
+        this.nickname = nickname;
+        this.introduction = introduction;
     }
 }
