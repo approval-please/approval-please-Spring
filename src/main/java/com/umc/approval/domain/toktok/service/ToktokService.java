@@ -20,21 +20,17 @@ import com.umc.approval.global.aws.service.AwsS3Service;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import com.umc.approval.global.type.CategoryType;
-import java.util.Optional;
-import javax.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityManager;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
-import static com.umc.approval.global.exception.CustomErrorType.NO_PERMISSION;
-import static com.umc.approval.global.exception.CustomErrorType.TOKTOKPOST_NOT_FOUND;
-import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
-import static com.umc.approval.global.exception.CustomErrorType.VOTE_IS_END;
+import static com.umc.approval.global.exception.CustomErrorType.*;
 
 @Transactional
 @RequiredArgsConstructor
@@ -52,7 +48,7 @@ public class ToktokService {
     private final ImageRepository imageRepository;
     private final EntityManager entityManager;
 
-    public void createPost(ToktokDto.PostToktokRequest request, List<MultipartFile> files) {
+    public void createPost(ToktokDto.PostToktokRequest request) {
         User user = certifyUser();
 
         //투표 등록
@@ -67,13 +63,13 @@ public class ToktokService {
 
         //결제톡톡 게시글 등록
         Toktok toktok = Toktok.builder()
-            .user(user)
-            .content(request.getContent())
-            .category(categoryType)
-            .vote(vote)
-            .view(0L)
-            .notification(true)
-            .build();
+                .user(user)
+                .content(request.getContent())
+                .category(categoryType)
+                .vote(vote)
+                .view(0L)
+                .notification(true)
+                .build();
 
         toktokRepository.save(toktok);
 
@@ -89,25 +85,15 @@ public class ToktokService {
             createTag(tagList, toktok);
         }
 
-        //aws 이미지 저장
-        if (files != null) {
-            if (files.size() == 1) {
-                String imgUrl = awsS3Service.uploadImage(files.get(0));
-                Image uploadImg = Image.builder().toktok(toktok).imageUrl(imgUrl).build();
-                imageRepository.save(uploadImg);
-
-            } else {
-                List<String> imgUrls = awsS3Service.uploadImage(files);
-                for (String imgUrl : imgUrls) {
-                    Image uploadImg = Image.builder().toktok(toktok).imageUrl(imgUrl).build();
-                    imageRepository.save(uploadImg);
-                }
-            }
+        //이미지 등록
+        for (String imgUrl : request.getImages()) {
+            Image uploadImg = Image.builder().toktok(toktok).imageUrl(imgUrl).build();
+            imageRepository.save(uploadImg);
         }
     }
 
     public void updatePost(Long id, ToktokDto.PostToktokRequest request,
-        List<MultipartFile> files) {
+                           List<MultipartFile> files) {
         User user = certifyUser();
         Toktok toktok = findToktok(id);
 
@@ -143,8 +129,8 @@ public class ToktokService {
 
         // 투표가 종료된 글의 투표 관련 사항을 수정하려는 경우
         if (toktok.getVote().getIsEnd().equals(true) && (request.getVoteTitle() != null
-            || request.getVoteOption() != null ||
-            request.getVoteIsSingle() != null || request.getVoteIsAnonymous() != null)) {
+                || request.getVoteOption() != null ||
+                request.getVoteIsSingle() != null || request.getVoteIsAnonymous() != null)) {
             throw new CustomException(VOTE_IS_END);
         }
 
@@ -245,27 +231,27 @@ public class ToktokService {
 
     public CategoryType viewCategory(int category) {
         CategoryType categoryType = Arrays.stream(CategoryType.values())
-            .filter(c -> c.getValue() == category)
-            .findAny().get();
+                .filter(c -> c.getValue() == category)
+                .findAny().get();
         return categoryType;
     }
 
     public Vote createVote(ToktokDto.PostToktokRequest request) {
         Vote vote = Vote.builder()
-            .title(request.getVoteTitle())
-            .isSingle(request.getVoteIsSingle())
-            .isAnonymous(request.getVoteIsAnonymous())
-            .isEnd(false)
-            .build();
+                .title(request.getVoteTitle())
+                .isSingle(request.getVoteIsSingle())
+                .isAnonymous(request.getVoteIsAnonymous())
+                .isEnd(false)
+                .build();
         return voteRepository.save(vote);
     }
 
     public void createVoteOption(List<String> voteOptionList, Vote vote) {
         for (String option : voteOptionList) {
             VoteOption voteOption = VoteOption.builder()
-                .vote(vote)
-                .opt(option)
-                .build();
+                    .vote(vote)
+                    .opt(option)
+                    .build();
             voteOptionRepository.save(voteOption);
         }
     }
@@ -286,13 +272,13 @@ public class ToktokService {
 
     private User certifyUser() {
         User user = userRepository.findById(jwtService.getId())
-            .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
         return user;
     }
 
     private Toktok findToktok(Long id) {
         Toktok toktok = toktokRepository.findById(id)
-            .orElseThrow(() -> new CustomException(TOKTOKPOST_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(TOKTOKPOST_NOT_FOUND));
         return toktok;
     }
 
