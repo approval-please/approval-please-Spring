@@ -11,10 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.domain.Page;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.util.List;
 
 public class DocumentDto {
@@ -32,8 +29,12 @@ public class DocumentDto {
         @NotBlank(message = "게시글의 내용은 필수 값입니다.")
         private String content;
 
+        @Size(max = 4, message = "태그는 최대 4개까지 첨부 가능합니다.")
         private List<String> tag;
+
+        @Size(max = 4, message = "이미지는 최대 4개까지 첨부 가능합니다.")
         private List<String> images;
+
         private LinkDto.Request link;
 
         // DTO -> Entity
