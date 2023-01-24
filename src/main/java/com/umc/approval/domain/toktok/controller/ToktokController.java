@@ -6,10 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.util.List;
 
 
 @RequiredArgsConstructor
@@ -27,12 +25,11 @@ public class ToktokController {
     }
 
     @PutMapping("/{toktokId}")
-    public ResponseEntity<Void> updatePost(@Valid
-                                           @RequestPart(value = "data", required = false) ToktokDto.PostToktokRequest request,
-                                           @RequestPart(value = "images", required = false) List<MultipartFile> files,
-                                           @PathVariable("toktokId") Long id) {
-
-        toktokService.updatePost(id, request, files);
+    public ResponseEntity<Void> updatePost(
+            @Valid @RequestBody ToktokDto.PostToktokRequest request,
+            @PathVariable("toktokId") Long id
+    ) {
+        toktokService.updatePost(id, request);
         return ResponseEntity.ok().build();
     }
 
