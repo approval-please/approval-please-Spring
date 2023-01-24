@@ -10,7 +10,6 @@ import com.umc.approval.domain.tag.entity.TagRepository;
 import com.umc.approval.domain.user.dto.UserDto;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
-import com.umc.approval.global.aws.service.AwsS3Service;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +29,6 @@ import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
 @SuppressWarnings("unchecked")
 public class ProfileService {
     private final JwtService jwtService;
-    private final AwsS3Service awsS3Service;
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
