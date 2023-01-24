@@ -196,10 +196,7 @@ public class ToktokService {
         //image 삭제
         List<Image> imageList = imageRepository.findByToktokId(toktokId);
         if (imageList != null) {
-            imageRepository.deleteByToktokId(toktokId);
-            for (Image image : imageList) {
-                awsS3Service.deleteImage(image.getImageUrl());
-            }
+            imageRepository.deleteAll(imageList);
         }
 
         //vote 삭제

@@ -149,7 +149,7 @@ public class DocumentService {
     }
 
     private void createImages(List<String> images, Document document) {
-        if (images != null && !images.isEmpty()) {
+        if (images != null) {
             for (String imgUrl : images) {
                 Image uploadImg = Image.builder().document(document).imageUrl(imgUrl).build();
                 imageRepository.save(uploadImg);
