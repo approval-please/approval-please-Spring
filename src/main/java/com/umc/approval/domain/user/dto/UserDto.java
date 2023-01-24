@@ -3,6 +3,7 @@ package com.umc.approval.domain.user.dto;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.global.type.SocialType;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -118,5 +119,12 @@ public class UserDto {
 
         @NotBlank(message = "비밀번호는 필수 값입니다.")
         private String newPassword;
+    }
+
+    // 사원증 프로필 수정
+    @Data
+    public static class ProfileRequest {
+        private String nickname;
+        private String introduction;
     }
 }
