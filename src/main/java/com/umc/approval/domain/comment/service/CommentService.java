@@ -98,11 +98,6 @@ public class CommentService {
             throw new CustomException(NO_PERMISSION);
         }
 
-        // 이미지 제거
-        if (comment.getImageUrl() != null) {
-            awsS3Service.deleteImage(comment.getImageUrl());
-        }
-
         // 대댓글 존재 여부에 따른 삭제 처리
         if (commentRepository.existsByParentCommentId(commentId)) {
             comment.deleteWithChildComment();
