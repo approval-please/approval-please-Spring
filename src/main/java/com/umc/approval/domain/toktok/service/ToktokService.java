@@ -117,11 +117,9 @@ public class ToktokService {
         if (links != null && !links.isEmpty()) {
             linkRepository.deleteAll(links);
         }
-        if (request.getLinkUrl() != null) {
-            List<String> linkList = request.getLinkUrl();
-            if (linkList != null && !linkList.isEmpty()) {
-                createLink(linkList, toktok);
-            }
+        if (request.getLink() != null && !request.getLink().isEmpty()) {
+            List<LinkDto.Request> linkList = request.getLink();
+            createLink(linkList, toktok);
         }
 
         CategoryType categoryType = viewCategory(request.getCategory());
