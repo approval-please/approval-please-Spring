@@ -61,10 +61,7 @@ public class DocumentService {
     public void createDocument(DocumentDto.DocumentRequest request, List<MultipartFile> images) {
         User user = certifyUser();
 
-        // 해당하는 카테고리 찾기
-        CategoryType categoryType = Arrays.stream(CategoryType.values())
-                .filter(c -> c.getValue() == request.getCategory())
-                .findAny().get();
+        CategoryType categoryType = findCategory(request.getCategory());
 
         // 게시글 등록
         Document document = request.toEntity(user, categoryType);
@@ -105,9 +102,7 @@ public class DocumentService {
         }
 
         // document 수정
-        CategoryType categoryType = Arrays.stream(CategoryType.values())
-                .filter(c -> c.getValue() == request.getCategory())
-                .findAny().get();
+        CategoryType categoryType = findCategory(request.getCategory());
 
         document.update(categoryType, request.getTitle(), request.getContent(), request.getLinkUrl());
 
@@ -149,9 +144,7 @@ public class DocumentService {
             if(category<0 || category>17){
                 throw new CustomException(INVALID_VALUE, "카테고리는 0부터 17까지의 정수 값입니다.");
             }
-            CategoryType categoryType = Arrays.stream(CategoryType.values())
-                    .filter(c -> c.getValue() == category)
-                    .findAny().get();
+            CategoryType categoryType = findCategory(category);
             documents = documentRepository.findAllByCategory(categoryType, pageable);
         }
 
@@ -191,6 +184,12 @@ public class DocumentService {
             throw new CustomException(DOCUMENT_NOT_FOUND);
         }
         return document.get();
+    }
+
+    private CategoryType findCategory(Integer category){
+        return Arrays.stream(CategoryType.values())
+                .filter(c -> c.getValue() == category)
+                .findAny().get();
     }
 
     private void createTag(List<String> tags, Document document){
