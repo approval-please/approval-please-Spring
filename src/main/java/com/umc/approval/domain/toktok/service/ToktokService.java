@@ -23,7 +23,6 @@ import com.umc.approval.global.type.CategoryType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import java.util.Arrays;
@@ -86,14 +85,15 @@ public class ToktokService {
         }
 
         //이미지 등록
-        for (String imgUrl : request.getImages()) {
-            Image uploadImg = Image.builder().toktok(toktok).imageUrl(imgUrl).build();
-            imageRepository.save(uploadImg);
+        if (request.getImages() != null) {
+            for (String imgUrl : request.getImages()) {
+                Image uploadImg = Image.builder().toktok(toktok).imageUrl(imgUrl).build();
+                imageRepository.save(uploadImg);
+            }
         }
     }
 
-    public void updatePost(Long id, ToktokDto.PostToktokRequest request,
-                           List<MultipartFile> files) {
+    public void updatePost(Long id, ToktokDto.PostToktokRequest request) {
         User user = certifyUser();
         Toktok toktok = findToktok(id);
 
@@ -161,24 +161,15 @@ public class ToktokService {
             toktok.update(request, categoryType, null);
         }
 
-        //이미지 수정
+        // 이미지 수정
         List<Image> images = imageRepository.findByToktokId(toktok.getId());
         if (images != null && !images.isEmpty()) {
             imageRepository.deleteAll(images);
         }
-
-        if (files != null && files.size() == 1) {
-            String imgUrl = awsS3Service.uploadImage(files.get(0));
-            Image uploadImg = Image.builder().toktok(toktok).imageUrl(imgUrl).build();
-            imageRepository.save(uploadImg);
-
-        } else {
-            if (files != null && !files.isEmpty()) {
-                List<String> imgUrls = awsS3Service.uploadImage(files);
-                for (String imgUrl : imgUrls) {
-                    Image uploadImg = Image.builder().toktok(toktok).imageUrl(imgUrl).build();
-                    imageRepository.save(uploadImg);
-                }
+        if (request.getImages() != null) {
+            for (String imgUrl : request.getImages()) {
+                Image uploadImg = Image.builder().toktok(toktok).imageUrl(imgUrl).build();
+                imageRepository.save(uploadImg);
             }
         }
     }
