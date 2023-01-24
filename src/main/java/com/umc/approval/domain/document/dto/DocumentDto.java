@@ -1,7 +1,9 @@
 package com.umc.approval.domain.document.dto;
 
 import com.umc.approval.domain.document.entity.Document;
+import com.umc.approval.domain.like.dto.LikeDto;
 import com.umc.approval.domain.link.dto.LinkDto;
+import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.global.type.CategoryType;
 import com.umc.approval.global.util.DateUtil;
@@ -58,7 +60,7 @@ public class DocumentDto {
         private Integer category;
         private String title;
         private String content;
-        private String linkUrl;
+        private LinkDto.Response link;
         private List<String> tag;
         private List<String> images;
 
@@ -76,7 +78,7 @@ public class DocumentDto {
 
         // Entity -> DTO
         public GetDocumentResponse(Document document, User user, List<String> tagNameList, List<String> imageUrlList,
-                int approveCount, int rejectCount, int likedCount, int commentCount) {
+                                   Link link, int approveCount, int rejectCount, int likedCount, int commentCount) {
             this.profileImage = user.getProfileImage();
             this.nickname = user.getNickname();
             this.level = user.getLevel();
@@ -84,7 +86,7 @@ public class DocumentDto {
             this.category = document.getCategory().getValue();
             this.title = document.getTitle();
             this.content = document.getContent();
-            this.linkUrl = document.getLinkUrl();
+            this.link = link == null ? null : LinkDto.Response.fromEntity(link);
             this.tag = tagNameList;
             this.images = imageUrlList;
 

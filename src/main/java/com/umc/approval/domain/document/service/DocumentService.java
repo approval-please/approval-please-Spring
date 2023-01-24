@@ -76,6 +76,7 @@ public class DocumentService {
         User user = document.getUser();
         List<String> tagNameList = tagRepository.findTagNameList(documentId);
         List<String> imageUrlList = imageRepository.findImageUrlList(documentId);
+        Link link = linkRepository.findByDocumentId(documentId).orElse(null);
 
         // 승인, 반려 수
         int approveCount = approvalRepository.countApproveByDocumentId(documentId);
@@ -85,7 +86,7 @@ public class DocumentService {
         int likedCount = likeRepository.countByDocumentId(documentId);
         int commentCount = commentRepository.countByDocumentId(documentId);
 
-        return new DocumentDto.GetDocumentResponse(document, user, tagNameList, imageUrlList,
+        return new DocumentDto.GetDocumentResponse(document, user, tagNameList, imageUrlList, link,
                 approveCount, rejectCount, likedCount, commentCount);
     }
 
