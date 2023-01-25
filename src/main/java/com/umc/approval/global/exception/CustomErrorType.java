@@ -40,6 +40,9 @@ public enum CustomErrorType {
     REPORT_NOT_FOUND(NOT_FOUND, 50001, "존재하지 않는 결재보고서입니다."),
     REPORT_ALREADY_EXISTS(BAD_REQUEST, 50002, "해당 결재서류에 대한 결재보고서가 존재합니다."),
 
+    // Performance (6xxxx)
+    PERFORMANCE_NOT_FOUND(NOT_FOUND, 60001, "존재하지 않는 실적입니다."),
+
     // Comment (7xxxx)
     COMMENT_NOT_FOUND(NOT_FOUND, 70001, "존재하지 않는 댓글입니다."),
     PARENT_COMMENT_NOT_FOUND(NOT_FOUND, 70002, "존재하지 않는 상위 댓글입니다."),

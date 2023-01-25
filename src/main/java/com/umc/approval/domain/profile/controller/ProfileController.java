@@ -17,6 +17,12 @@ import javax.validation.Valid;
 public class ProfileController {
     private final ProfileService profileService;
 
+    // 사원증 프로필 조회
+    @GetMapping({"/my", "/{userId}"})
+    public JSONObject findProfile(@PathVariable(value = "userId", required = false) Long userId) {
+        return profileService.getUserProfile(userId);
+    }
+
     // 결재서류 조회
     @GetMapping({"/my/documents", "/{userId}/documents", "/my/approvals"})
     public JSONObject findAllDocuments(@PathVariable(value = "userId", required = false) Long userId,
@@ -27,7 +33,10 @@ public class ProfileController {
     }
 
     // 실적 조회
-    // @GetMapping("/my/performances")
+    @GetMapping("/my/performances")
+    public JSONObject findPerformances () {
+        return profileService.findPerformances();
+    }
 
     // 팔로우 목록 조회
     @GetMapping("/my/followers")
