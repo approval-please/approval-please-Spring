@@ -30,4 +30,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
     Long countByReportId(@Param("report_id") Long reportId);
 
     List<Comment> findByReportId(Long reportId);
+
+    List<Comment> findByToktokId(Long toktokId);
 }

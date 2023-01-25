@@ -10,4 +10,6 @@ public interface ScrapRepository extends JpaRepository<Scrap, Long> {
 
     List<Scrap> findByReportId(Long reportId);
 
+    List<Scrap> findByToktokId(Long toktokId);
+
 }

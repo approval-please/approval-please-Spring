@@ -1,12 +1,18 @@
 package com.umc.approval.domain.toktok.service;
 
 
+import com.umc.approval.domain.comment.entity.Comment;
+import com.umc.approval.domain.comment.entity.CommentRepository;
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
+import com.umc.approval.domain.like.entity.Like;
+import com.umc.approval.domain.like.entity.LikeRepository;
 import com.umc.approval.domain.link.dto.LinkDto;
 import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.entity.LinkRepository;
 import com.umc.approval.domain.report.dto.ReportDto;
+import com.umc.approval.domain.scrap.entity.Scrap;
+import com.umc.approval.domain.scrap.entity.ScrapRepository;
 import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.tag.entity.TagRepository;
 import com.umc.approval.domain.toktok.dto.ToktokDto;
@@ -48,6 +54,9 @@ public class ToktokService {
     private final ImageRepository imageRepository;
     private final EntityManager entityManager;
     private final UserVoteRepository userVoteRepository;
+    private final LikeRepository likeRepository;
+    private final CommentRepository commentRepository;
+    private final ScrapRepository scrapRepository;
 
     public void createPost(ToktokDto.PostToktokRequest request) {
         User user = certifyUser();
@@ -198,6 +207,24 @@ public class ToktokService {
         List<Image> imageList = imageRepository.findByToktokId(toktokId);
         if (imageList != null) {
             imageRepository.deleteAll(imageList);
+        }
+
+        //좋아요 삭제
+        List<Like> likes = likeRepository.findByToktokId(toktokId);
+        if(likes != null) {
+            likeRepository.deleteAll(likes);
+        }
+
+        // 스크랩 삭제
+        List<Scrap> scraps = scrapRepository.findByToktokId(toktokId);
+        if(scraps != null) {
+            scrapRepository.deleteAll(scraps);
+        }
+
+        // 댓글 삭제
+        List<Comment> comments = commentRepository.findByToktokId(toktokId);
+        if(comments != null) {
+            commentRepository.deleteAll(comments);
         }
 
         //vote 삭제
