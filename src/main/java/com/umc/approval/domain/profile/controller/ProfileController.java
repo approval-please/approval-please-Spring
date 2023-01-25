@@ -24,7 +24,7 @@ public class ProfileController {
     }
 
     // 결재서류 조회
-    @GetMapping({"/my/documents", "/{userId}/documents", "/my/approvals"})
+    @GetMapping({"/my/documents", "/{userId}/documents"})
     public JSONObject findAllDocuments(@PathVariable(value = "userId", required = false) Long userId,
                                        @RequestParam(value = "state", required = false) Integer state,
                                        @RequestParam(value = "isApproved", required = false) Boolean isApproved) {
