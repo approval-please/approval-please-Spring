@@ -203,7 +203,7 @@ public class DocumentDto {
                     .state(document.getState())
                     .title(document.getTitle())
                     .content(document.getContent())
-                    .tag(document.getTags().stream().map(Tag::getTag).collect(Collectors.toList()))
+                    .tag(document.getTags() == null ? null : document.getTags().stream().map(Tag::getTag).collect(Collectors.toList()))
                     .link(document.getLink() == null ? null : LinkDto.Response.fromEntity(document.getLink()))
                     .thumbnailImage(
                             document.getImages() != null && !document.getImages().isEmpty() ?
