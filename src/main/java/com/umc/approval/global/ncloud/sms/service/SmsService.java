@@ -29,19 +29,19 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-@PropertySource("classpath:application-local.yml")
+@PropertySource({"classpath:application-local.yml", "classpath:application.yml"})
 public class SmsService {
 
-    @Value("${ncloud.sms.accessKey}")
+    @Value("${accessKey}")
     private String accessKey;
 
-    @Value("${ncloud.sms.secretKey}")
+    @Value("${secretKey}")
     private String secretKey;
 
-    @Value("${ncloud.sms.serviceId}")
+    @Value("${serviceId}")
     private String serviceId;
 
-    @Value("${ncloud.sms.senderPhone}")
+    @Value("${senderPhone}")
     private String fromPhoneNumber;
 
     public CertDto.SmsResponse sendCertSms(CertDto.MessageDto messageDto)
