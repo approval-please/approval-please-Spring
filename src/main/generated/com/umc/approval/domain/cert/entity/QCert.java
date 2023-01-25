@@ -28,6 +28,8 @@ public class QCert extends EntityPathBase<Cert> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
+    public final BooleanPath isChecked = createBoolean("isChecked");
+
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
 

@@ -167,6 +167,15 @@ public class DocumentDto {
         private Integer totalPage;
         private Long totalElement;
         private List<SearchListResponse> content;
+
+        public static SearchResponse from(Page<Document> page) {
+            return SearchResponse.builder()
+                    .page(page.getNumber())
+                    .totalPage(page.getTotalPages())
+                    .totalElement(page.getTotalElements())
+                    .content(page.getContent().stream().map(SearchListResponse::fromEntity).collect(Collectors.toList()))
+                    .build();
+        }
     }
 
     @Getter
@@ -182,8 +191,34 @@ public class DocumentDto {
         private LinkDto.Response link;
         private String thumbnailImage;
         private Integer imageCount;
+        private Long view;
         private Integer approvalCount;
         private Integer rejectCount;
         private String datetime;
+
+        public static SearchListResponse fromEntity(Document document) {
+            return SearchListResponse.builder()
+                    .documentId(document.getId())
+                    .category(document.getCategory().getValue())
+                    .state(document.getState())
+                    .title(document.getTitle())
+                    .content(document.getContent())
+                    .tag(document.getTags() == null ? null : document.getTags().stream().map(Tag::getTag).collect(Collectors.toList()))
+                    .link(document.getLink() == null ? null : LinkDto.Response.fromEntity(document.getLink()))
+                    .thumbnailImage(
+                            document.getImages() != null && !document.getImages().isEmpty() ?
+                                    document.getImages().get(0).getImageUrl() : null
+                    )
+                    .imageCount(document.getImages() == null ? 0 : document.getImages().size())
+                    .view(document.getView())
+                    .approvalCount(document.getApprovals() == null ?
+                            0 : (int) document.getApprovals().stream().filter(Approval::getIsApprove).count()
+                    )
+                    .rejectCount(document.getApprovals() == null ?
+                            0 : (int) document.getApprovals().stream().filter(a -> !a.getIsApprove()).count()
+                    )
+                    .datetime(DateUtil.convert(document.getCreatedAt()))
+                    .build();
+        }
     }
 }

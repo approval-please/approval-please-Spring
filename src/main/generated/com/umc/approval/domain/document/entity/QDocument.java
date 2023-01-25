@@ -37,12 +37,16 @@ public class QDocument extends EntityPathBase<Document> {
 
     public final ListPath<com.umc.approval.domain.image.entity.Image, com.umc.approval.domain.image.entity.QImage> images = this.<com.umc.approval.domain.image.entity.Image, com.umc.approval.domain.image.entity.QImage>createList("images", com.umc.approval.domain.image.entity.Image.class, com.umc.approval.domain.image.entity.QImage.class, PathInits.DIRECT2);
 
+    public final ListPath<com.umc.approval.domain.like.entity.Like, com.umc.approval.domain.like.entity.QLike> likes = this.<com.umc.approval.domain.like.entity.Like, com.umc.approval.domain.like.entity.QLike>createList("likes", com.umc.approval.domain.like.entity.Like.class, com.umc.approval.domain.like.entity.QLike.class, PathInits.DIRECT2);
+
     public final com.umc.approval.domain.link.entity.QLink link;
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
 
     public final BooleanPath notification = createBoolean("notification");
+
+    public final ListPath<com.umc.approval.domain.scrap.entity.Scrap, com.umc.approval.domain.scrap.entity.QScrap> scraps = this.<com.umc.approval.domain.scrap.entity.Scrap, com.umc.approval.domain.scrap.entity.QScrap>createList("scraps", com.umc.approval.domain.scrap.entity.Scrap.class, com.umc.approval.domain.scrap.entity.QScrap.class, PathInits.DIRECT2);
 
     public final NumberPath<Integer> state = createNumber("state", Integer.class);
 

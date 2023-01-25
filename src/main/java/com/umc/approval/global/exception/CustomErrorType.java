@@ -24,6 +24,9 @@ public enum CustomErrorType {
     USER_NOT_FOUND(NOT_FOUND, 20004, "사용자를 찾을 수 없습니다."),
     NO_PERMISSION(FORBIDDEN, 20005, "게시글 수정 및 삭제에 대한 권한이 없습니다."),
     SNS_LOGIN_FAILED(UNAUTHORIZED, 20006, "SNS 로그인에 실패했습니다."),
+    CERT_NOT_FOUND(NOT_FOUND, 20007, "전화번호 인증 요청 내역이 존재하지 않습니다."),
+    CERT_NUMBER_NOT_EQUAL(BAD_REQUEST, 20008, "인증번호가 일치하지 않습니다."),
+    CERT_TIME_OVER(REQUEST_TIMEOUT, 20009, "인증 시간이 초과되었습니다."),
 
     // Document (3xxxx)
     DOCUMENT_NOT_FOUND(NOT_FOUND, 30001, "존재하지 않는 결재서류입니다."),

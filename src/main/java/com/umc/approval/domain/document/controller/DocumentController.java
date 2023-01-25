@@ -1,5 +1,3 @@
-
-
 package com.umc.approval.domain.document.controller;
 
 import com.umc.approval.domain.document.dto.DocumentDto;
@@ -57,11 +55,12 @@ public class DocumentController {
     @GetMapping("/search")
     public ResponseEntity<DocumentDto.SearchResponse> search(
         @RequestParam("query") String query,
+        @RequestParam("isTag") Integer isTag,
         @RequestParam(value = "category", required = false) Integer category,
         @RequestParam(value = "state", required = false) Integer state,
         @RequestParam("sortBy") Integer sortBy,
-        @PageableDefault(size = 20) Pageable pageable
+        @PageableDefault(size = 25) Pageable pageable
     ) {
-        return ResponseEntity.ok(documentService.search(query, category, state, sortBy, pageable));
+        return ResponseEntity.ok(documentService.search(query, isTag, category, state, sortBy, pageable));
     }
 }

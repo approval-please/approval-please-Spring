@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface DocumentRepository extends JpaRepository<Document, Long> {
+public interface DocumentRepository extends JpaRepository<Document, Long>, DocumentRepositoryCustom {
 
     @Modifying
     @Query(value = "update document set view = view + 1 where document_id = :document_id", nativeQuery = true)
@@ -43,7 +43,7 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
     @Query(value = "select d from Document d where d.id = (select a.document.id from Approval a where a.isApprove = :isApproved AND a.user.id = :userId)")
     List<Document> findAllByApproval(@Param("userId") Long userId, @Param("isApproved") Boolean isApproved); // 사용자가 결재한 결재서류 승인별 조회
 
-    @Query(value = "select d from Document d where category = :category")
+    @Query(value = "select d from Document d where d.category = :category")
     Page<Document> findAllByCategory(@Param("category") CategoryType categoryType, Pageable pageable);
 
     @Query("select distinct d from Document d " +

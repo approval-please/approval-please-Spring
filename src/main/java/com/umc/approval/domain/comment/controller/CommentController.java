@@ -22,7 +22,7 @@ public class CommentController {
     @GetMapping
     public ResponseEntity<CommentDto.ListResponse> getCommentList(
             HttpServletRequest request,
-            @PageableDefault(size = 20) Pageable pageable,
+            @PageableDefault(size = 25) Pageable pageable,
             @RequestBody CommentDto.Request requestDto
     ) {
         return ResponseEntity.ok(commentService.getCommentList(request, pageable, requestDto));
