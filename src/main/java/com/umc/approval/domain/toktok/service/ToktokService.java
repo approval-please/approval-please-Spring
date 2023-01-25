@@ -14,6 +14,7 @@ import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.toktok.entity.ToktokRepository;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
+import com.umc.approval.domain.vote.entity.UserVoteRepository;
 import com.umc.approval.domain.vote.entity.Vote;
 import com.umc.approval.domain.vote.entity.VoteOption;
 import com.umc.approval.domain.vote.entity.VoteOptionRepository;
@@ -46,6 +47,7 @@ public class ToktokService {
     private final TagRepository tagRepository;
     private final ImageRepository imageRepository;
     private final EntityManager entityManager;
+    private final UserVoteRepository userVoteRepository;
 
     public void createPost(ToktokDto.PostToktokRequest request) {
         User user = certifyUser();
@@ -202,6 +204,7 @@ public class ToktokService {
         if (toktok.getVote() != null) {
             Optional<Vote> vote = voteRepository.findById(toktok.getVote().getId());
             Vote getVote = vote.get();
+            userVoteRepository.deleteByVoteId(getVote.getId());
             List<VoteOption> voteOptionList = voteOptionRepository.findByVote(getVote);
             if (voteOptionList != null) {
                 voteOptionRepository.deleteAll(voteOptionList);

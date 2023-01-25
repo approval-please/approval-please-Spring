@@ -1,3 +1,5 @@
+
+
 package com.umc.approval.domain.document.controller;
 
 import com.umc.approval.domain.document.dto.DocumentDto;
@@ -32,8 +34,8 @@ public class DocumentController {
 
     @PutMapping("/{documentId}")
     public ResponseEntity<Void> updateDocument(
-            @PathVariable("documentId") Long documentId,
-            @Valid @RequestBody DocumentDto.DocumentRequest request
+        @PathVariable("documentId") Long documentId,
+        @Valid @RequestBody DocumentDto.DocumentRequest request
     ) {
         documentService.updateDocument(documentId, request);
         return ResponseEntity.ok().build();
@@ -47,18 +49,18 @@ public class DocumentController {
 
     @GetMapping
     public ResponseEntity<DocumentDto.GetDocumentListResponse> getDocumentList(
-            @RequestParam("page") Integer page,
-            @RequestParam(required = false) Integer category) {
+        @RequestParam("page") Integer page,
+        @RequestParam(required = false) Integer category) {
         return ResponseEntity.ok().body(documentService.getDocumentList(page, category));
     }
 
     @GetMapping("/search")
     public ResponseEntity<DocumentDto.SearchResponse> search(
-            @RequestParam("query") String query,
-            @RequestParam(value = "category", required = false) Integer category,
-            @RequestParam(value = "state", required = false) Integer state,
-            @RequestParam("sortBy") Integer sortBy,
-            @PageableDefault(size = 20) Pageable pageable
+        @RequestParam("query") String query,
+        @RequestParam(value = "category", required = false) Integer category,
+        @RequestParam(value = "state", required = false) Integer state,
+        @RequestParam("sortBy") Integer sortBy,
+        @PageableDefault(size = 20) Pageable pageable
     ) {
         return ResponseEntity.ok(documentService.search(query, category, state, sortBy, pageable));
     }
