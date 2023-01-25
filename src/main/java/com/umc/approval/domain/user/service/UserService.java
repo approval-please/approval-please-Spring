@@ -28,25 +28,16 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
-    public void emailDuplicateCheck(UserDto.EmailCheckRequest emailCheckRequest) {
-        // 이메일 중복 체크
-        userRepository.findByEmail(emailCheckRequest.getEmail())
-                .ifPresent(user -> {
-                    throw new CustomException(EMAIL_ALREADY_EXIST);
-                });
-    }
-
-    @Transactional(readOnly = true)
     public UserDto.EmailCheckResponse emailCheck(UserDto.EmailCheckRequest requestDto) {
         User user = userRepository.findByEmail(requestDto.getEmail())
                 .orElse(null);
 
         if (user == null) {
-            return new UserDto.EmailCheckResponse(0);
+            return new UserDto.EmailCheckResponse(0, null, null);
         } else if (user.getSocialType() == null) {
-            return new UserDto.EmailCheckResponse(1);
+            return new UserDto.EmailCheckResponse(1, user.getEmail(), null);
         } else {
-            return new UserDto.EmailCheckResponse(2);
+            return new UserDto.EmailCheckResponse(2, user.getEmail(), user.getSocialType());
         }
     }
 
