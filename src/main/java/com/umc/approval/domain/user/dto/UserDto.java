@@ -3,6 +3,7 @@ package com.umc.approval.domain.user.dto;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.global.type.SocialType;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -28,6 +29,7 @@ public class UserDto {
 
     @Getter
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class NormalRequest {   // 일반 유저 등록 Request
 
         @NotBlank(message = "닉네임은 필수 값입니다.")
@@ -58,6 +60,7 @@ public class UserDto {
 
     @Getter
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class SnsRequest {   // SNS 유저 등록 Request
 
         @NotBlank(message = "닉네임은 필수 값입니다.")
@@ -110,6 +113,7 @@ public class UserDto {
 
     @Getter
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class ResetPasswordRequest {
 
         @NotBlank(message = "이메일은 필수 값입니다.")
@@ -118,5 +122,13 @@ public class UserDto {
 
         @NotBlank(message = "비밀번호는 필수 값입니다.")
         private String newPassword;
+    }
+
+    // 사원증 프로필 수정
+    @Data
+    public static class ProfileRequest {
+        private String nickname;
+        private String introduction;
+        private String image;
     }
 }

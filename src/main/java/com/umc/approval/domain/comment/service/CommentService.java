@@ -5,21 +5,26 @@ import com.umc.approval.domain.comment.entity.Comment;
 import com.umc.approval.domain.comment.entity.CommentRepository;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.entity.DocumentRepository;
+import com.umc.approval.domain.like.entity.Like;
+import com.umc.approval.domain.like.entity.LikeRepository;
 import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.report.entity.ReportRepository;
 import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.toktok.entity.ToktokRepository;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
-import com.umc.approval.global.aws.service.AwsS3Service;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.umc.approval.global.exception.CustomErrorType.*;
 
@@ -29,14 +34,14 @@ import static com.umc.approval.global.exception.CustomErrorType.*;
 public class CommentService {
 
     private final JwtService jwtService;
-    private final AwsS3Service awsS3Service;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final DocumentRepository documentRepository;
     private final ReportRepository reportRepository;
     private final ToktokRepository toktokRepository;
+    private final LikeRepository likeRepository;
 
-    public void createComment(CommentDto.CreateRequest requestDto, List<MultipartFile> images) {
+    public void createComment(CommentDto.CreateRequest requestDto) {
 
         User user = getUser();
 
@@ -63,16 +68,10 @@ public class CommentService {
                     .orElseThrow(() -> new CustomException(TOKTOKPOST_NOT_FOUND));
         }
 
-        // 이미지
-        String imageUrl = null;
-        if (images != null && !images.isEmpty()) {
-            imageUrl = awsS3Service.uploadImage(images.get(0));
-        }
-
-        commentRepository.save(requestDto.toEntity(user, document, report, toktok, parentComment, imageUrl));
+        commentRepository.save(requestDto.toEntity(user, document, report, toktok, parentComment, requestDto.getImage()));
     }
 
-    public void updateComment(Long commentId, CommentDto.UpdateRequest requestDto, List<MultipartFile> images) {
+    public void updateComment(Long commentId, CommentDto.UpdateRequest requestDto) {
 
         User user = getUser();
         Comment comment = commentRepository.findByIdWithUser(commentId)
@@ -83,17 +82,7 @@ public class CommentService {
             throw new CustomException(NO_PERMISSION);
         }
 
-        // 기존 이미지 존재 시 삭제
-        if (comment.getImageUrl() != null) {
-            awsS3Service.deleteImage(comment.getImageUrl());
-        }
-
-        // 변경된 이미지 추가
-        String imageUrl = null;
-        if (images != null && !images.isEmpty()) {
-            imageUrl = awsS3Service.uploadImage(images.get(0));
-        }
-        comment.update(requestDto.getContent(), imageUrl);
+        comment.update(requestDto.getContent(), requestDto.getImage());
     }
 
     public void deleteComment(Long commentId) {
@@ -105,11 +94,6 @@ public class CommentService {
         // 본인이 쓴 댓글인지 확인
         if (!comment.getUser().getId().equals(user.getId())) {
             throw new CustomException(NO_PERMISSION);
-        }
-
-        // 이미지 제거
-        if (comment.getImageUrl() != null) {
-            awsS3Service.deleteImage(comment.getImageUrl());
         }
 
         // 대댓글 존재 여부에 따른 삭제 처리
@@ -130,5 +114,38 @@ public class CommentService {
     private User getUser() {
         return userRepository.findById(jwtService.getId())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+    }
+
+    public CommentDto.ListResponse getCommentList(HttpServletRequest request, Pageable pageable, CommentDto.Request requestDto) {
+
+        Page<Comment> comments = commentRepository.findAllByPost(pageable, requestDto);
+        Integer commentCount = commentRepository.countByPost(requestDto);
+
+        // 글쓴이 조회
+        User writer;
+        if (requestDto.getDocumentId() != null) {
+            Document document = documentRepository.findByIdWithUser(requestDto.getDocumentId())
+                    .orElseThrow(() -> new CustomException(DOCUMENT_NOT_FOUND));
+            writer = document.getUser();
+        } else if (requestDto.getReportId() != null) {
+            Report report = reportRepository.findByIdWithUser(requestDto.getReportId())
+                    .orElseThrow(() -> new CustomException(REPORT_NOT_FOUND));
+            writer = report.getDocument().getUser();
+        } else {
+            Toktok toktok = toktokRepository.findByIdWithUser(requestDto.getToktokId())
+                    .orElseThrow(() -> new CustomException(TOKTOKPOST_NOT_FOUND));
+            writer = toktok.getUser();
+        }
+
+        // (로그인 시) 사용자가 좋아요 누른 댓글 리스트 조회
+        Long userId = jwtService.getIdDirectHeader(request);
+        List<Comment> allComments = new ArrayList<>(comments.getContent());
+        comments.getContent().forEach(c -> {
+            if (c.getChildComment() != null) allComments.addAll(c.getChildComment());
+        });
+        List<Long> commentIds = allComments.stream().map(Comment::getId).collect(Collectors.toList());
+        List<Like> likes = likeRepository.findAllByUserAndCommentIn(userId, commentIds);
+
+        return CommentDto.ListResponse.from(comments, commentCount, userId, writer.getId(), likes);
     }
 }

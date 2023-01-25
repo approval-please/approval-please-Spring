@@ -1,8 +1,10 @@
 package com.umc.approval.domain.document.entity;
 
 import com.umc.approval.domain.BaseTimeEntity;
-import com.umc.approval.domain.document.dto.DocumentDto;
-import com.umc.approval.domain.like_category.entity.LikeCategory;
+import com.umc.approval.domain.approval.entity.Approval;
+import com.umc.approval.domain.image.entity.Image;
+import com.umc.approval.domain.link.entity.Link;
+import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.global.type.CategoryType;
 import lombok.AllArgsConstructor;
@@ -11,6 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.FetchType.LAZY;
@@ -54,13 +57,21 @@ public class Document extends BaseTimeEntity {
     @Column(nullable = false)
     private Boolean notification;
 
-    @Column(name = "link_url")
-    private String linkUrl;
+    @OneToMany(fetch = LAZY, mappedBy = "document")
+    private List<Tag> tags;
 
-    public void update(CategoryType category, String title, String content, String linkUrl) {
+    @OneToMany(fetch = LAZY, mappedBy = "document")
+    private List<Image> images;
+
+    @OneToMany(fetch = LAZY, mappedBy = "document")
+    private List<Approval> approvals;
+
+    @OneToOne(fetch = LAZY, mappedBy = "document")
+    private Link link;
+
+    public void update(CategoryType category, String title, String content) {
         this.category = category;
         this.title = title;
         this.content = content;
-        this.linkUrl = linkUrl;
     }
 }

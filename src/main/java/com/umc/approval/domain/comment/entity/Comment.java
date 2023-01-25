@@ -2,6 +2,7 @@ package com.umc.approval.domain.comment.entity;
 
 import com.umc.approval.domain.BaseTimeEntity;
 import com.umc.approval.domain.document.entity.Document;
+import com.umc.approval.domain.like.entity.Like;
 import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.user.entity.User;
@@ -11,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
@@ -48,6 +50,12 @@ public class Comment extends BaseTimeEntity {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "parent_comment_id")
     private Comment parentComment; // 대댓글
+
+    @OneToMany(mappedBy = "parentComment")
+    private List<Comment> childComment;
+
+    @OneToMany(mappedBy = "comment")
+    private List<Like> likes;
 
     @Column(nullable = false)
     private String content; //255자 최대

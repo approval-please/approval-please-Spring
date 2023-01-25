@@ -4,6 +4,7 @@ import com.umc.approval.domain.BaseTimeEntity;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.toktok.entity.Toktok;
+import com.umc.approval.domain.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

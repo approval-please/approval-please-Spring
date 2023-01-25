@@ -30,6 +30,10 @@ public enum CustomErrorType {
 
     // Document (3xxxx)
     DOCUMENT_NOT_FOUND(NOT_FOUND, 30001, "존재하지 않는 결재서류입니다."),
+    CANNOT_APPROVE_MINE(FORBIDDEN, 30002, "자신의 게시글에는 [승인/반려] 선택이 불가합니다."),
+    APPROVAL_ALREADY_EXISTS(FORBIDDEN, 30003, "[승인/반려] 선택은 한 번만 가능합니다."),
+    CANNOT_APPROVE_OTHER(FORBIDDEN, 30004, "결재서류 최종 [승인/반려] 처리에 대한 권한이 없습니다."),
+    ALREADY_APPROVED(FORBIDDEN, 30005, "최종 [승인/반려] 처리된 결재서류입니다."),
 
     // Toktok (4xxxx)
     TOKTOKPOST_NOT_FOUND(NOT_FOUND, 40001, "존재하지 않는 결재톡톡입니다."),
@@ -37,6 +41,10 @@ public enum CustomErrorType {
 
     // Report (5xxxx)
     REPORT_NOT_FOUND(NOT_FOUND, 50001, "존재하지 않는 결재보고서입니다."),
+    REPORT_ALREADY_EXISTS(BAD_REQUEST, 50002, "해당 결재서류에 대한 결재보고서가 존재합니다."),
+
+    // Performance (6xxxx)
+    PERFORMANCE_NOT_FOUND(NOT_FOUND, 60001, "존재하지 않는 실적입니다."),
 
     // Comment (7xxxx)
     COMMENT_NOT_FOUND(NOT_FOUND, 70001, "존재하지 않는 댓글입니다."),
