@@ -42,11 +42,11 @@ public class UserService {
                 .orElse(null);
 
         if (user == null) {
-            return new UserDto.EmailCheckResponse(0);
+            return new UserDto.EmailCheckResponse(0, null, null);
         } else if (user.getSocialType() == null) {
-            return new UserDto.EmailCheckResponse(1);
+            return new UserDto.EmailCheckResponse(1, user.getEmail(), null);
         } else {
-            return new UserDto.EmailCheckResponse(2);
+            return new UserDto.EmailCheckResponse(2, user.getEmail(), user.getSocialType());
         }
     }
 
