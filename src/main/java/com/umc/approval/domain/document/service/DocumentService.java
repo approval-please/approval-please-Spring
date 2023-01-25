@@ -232,4 +232,9 @@ public class DocumentService {
         }
     }
 
+    public DocumentDto.SearchResponse search(
+            String query, Integer category, Integer state, Integer sortBy, Pageable pageable
+    ) {
+        return null;
+    }
 }
