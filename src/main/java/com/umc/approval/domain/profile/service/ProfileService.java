@@ -4,6 +4,7 @@ import com.umc.approval.domain.approval.entity.ApprovalRepository;
 import com.umc.approval.domain.document.dto.DocumentDto;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.entity.DocumentRepository;
+import com.umc.approval.domain.follow.entity.Follow;
 import com.umc.approval.domain.follow.entity.FollowRepository;
 import com.umc.approval.domain.image.entity.ImageRepository;
 import com.umc.approval.domain.performance.entity.Performance;
@@ -128,6 +129,63 @@ public class ProfileService {
 
         result.put("totalCount", performances.size());
         result.put("performanceList", performanceList);
+
+    // 팔로우 목록 조회
+    public JSONObject findMyFollowers () {
+        User user = certifyUser();
+        List<Follow> follows;
+
+        follows = followRepository.findMyFollowers(user.getId());
+
+        JSONObject result = new JSONObject();
+        JSONArray followerList = new JSONArray();
+
+        for (int i = 0 ; i < follows.size() ; i++) {
+
+            JSONObject followRef = new JSONObject();
+
+            followRef.put("level", follows.get(i).getFromUser().getLevel());
+            followRef.put("nickname", follows.get(i).getFromUser().getNickname());
+            followRef.put("profileImage", follows.get(i).getFromUser().getProfileImage());
+
+            followerList.add(followRef);
+        }
+
+        result.put("nickname", user.getNickname());
+        result.put("totalCount", follows.size());
+        result.put("followerCount", followRepository.countByToUser(user.getId()));
+        result.put("followingCount", followRepository.countByFromUser(user.getId()));
+        result.put("followerList", followerList);
+
+        return result;
+    }
+
+    // 팔로잉 목록 조회
+    public JSONObject findMyFollowing () {
+        User user = certifyUser();
+        List<Follow> follows;
+
+        follows = followRepository.findMyFollowing(user.getId());
+
+        JSONObject result = new JSONObject();
+        JSONArray followingList = new JSONArray();
+
+        for (int i = 0 ; i < follows.size() ; i++) {
+            JSONObject followRef = new JSONObject();
+
+            followRef.put("level", follows.get(i).getToUser().getLevel());
+            followRef.put("nickname", follows.get(i).getToUser().getNickname());
+            followRef.put("profileImage", follows.get(i).getToUser().getProfileImage());
+            // followRef.put("isFollow", ); // 나를 팔로우 하는지
+
+            followingList.add(followRef);
+        }
+
+        result.put("nickname", user.getNickname());
+        result.put("totalCount", follows.size());
+        result.put("followerCount", followRepository.countByToUser(user.getId()));
+        result.put("followingCount", followRepository.countByFromUser(user.getId()));
+        result.put("followingList", followingList);
 
         return result;
     }

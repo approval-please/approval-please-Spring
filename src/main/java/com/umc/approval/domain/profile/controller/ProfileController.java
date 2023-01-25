@@ -38,6 +38,18 @@ public class ProfileController {
         return profileService.findPerformances();
     }
 
+    // 팔로우 목록 조회
+    @GetMapping("/my/followers")
+    public JSONObject findMyFollowers () {
+        return profileService.findMyFollowers();
+    }
+
+    // 팔로잉 목록 조회
+    @GetMapping("/my/following")
+    public JSONObject findMyFollowing () {
+        return profileService.findMyFollowing();
+    }
+
     // 사원증 프로필 수정
     @PutMapping("/update")
     public ResponseEntity<Void> updateProfile(@Valid @RequestBody UserDto.ProfileRequest request) {
