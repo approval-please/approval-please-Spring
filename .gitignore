@@ -1,6 +1,7 @@
 HELP.md
 .gradle
 build/
+build/generated/sources/annotationProcessor/java/main/**
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
