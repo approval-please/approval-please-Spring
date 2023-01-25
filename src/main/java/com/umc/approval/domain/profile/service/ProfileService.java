@@ -7,6 +7,8 @@ import com.umc.approval.domain.document.entity.DocumentRepository;
 import com.umc.approval.domain.follow.entity.Follow;
 import com.umc.approval.domain.follow.entity.FollowRepository;
 import com.umc.approval.domain.image.entity.ImageRepository;
+import com.umc.approval.domain.performance.entity.Performance;
+import com.umc.approval.domain.performance.entity.PerformanceRepository;
 import com.umc.approval.domain.tag.entity.TagRepository;
 import com.umc.approval.domain.user.dto.UserDto;
 import com.umc.approval.domain.user.entity.User;
