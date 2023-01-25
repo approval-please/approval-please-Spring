@@ -68,22 +68,29 @@ public class ProfileService {
     // 결재서류 조회
     public JSONObject findDocuments(Long userId, Integer state, Boolean isApproved) {
         User user;
-        List<Document> documents;
+        List<Document> documents = null;
 
         if (userId == null) { // 내 사원증 조회
             user = certifyUser();
+
+            if (isApproved != null) { // 결재한 서류 승인별 조회 (타 사원증 조회 x)
+                documents = documentRepository.findAllByApproval(user.getId(), isApproved);
+            }
         } else { // 타 사원증 조회
             user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+                    .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
         }
 
         if (state != null) { // 작성한 서류 상태별 조회
             documents = documentRepository.findAllByState(user.getId(), state);
-        } else if (isApproved != null) { // 결재한 서류 승인별 조회
-            documents = documentRepository.findAllByApproval(user.getId(), isApproved);
-        } else { // 전체 조회
+        }
+        if (userId == null && state !=null && isApproved !=null) { // 결재한 결재서류 상태별 & 승인별 조회 (타 사원증 조회 x)
+            documents = documentRepository.findAllByStateApproval(user.getId(), state, isApproved);
+        }
+        if (state == null && isApproved == null) { // 전체 조회
             documents = documentRepository.findAllByUserId(user.getId());
         }
+
 
         if (documents.isEmpty()) {
             throw new CustomException(DOCUMENT_NOT_FOUND);
