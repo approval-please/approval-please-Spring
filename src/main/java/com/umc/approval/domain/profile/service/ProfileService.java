@@ -7,8 +7,6 @@ import com.umc.approval.domain.document.entity.DocumentRepository;
 import com.umc.approval.domain.follow.entity.Follow;
 import com.umc.approval.domain.follow.entity.FollowRepository;
 import com.umc.approval.domain.image.entity.ImageRepository;
-import com.umc.approval.domain.performance.entity.Performance;
-import com.umc.approval.domain.performance.entity.PerformanceRepository;
 import com.umc.approval.domain.tag.entity.TagRepository;
 import com.umc.approval.domain.user.dto.UserDto;
 import com.umc.approval.domain.user.entity.User;
@@ -23,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.umc.approval.global.exception.CustomErrorType.*;
 
@@ -92,9 +91,11 @@ public class ProfileService {
         JSONArray documentList = new JSONArray();
 
         for (int i = 0; i < documents.size(); i++) {
-            documentList.add(new DocumentDto.DocumentListResponse(documents.get(i), tagRepository.findTagNameList(documents.get(i).getId()),
-                    imageRepository.findImageUrlList(documents.get(i).getId()), approvalRepository.countApproveByDocumentId(documents.get(i).getId()),
-                    approvalRepository.countRejectByDocumentId(documents.get(i).getId())));
+            Document document = documents.get(i);
+            documentList.add(new DocumentDto.DocumentListResponse(document,
+                    document.getTags(),
+                    document.getImages(),
+                    document.getApprovals()));
         }
 
         result.put("totalCount", documents.size());

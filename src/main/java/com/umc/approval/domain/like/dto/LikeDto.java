@@ -2,10 +2,7 @@ package com.umc.approval.domain.like.dto;
 
 import com.umc.approval.domain.like.entity.Like;
 import com.umc.approval.domain.user.entity.User;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -15,6 +12,7 @@ public class LikeDto {
     @Getter
     @Builder
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @NoArgsConstructor
     public static class Request {
         private Long documentId;
         private Long toktokId;

@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.Valid;
 
 @RestController
@@ -28,7 +27,6 @@ public class DocumentController {
         return ResponseEntity.ok().body(documentService.getDocument(documentId));
     }
 
-
     @PutMapping("/{documentId}")
     public ResponseEntity<Void> updateDocument(
             @PathVariable("documentId") Long documentId,
@@ -42,5 +40,12 @@ public class DocumentController {
     public ResponseEntity<Void> deleteDocument(@PathVariable("documentId") Long documentId) {
         documentService.deleteDocument(documentId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<DocumentDto.GetDocumentListResponse> getDocumentList(
+                                                        @RequestParam("page") Integer page,
+                                                        @RequestParam(required = false) Integer category){
+        return ResponseEntity.ok().body(documentService.getDocumentList(page, category));
     }
 }
