@@ -64,7 +64,7 @@ public class CertService {
         if(LocalDateTime.now().minusMinutes(5).isAfter(cert.getModifiedAt())){
             throw new CustomException(CERT_TIME_OVER);
         }
-
+        System.out.println(cert.getCertNumber() + certRequest.getCertNumber());
         if(cert.getCertNumber().equals(certRequest.getCertNumber())) {
             if(cert.getIsChecked()) {
                 // 전화번호 중복 체크
@@ -109,29 +109,32 @@ public class CertService {
         certRepository.save(cert);
     }
 
-    // TODO: 이메일 마스킹 메서드 구현
+    // 이메일 마스킹 메서드
     private static String maskEmail(String email) {
         /*
          * 요구되는 메일 포맷
-         * {userId}@{domain}.com
+         * {userId}@{domain}
          */
-        String regex = "\\b(\\S+)+@(\\S+)\\.(\\S+)";
+        String regex = "\\b(\\S+)@(\\S+)\\b";
         Matcher matcher = Pattern.compile(regex).matcher(email);
         if (matcher.find()) {
             String id = matcher.group(1);
-            String domain = matcher.group(2);
             /*
-             * userId의 길이를 기준으로 세글자 초과인 경우 첫 글자 뒤 세자리를 마스킹 처리하고,
-             * 세글자인 경우 뒤 두글자만 마스킹,
-             * 세글자 미만인 경우 첫 글자 제외 마스킹 처리
+             * id의 길이를 기준으로 세글자 초과인 경우 첫 글자 뒤 세자리를 마스킹 처리하고,
+             * 두글자, 세글자인 경우 첫 글자 뒤 모든 자리 마스킹,
+             * 한글자인 경우 마스킹 처리하지 않음
+             *
+             * domain 의 경우 기본 3글자 초과이므로 첫 글자 뒤 세자리 마스킹.
              */
             int length = id.length();
-            if (length < 3) {
-                return email.replaceAll("","");
+            if(length == 1){
+                return email.replaceAll("(\\S+)@(\\S)[^@]{3}(\\S+)", "$1@$2***$3");
+            } else if (length ==2){
+                return email.replaceAll("(\\S+)[^@]@(\\S)[^@]{3}(\\S+)", "$1*@$2***$3");
             } else if (length == 3) {
-                return email.replaceAll("\\b(\\S+)[^@][^@]+@(\\S+)", "$1**@$2");
+                return email.replaceAll("(\\S)[^@]{2}@(\\S)[^@]{3}(\\S+)","$1**@$2***$3");
             } else {
-                return email.replaceAll("\\b(\\S+)[^@][^@][^@]+@(\\S+)", "$1***@$2");
+                return email.replaceAll("(\\S)[^@]{3}(\\S+)@(\\S)[^@]{3}(\\S+)","$1***$2@$3***$4");
             }
         }
         return email;
