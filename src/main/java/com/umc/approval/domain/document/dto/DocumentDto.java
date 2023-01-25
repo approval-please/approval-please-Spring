@@ -10,8 +10,7 @@ import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.global.type.CategoryType;
 import com.umc.approval.global.util.DateUtil;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import org.springframework.data.domain.Page;
 
 import javax.validation.Valid;
@@ -160,4 +159,31 @@ public class DocumentDto {
         }
     }
 
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class SearchResponse {
+        private Integer page;
+        private Integer totalPage;
+        private Long totalElement;
+        private List<SearchListResponse> content;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class SearchListResponse {
+        private Long documentId;
+        private Integer category;
+        private Integer state;
+        private String title;
+        private String content;
+        private List<String> tag;
+        private LinkDto.Response link;
+        private String thumbnailImage;
+        private Integer imageCount;
+        private Integer approvalCount;
+        private Integer rejectCount;
+        private String datetime;
+    }
 }
