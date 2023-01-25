@@ -27,7 +27,10 @@ public class ProfileController {
     }
 
     // 실적 조회
-    // @GetMapping("/my/performances")
+    @GetMapping("/my/performances")
+    public JSONObject findPerformances () {
+        return profileService.findPerformances();
+    }
 
     // 사원증 프로필 수정
     @PutMapping("/update")

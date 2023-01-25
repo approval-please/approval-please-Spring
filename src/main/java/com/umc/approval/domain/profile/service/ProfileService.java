@@ -6,12 +6,15 @@ import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.entity.DocumentRepository;
 import com.umc.approval.domain.follow.entity.FollowRepository;
 import com.umc.approval.domain.image.entity.ImageRepository;
+import com.umc.approval.domain.performance.entity.Performance;
+import com.umc.approval.domain.performance.entity.PerformanceRepository;
 import com.umc.approval.domain.tag.entity.TagRepository;
 import com.umc.approval.domain.user.dto.UserDto;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
+import com.umc.approval.global.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -20,8 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.umc.approval.global.exception.CustomErrorType.DOCUMENT_NOT_FOUND;
-import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
+import static com.umc.approval.global.exception.CustomErrorType.*;
 
 @Transactional
 @RequiredArgsConstructor
@@ -35,6 +37,22 @@ public class ProfileService {
     private final ImageRepository imageRepository;
     private final ApprovalRepository approvalRepository;
     private final FollowRepository followRepository;
+    private final PerformanceRepository performanceRepository;
+
+    // 사용자 프로필 조회
+    public JSONObject getUserProfile (User user) {
+        JSONObject profile = new JSONObject();
+
+        profile.put("profileImage", user.getProfileImage());
+        profile.put("introduction", user.getIntroduction());
+        profile.put("nickname", user.getNickname());
+        profile.put("level", user.getLevel());
+        profile.put("promotionPoint", user.getPromotionPoint());
+        profile.put("follows", followRepository.countByToUser(user.getId()));
+        profile.put("followings", followRepository.countByFromUser(user.getId()));
+
+        return profile;
+    }
 
     // 결재서류 조회
     public JSONObject findDocuments(Long userId, Integer state, Boolean isApproved) {
@@ -61,7 +79,6 @@ public class ProfileService {
         }
 
         JSONObject result = new JSONObject();
-        JSONObject profile = new JSONObject();
         JSONArray documentList = new JSONArray();
 
         for (int i = 0; i < documents.size(); i++) {
@@ -69,17 +86,38 @@ public class ProfileService {
                     approvalRepository.countApproveByDocumentId(documents.get(i).getId()), approvalRepository.countRejectByDocumentId(documents.get(i).getId())));
         }
 
-        profile.put("profileImage", user.getProfileImage());
-        profile.put("introduction", user.getIntroduction());
-        profile.put("nickname", user.getNickname());
-        profile.put("level", user.getLevel());
-        profile.put("promotionPoint", user.getPromotionPoint());
-        profile.put("follows", followRepository.countByToUser(user.getId()));
-        profile.put("followings", followRepository.countByFromUser(user.getId()));
-
         result.put("totalCount", documents.size());
-        result.put("profile", profile);
         result.put("documentList", documentList);
+
+        return result;
+    }
+
+    // 실적 조회
+    public JSONObject findPerformances() {
+        User user = certifyUser();
+        List<Performance> performances;
+
+        performances = performanceRepository.findByUserId(user.getId());
+
+        if(performances.isEmpty()){
+            throw new CustomException(PERFORMANCE_NOT_FOUND);
+        }
+
+        JSONObject result = new JSONObject();
+        JSONArray performanceList = new JSONArray();
+
+        for (int i = 0 ; i < performances.size() ; i++) {
+            JSONObject performanceRef = new JSONObject();
+
+            performanceRef.put("date", DateUtil.convert(performances.get(i).getCreatedAt()));
+            performanceRef.put("content", performances.get(i).getContent());
+            performanceRef.put("point", performances.get(i).getPoint());
+
+            performanceList.add(performanceRef);
+        }
+
+        result.put("totalCount", performances.size());
+        result.put("performanceList", performanceList);
 
         return result;
     }
@@ -94,7 +132,6 @@ public class ProfileService {
 
         user.update(nickname, introduction, image);
     }
-
 
     // 로그인 확인
     private User certifyUser() {
