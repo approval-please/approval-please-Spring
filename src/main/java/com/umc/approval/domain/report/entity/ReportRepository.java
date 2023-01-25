@@ -16,10 +16,9 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
             "join fetch r.document d " +
             "join fetch d.user u " +
             "where r.id = :reportId")
+    Optional<Report> findByIdWithUser(@Param("reportId") Long reportId);
 
     @Modifying
     @Query(value = "update report set view = view + 1 where report_id = :report_id", nativeQuery = true)
     void updateView(@Param("report_id") Long report_id);
-
-    Optional<Report> findByIdWithUser(@Param("reportId") Long reportId);
 }
