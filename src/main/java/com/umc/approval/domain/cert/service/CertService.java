@@ -128,13 +128,13 @@ public class CertService {
              */
             int length = id.length();
             if(length == 1){
-                return email.replaceAll("(\\S+)@(\\S)[^@]{3}(\\S+)", "$1@$2***$3");
+                return email.replaceAll("(\\S)@(\\S)[^@]{3}(\\S+)", "$1@$2***$3");
             } else if (length ==2){
-                return email.replaceAll("(\\S+)[^@]@(\\S)[^@]{3}(\\S+)", "$1*@$2***$3");
+                return email.replaceAll("(\\S)[^@]@(\\S)[^@]{3}(\\S+)", "$1*@$2***$3");
             } else if (length == 3) {
                 return email.replaceAll("(\\S)[^@]{2}@(\\S)[^@]{3}(\\S+)","$1**@$2***$3");
             } else {
-                return email.replaceAll("(\\S)[^@]{3}(\\S+)@(\\S)[^@]{3}(\\S+)","$1***$2@$3***$4");
+                return email.replaceAll("(\\S)[^@]{3}(\\S*)@(\\S)[^@]{3}(\\S+)","$1***$2@$3***$4");
             }
         }
         return email;
