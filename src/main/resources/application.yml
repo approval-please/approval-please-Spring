@@ -26,10 +26,10 @@ spring:
         default_batch_fetch_size: 100
 
 # Ncloud SMS API
-accessKey: 123
-secretKey: 123
-serviceId: 123
-senderPhone: 123
+accessKey: none
+secretKey: none
+serviceId: none
+senderPhone: none
 
 # Logging level
 logging:
