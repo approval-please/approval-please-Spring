@@ -30,7 +30,7 @@ public class ProfileController {
     // @GetMapping("/my/performances")
 
     // 사원증 프로필 수정
-    @PatchMapping("/update")
+    @PutMapping("/update")
     public ResponseEntity<Void> updateProfile(@Valid @RequestBody UserDto.ProfileRequest request) {
         profileService.updateProfile(request);
         return ResponseEntity.ok().build();

@@ -1,10 +1,6 @@
 package com.umc.approval.domain.report.service;
 
-import static com.umc.approval.global.exception.CustomErrorType.DOCUMENT_NOT_FOUND;
-import static com.umc.approval.global.exception.CustomErrorType.NO_PERMISSION;
-import static com.umc.approval.global.exception.CustomErrorType.REPORT_ALREADY_EXISTS;
-import static com.umc.approval.global.exception.CustomErrorType.REPORT_NOT_FOUND;
-import static com.umc.approval.global.exception.CustomErrorType.USER_NOT_FOUND;
+import static com.umc.approval.global.exception.CustomErrorType.*;
 
 import com.umc.approval.domain.comment.entity.CommentRepository;
 import com.umc.approval.domain.document.entity.Document;
@@ -13,6 +9,7 @@ import com.umc.approval.domain.follow.entity.FollowRepository;
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
 import com.umc.approval.domain.like.entity.LikeRepository;
+import com.umc.approval.domain.link.dto.LinkDto;
 import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.entity.LinkRepository;
 import com.umc.approval.domain.report.dto.ReportDto;
@@ -22,6 +19,7 @@ import com.umc.approval.domain.report.entity.ReportRepository;
 import com.umc.approval.domain.scrap.entity.ScrapRepository;
 import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.tag.entity.TagRepository;
+import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.exception.CustomException;
@@ -84,8 +82,8 @@ public class ReportService {
         reportRepository.save(report);
 
         //링크 등록
-        if (request.getLinkUrl() != null) {
-            createLink(request.getLinkUrl(), report);
+        if (request.getLink() != null && !request.getLink().isEmpty()) {
+            createLink(request.getLink(), report);
         }
 
         //태그 등록
@@ -146,11 +144,8 @@ public class ReportService {
         if (links != null && !links.isEmpty()) {
             linkRepository.deleteAll(links);
         }
-        if (request.getLinkUrl() != null) {
-            List<String> linkList = request.getLinkUrl();
-            if (linkList != null && !linkList.isEmpty()) {
-                createLink(linkList, report);
-            }
+        if (request.getLink() != null && !request.getLink().isEmpty()) {
+            createLink(request.getLink(), report);
         }
 
         // 이미지 수정
@@ -179,7 +174,9 @@ public class ReportService {
         // 결재보고서 정보
         List<String> reportTagList = tagRepository.findTagNameListByReportId(reportId);
         List<String> reportImageUrlList = imageRepository.findImageUrlListByReportId(reportId);
-        List<String> reportLinkList = linkRepository.findLinkUrlList(reportId);
+        List<Link> reportLinkList = linkRepository.findByReportId(reportId);
+        List<LinkDto.Response> linkResponse;
+        linkResponse = reportLinkList.stream().map(LinkDto.Response::fromEntity).collect(Collectors.toList());
 
 
         // 좋아요, 스크랩, 댓글 수
@@ -210,7 +207,7 @@ public class ReportService {
         return new GetReportResponse(user, document, report,
             documentTagList, documentImageUrlList,
             reportTagList, reportImageUrlList,
-            reportLinkList, likedCount, scrapCount, commentCount, likeOrNot, followOrNot);
+            linkResponse, likedCount, scrapCount, commentCount, likeOrNot, followOrNot);
     }
 
 
@@ -221,10 +218,15 @@ public class ReportService {
         return user;
     }
 
-    public void createLink(List<String> linkList, Report report) {
-        for (String link : linkList) {
-            Link newLink = Link.builder().report(report).linkUrl(link).build();
-            linkRepository.save(newLink);
+    public void createLink(List<LinkDto.Request> linkList, Report report) {
+        for (LinkDto.Request l : linkList) {
+            Link link = Link.builder()
+                    .report(report)
+                    .url(l.getUrl())
+                    .title(l.getTitle())
+                    .image(l.getImage())
+                    .build();
+            linkRepository.save(link);
         }
     }
 

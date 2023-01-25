@@ -4,7 +4,9 @@ import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.like.dto.LikeDto;
 import com.umc.approval.domain.like.dto.LikeDto.Response;
 import com.umc.approval.domain.like.entity.Like;
+import com.umc.approval.domain.link.dto.LinkDto;
 import com.umc.approval.domain.report.entity.Report;
+
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.global.util.DateUtil;
 import java.time.LocalDateTime;
@@ -31,7 +33,7 @@ public class ReportDto {
         private String content;
 
         @Size(max = 4, message = "링크 첨부는 최대 4개까지 가능합니다")
-        private List<String> linkUrl;
+        private List<LinkDto.Request> link;
 
         @Size(max = 4, message = "태그 첨부는 최대 4개까지 가능합니다")
         private List<String> tag;
@@ -101,7 +103,7 @@ public class ReportDto {
         // report
         private String reportContent;
         private List<String> reportImageUrl;
-        private List<String> reportLinkUrl;
+        private List<LinkDto.Response> reportLink;
         private List<String> reportTag;
 
         private Long likedCount;
@@ -115,7 +117,7 @@ public class ReportDto {
         public GetReportResponse(User user, Document document, Report report,
             List<String> documentTagList, List<String> documentImageUrlList,
             List<String> reportTagList, List<String> reportImageUrlList,
-            List<String> reportLinkList, Long likedCount, Long scrapCount, Long commentCount,
+            List<LinkDto.Response> reportLink, Long likedCount, Long scrapCount, Long commentCount,
             Boolean likeOrNot, Boolean followOrNot) {
             this.profileImage = user.getProfileImage();
             this.nickname = user.getNickname();
@@ -130,7 +132,7 @@ public class ReportDto {
 
             this.reportContent = report.getContent();
             this.reportImageUrl = reportImageUrlList;
-            this.reportLinkUrl = reportLinkList;
+            this.reportLink = reportLink;
             this.reportTag = reportTagList;
 
             this.likedCount = likedCount;

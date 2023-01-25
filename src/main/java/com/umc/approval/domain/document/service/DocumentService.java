@@ -8,6 +8,8 @@ import com.umc.approval.domain.document.entity.DocumentRepository;
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
 import com.umc.approval.domain.like.entity.LikeRepository;
+import com.umc.approval.domain.link.entity.Link;
+import com.umc.approval.domain.link.entity.LinkRepository;
 import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.tag.entity.TagRepository;
 import com.umc.approval.domain.user.entity.User;
@@ -38,6 +40,7 @@ public class DocumentService {
     private final TagRepository tagRepository;
     private final ImageRepository imageRepository;
     private final LikeRepository likeRepository;
+    private final LinkRepository linkRepository;
     private final CommentRepository commentRepository;
     private final ApprovalRepository approvalRepository;
 
@@ -53,6 +56,13 @@ public class DocumentService {
         Document document = request.toEntity(user, categoryType);
         documentRepository.save(document);
         createTag(request.getTag(), document);
+        Link link = Link.builder()
+                .document(document)
+                .url(request.getLink().getUrl())
+                .title(request.getLink().getTitle())
+                .image(request.getLink().getImage())
+                .build();
+        linkRepository.save(link);
         createImages(request.getImages(), document);
     }
 
@@ -66,6 +76,7 @@ public class DocumentService {
         User user = document.getUser();
         List<String> tagNameList = tagRepository.findTagNameList(documentId);
         List<String> imageUrlList = imageRepository.findImageUrlList(documentId);
+        Link link = linkRepository.findByDocumentId(documentId).orElse(null);
 
         // 승인, 반려 수
         int approveCount = approvalRepository.countApproveByDocumentId(documentId);
@@ -75,7 +86,7 @@ public class DocumentService {
         int likedCount = likeRepository.countByDocumentId(documentId);
         int commentCount = commentRepository.countByDocumentId(documentId);
 
-        return new DocumentDto.GetDocumentResponse(document, user, tagNameList, imageUrlList,
+        return new DocumentDto.GetDocumentResponse(document, user, tagNameList, imageUrlList, link,
                 approveCount, rejectCount, likedCount, commentCount);
     }
 
@@ -92,7 +103,7 @@ public class DocumentService {
                 .filter(c -> c.getValue() == request.getCategory())
                 .findAny().get();
 
-        document.update(categoryType, request.getTitle(), request.getContent(), request.getLinkUrl());
+        document.update(categoryType, request.getTitle(), request.getContent());
 
         // tag 수정
         deleteTag(documentId);
@@ -101,6 +112,18 @@ public class DocumentService {
         // image 수정
         deleteImages(documentId);
         createImages(request.getImages(), document);
+
+        // link 수정
+        linkRepository.findByDocumentId(documentId).ifPresent(linkRepository::delete);
+        if (request.getLink() != null) {
+            Link link = Link.builder()
+                    .document(document)
+                    .url(request.getLink().getUrl())
+                    .title(request.getLink().getTitle())
+                    .image(request.getLink().getImage())
+                    .build();
+            linkRepository.save(link);
+        }
     }
 
 
@@ -117,6 +140,9 @@ public class DocumentService {
 
         // image 삭제
         deleteImages(documentId);
+
+        // link 삭제
+        linkRepository.findByDocumentId(documentId).ifPresent(linkRepository::delete);
 
         // document 삭제
         documentRepository.deleteById(documentId);

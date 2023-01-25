@@ -87,7 +87,12 @@ public class ProfileService {
     // 사원증 프로필 수정
     public void updateProfile(UserDto.ProfileRequest request) {
         User user = certifyUser();
-        user.update(request.getNickname(), request.getIntroduction(), request.getImage());
+
+        String nickname = request.getNickname();
+        String introduction = request.getIntroduction();
+        String image = request.getImage();
+
+        user.update(nickname, introduction, image);
     }
 
 

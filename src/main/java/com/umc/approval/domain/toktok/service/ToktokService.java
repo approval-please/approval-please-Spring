@@ -3,6 +3,7 @@ package com.umc.approval.domain.toktok.service;
 
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
+import com.umc.approval.domain.link.dto.LinkDto;
 import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.entity.LinkRepository;
 import com.umc.approval.domain.report.dto.ReportDto;
@@ -71,10 +72,11 @@ public class ToktokService {
 
         toktokRepository.save(toktok);
 
-        //링크 등록
-        if (request.getLinkUrl() != null) {
-            List<String> linkList = request.getLinkUrl();
+         //링크 등록
+        if (request.getLink() != null && !request.getLink().isEmpty()) {
+            List<LinkDto.Request> linkList = request.getLink();
             createLink(linkList, toktok);
+
         }
 
         //태그 등록
@@ -117,17 +119,15 @@ public class ToktokService {
         if (links != null && !links.isEmpty()) {
             linkRepository.deleteAll(links);
         }
-        if (request.getLinkUrl() != null) {
-            List<String> linkList = request.getLinkUrl();
-            if (linkList != null && !linkList.isEmpty()) {
-                createLink(linkList, toktok);
-            }
+        if (request.getLink() != null && !request.getLink().isEmpty()) {
+            List<LinkDto.Request> linkList = request.getLink();
+            createLink(linkList, toktok);
         }
 
         CategoryType categoryType = viewCategory(request.getCategory());
 
         // 투표가 종료된 글의 투표 관련 사항을 수정하려는 경우
-        if (toktok.getVote().getIsEnd().equals(true) && (request.getVoteTitle() != null
+        if (toktok.getVote() != null && toktok.getVote().getIsEnd().equals(true) && (request.getVoteTitle() != null
                 || request.getVoteOption() != null ||
                 request.getVoteIsSingle() != null || request.getVoteIsAnonymous() != null)) {
             throw new CustomException(VOTE_IS_END);
@@ -242,10 +242,15 @@ public class ToktokService {
         }
     }
 
-    public void createLink(List<String> linkList, Toktok toktok) {
-        for (String link : linkList) {
-            Link newLink = Link.builder().toktok(toktok).linkUrl(link).build();
-            linkRepository.save(newLink);
+    public void createLink(List<LinkDto.Request> linkList, Toktok toktok) {
+        for (LinkDto.Request l : linkList) {
+            Link link = Link.builder()
+                    .toktok(toktok)
+                    .url(l.getUrl())
+                    .title(l.getTitle())
+                    .image(l.getImage())
+                    .build();
+            linkRepository.save(link);
         }
     }
 
