@@ -29,6 +29,7 @@ public class UserDto {
 
     @Getter
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class NormalRequest {   // 일반 유저 등록 Request
 
         @NotBlank(message = "닉네임은 필수 값입니다.")
@@ -59,6 +60,7 @@ public class UserDto {
 
     @Getter
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class SnsRequest {   // SNS 유저 등록 Request
 
         @NotBlank(message = "닉네임은 필수 값입니다.")
@@ -111,6 +113,7 @@ public class UserDto {
 
     @Getter
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class ResetPasswordRequest {
 
         @NotBlank(message = "이메일은 필수 값입니다.")

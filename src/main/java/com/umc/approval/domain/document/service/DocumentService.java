@@ -19,12 +19,17 @@ import com.umc.approval.global.security.service.JwtService;
 import com.umc.approval.global.type.CategoryType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.umc.approval.global.exception.CustomErrorType.*;
 
@@ -47,22 +52,22 @@ public class DocumentService {
     public void createDocument(DocumentDto.DocumentRequest request) {
         User user = certifyUser();
 
-        // 해당하는 카테고리 찾기
-        CategoryType categoryType = Arrays.stream(CategoryType.values())
-                .filter(c -> c.getValue() == request.getCategory())
-                .findAny().get();
+        CategoryType categoryType = findCategory(request.getCategory());
 
         // 게시글 등록
         Document document = request.toEntity(user, categoryType);
         documentRepository.save(document);
         createTag(request.getTag(), document);
-        Link link = Link.builder()
-                .document(document)
-                .url(request.getLink().getUrl())
-                .title(request.getLink().getTitle())
-                .image(request.getLink().getImage())
-                .build();
-        linkRepository.save(link);
+        if (request.getLink() != null) {
+            Link link = Link.builder()
+                    .document(document)
+                    .url(request.getLink().getUrl())
+                    .title(request.getLink().getTitle())
+                    .image(request.getLink().getImage())
+                    .build();
+            linkRepository.save(link);
+        }
+
         createImages(request.getImages(), document);
     }
 
@@ -99,9 +104,7 @@ public class DocumentService {
         }
 
         // document 수정
-        CategoryType categoryType = Arrays.stream(CategoryType.values())
-                .filter(c -> c.getValue() == request.getCategory())
-                .findAny().get();
+        CategoryType categoryType = findCategory(request.getCategory());
 
         document.update(categoryType, request.getTitle(), request.getContent());
 
@@ -148,6 +151,32 @@ public class DocumentService {
         documentRepository.deleteById(documentId);
     }
 
+    public DocumentDto.GetDocumentListResponse getDocumentList(Integer page, Integer category) {
+        Pageable pageable = PageRequest.of(page, 20, Sort.by("createdAt").descending()); // 최신순
+
+        Page<Document> documents;
+        if (category == null) { // 전체 조회
+            documents = documentRepository.findAllWithJoin(pageable);
+        } else { // 부서별 조회
+            if (category < 0 || category > 17) {
+                throw new CustomException(INVALID_VALUE, "카테고리는 0부터 17까지의 정수 값입니다.");
+            }
+            CategoryType categoryType = findCategory(category);
+            documents = documentRepository.findAllByCategory(categoryType, pageable);
+        }
+
+        List<DocumentDto.DocumentListResponse> response = documents.getContent().stream()
+                .map(document ->
+                        new DocumentDto.DocumentListResponse(
+                                document,
+                                document.getTags(),
+                                document.getImages(),
+                                document.getApprovals()))
+                .collect(Collectors.toList());
+
+        return new DocumentDto.GetDocumentListResponse(documents, response);
+    }
+
 
     private User certifyUser() {
         User user = userRepository.findById(jwtService.getId())
@@ -161,6 +190,12 @@ public class DocumentService {
             throw new CustomException(DOCUMENT_NOT_FOUND);
         }
         return document.get();
+    }
+
+    private CategoryType findCategory(Integer category) {
+        return Arrays.stream(CategoryType.values())
+                .filter(c -> c.getValue() == category)
+                .findAny().get();
     }
 
     private void createTag(List<String> tags, Document document) {

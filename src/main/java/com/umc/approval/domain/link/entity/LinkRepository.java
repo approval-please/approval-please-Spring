@@ -21,6 +21,6 @@ public interface LinkRepository extends JpaRepository<Link, Long> {
     List<String> findLinkUrlList(@Param("report_id") Long reportId);
 
     @Query("select l from Link l where l.document.id = :documentId")
-    Optional<Link> findByDocumentId(Long documentId);
+    Optional<Link> findByDocumentId(@Param("documentId") Long documentId);
 }
 
