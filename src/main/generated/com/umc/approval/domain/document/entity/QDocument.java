@@ -24,6 +24,8 @@ public class QDocument extends EntityPathBase<Document> {
 
     public final com.umc.approval.domain.QBaseTimeEntity _super = new com.umc.approval.domain.QBaseTimeEntity(this);
 
+    public final ListPath<com.umc.approval.domain.approval.entity.Approval, com.umc.approval.domain.approval.entity.QApproval> approvals = this.<com.umc.approval.domain.approval.entity.Approval, com.umc.approval.domain.approval.entity.QApproval>createList("approvals", com.umc.approval.domain.approval.entity.Approval.class, com.umc.approval.domain.approval.entity.QApproval.class, PathInits.DIRECT2);
+
     public final EnumPath<com.umc.approval.global.type.CategoryType> category = createEnum("category", com.umc.approval.global.type.CategoryType.class);
 
     public final StringPath content = createString("content");
@@ -33,12 +35,16 @@ public class QDocument extends EntityPathBase<Document> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
+    public final ListPath<com.umc.approval.domain.image.entity.Image, com.umc.approval.domain.image.entity.QImage> images = this.<com.umc.approval.domain.image.entity.Image, com.umc.approval.domain.image.entity.QImage>createList("images", com.umc.approval.domain.image.entity.Image.class, com.umc.approval.domain.image.entity.QImage.class, PathInits.DIRECT2);
+
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
 
     public final BooleanPath notification = createBoolean("notification");
 
     public final NumberPath<Integer> state = createNumber("state", Integer.class);
+
+    public final ListPath<com.umc.approval.domain.tag.entity.Tag, com.umc.approval.domain.tag.entity.QTag> tags = this.<com.umc.approval.domain.tag.entity.Tag, com.umc.approval.domain.tag.entity.QTag>createList("tags", com.umc.approval.domain.tag.entity.Tag.class, com.umc.approval.domain.tag.entity.QTag.class, PathInits.DIRECT2);
 
     public final StringPath title = createString("title");
 

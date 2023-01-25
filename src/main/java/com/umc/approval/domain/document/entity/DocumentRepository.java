@@ -45,4 +45,10 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 
     @Query(value = "select d from Document d where category = :category")
     Page<Document> findAllByCategory(@Param("category") CategoryType categoryType, Pageable pageable);
+
+    @Query("select distinct d from Document d " +
+            "left join d.tags t " +
+            "left join d.images i " +
+            "left join d.approvals a")
+    Page<Document> findAllWithJoin(Pageable pageable);
 }

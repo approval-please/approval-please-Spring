@@ -19,14 +19,12 @@ import com.umc.approval.global.security.service.JwtService;
 import com.umc.approval.global.type.CategoryType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import java.util.Arrays;
 import java.util.List;
@@ -60,13 +58,16 @@ public class DocumentService {
         Document document = request.toEntity(user, categoryType);
         documentRepository.save(document);
         createTag(request.getTag(), document);
-        Link link = Link.builder()
-                .document(document)
-                .url(request.getLink().getUrl())
-                .title(request.getLink().getTitle())
-                .image(request.getLink().getImage())
-                .build();
-        linkRepository.save(link);
+        if (request.getLink() != null) {
+            Link link = Link.builder()
+                    .document(document)
+                    .url(request.getLink().getUrl())
+                    .title(request.getLink().getTitle())
+                    .image(request.getLink().getImage())
+                    .build();
+            linkRepository.save(link);
+        }
+
         createImages(request.getImages(), document);
     }
 
@@ -150,38 +151,27 @@ public class DocumentService {
         documentRepository.deleteById(documentId);
     }
 
-    public DocumentDto.GetDocumentListResponse getDocumentList(Integer page, Integer category){
+    public DocumentDto.GetDocumentListResponse getDocumentList(Integer page, Integer category) {
         Pageable pageable = PageRequest.of(page, 20, Sort.by("createdAt").descending()); // 최신순
 
         Page<Document> documents;
-        if(category == null){ // 전체 조회
-            documents = documentRepository.findAll(pageable);
-        }else{ // 부서별 조회
-            if(category<0 || category>17){
+        if (category == null) { // 전체 조회
+            documents = documentRepository.findAllWithJoin(pageable);
+        } else { // 부서별 조회
+            if (category < 0 || category > 17) {
                 throw new CustomException(INVALID_VALUE, "카테고리는 0부터 17까지의 정수 값입니다.");
             }
             CategoryType categoryType = findCategory(category);
             documents = documentRepository.findAllByCategory(categoryType, pageable);
         }
 
-        /*
-        List<Document> documentList = documents.getContent();
-        for(Document document: documentList){
-            List<String> tagList = tagRepository.findTagNameList(document.getId());
-            List<String> imageList = imageRepository.findImageUrlList(document.getId());
-            int approveCount = approvalRepository.countApproveByDocumentId(document.getId());
-            int rejectCount = approvalRepository.countRejectByDocumentId(document.getId());
-            new DocumentDto.DocumentListResponse(document, tagList, imageList, approveCount, rejectCount);
-        }
-        */
-
         List<DocumentDto.DocumentListResponse> response = documents.getContent().stream()
                 .map(document ->
-                    new DocumentDto.DocumentListResponse(document,
-                            tagRepository.findTagNameList(document.getId()),
-                            imageRepository.findImageUrlList(document.getId()),
-                            approvalRepository.countApproveByDocumentId(document.getId()),
-                            approvalRepository.countRejectByDocumentId(document.getId())))
+                        new DocumentDto.DocumentListResponse(
+                                document,
+                                document.getTags(),
+                                document.getImages(),
+                                document.getApprovals()))
                 .collect(Collectors.toList());
 
         return new DocumentDto.GetDocumentListResponse(documents, response);
@@ -202,13 +192,13 @@ public class DocumentService {
         return document.get();
     }
 
-    private CategoryType findCategory(Integer category){
+    private CategoryType findCategory(Integer category) {
         return Arrays.stream(CategoryType.values())
                 .filter(c -> c.getValue() == category)
                 .findAny().get();
     }
 
-    private void createTag(List<String> tags, Document document){
+    private void createTag(List<String> tags, Document document) {
         if (tags != null) {
             for (String tag : tags) {
                 Tag newTag = Tag.builder().document(document).tag(tag).build();

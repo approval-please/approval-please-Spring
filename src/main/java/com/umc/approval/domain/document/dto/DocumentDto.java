@@ -1,8 +1,11 @@
 package com.umc.approval.domain.document.dto;
 
+import com.umc.approval.domain.approval.entity.Approval;
 import com.umc.approval.domain.document.entity.Document;
+import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.link.dto.LinkDto;
 import com.umc.approval.domain.link.entity.Link;
+import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.global.type.CategoryType;
 import com.umc.approval.global.util.DateUtil;
@@ -11,8 +14,10 @@ import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.domain.Page;
 
+import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DocumentDto {
 
@@ -35,7 +40,7 @@ public class DocumentDto {
         @Size(max = 4, message = "이미지는 최대 4개까지 첨부 가능합니다.")
         private List<String> images;
 
-        private LinkDto.Request link;
+        private @Valid LinkDto.Request link;
 
         // DTO -> Entity
         public Document toEntity(User user, CategoryType categoryType){
@@ -139,17 +144,16 @@ public class DocumentDto {
         private Long view;
 
         // Entity -> DTO
-        public DocumentListResponse(Document document, List<String> tagNameList, List<String> imageUrlList,
-                                int approveCount, int rejectCount) {
+        public DocumentListResponse(Document document, List<Tag> tagNameList, List<Image> imageUrlList, List<Approval> approvalList) {
             this.category = document.getCategory().getValue();
             this.title = document.getTitle();
             this.content = document.getContent();
-            this.tag = tagNameList;
-            this.images = imageUrlList;
+            this.tag = tagNameList.stream().map(Tag::getTag).collect(Collectors.toList());
+            this.images = imageUrlList.stream().map(Image::getImageUrl).collect(Collectors.toList());
 
             this.state = document.getState();
-            this.approveCount = approveCount;
-            this.rejectCount = rejectCount;
+            this.approveCount = (int) approvalList.stream().filter(Approval::getIsApprove).count();
+            this.rejectCount = (int) approvalList.stream().filter(a -> !a.getIsApprove()).count();
 
             this.datetime = DateUtil.convert(document.getCreatedAt());
             this.view = document.getView();
