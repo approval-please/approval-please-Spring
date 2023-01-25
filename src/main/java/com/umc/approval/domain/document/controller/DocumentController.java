@@ -6,7 +6,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import javax.validation.Valid;
+import java.awt.print.Pageable;
 
 @RestController
 @RequestMapping("/documents")
@@ -44,8 +46,19 @@ public class DocumentController {
 
     @GetMapping
     public ResponseEntity<DocumentDto.GetDocumentListResponse> getDocumentList(
-                                                        @RequestParam("page") Integer page,
-                                                        @RequestParam(required = false) Integer category){
+            @RequestParam("page") Integer page,
+            @RequestParam(required = false) Integer category) {
         return ResponseEntity.ok().body(documentService.getDocumentList(page, category));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<DocumentDto.SearchResponse> search(
+            @RequestParam("query") String query,
+            @RequestParam(value = "category", required = false) Integer category,
+            @RequestParam(value = "state", required = false) Integer state,
+            @RequestParam("sortBy") Integer sortBy,
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(documentService.search(query, category, state, sortBy, pageable));
     }
 }
