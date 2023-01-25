@@ -4,11 +4,12 @@ import com.umc.approval.domain.document.dto.DocumentDto;
 import com.umc.approval.domain.document.service.DocumentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.awt.print.Pageable;
 
 @RestController
 @RequestMapping("/documents")
@@ -57,7 +58,7 @@ public class DocumentController {
             @RequestParam(value = "category", required = false) Integer category,
             @RequestParam(value = "state", required = false) Integer state,
             @RequestParam("sortBy") Integer sortBy,
-            Pageable pageable
+            @PageableDefault(size = 20) Pageable pageable
     ) {
         return ResponseEntity.ok(documentService.search(query, category, state, sortBy, pageable));
     }
