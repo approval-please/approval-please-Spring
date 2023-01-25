@@ -85,7 +85,7 @@ public class CertService {
             }
         }
 
-        throw new CustomException(CERT_NUMBER_NOT_EQUAL);
+        throw new CustomException(CERT_FAILED);
     }
 
     // 인증번호 생성 메서드

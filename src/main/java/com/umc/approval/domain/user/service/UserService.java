@@ -1,6 +1,8 @@
 package com.umc.approval.domain.user.service;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.umc.approval.domain.cert.entity.Cert;
+import com.umc.approval.domain.cert.entity.CertRepository;
 import com.umc.approval.domain.user.dto.UserDto;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
@@ -25,6 +27,7 @@ public class UserService {
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final CertRepository certRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
@@ -42,6 +45,9 @@ public class UserService {
     }
 
     public void signup(UserDto.NormalRequest userCreateNormalRequest) {
+        // 전화번호 인증 내역 체크
+        certValidation(userCreateNormalRequest.getPhoneNumber());
+
         // 이메일 중복 체크
         emailDuplicateValidation(userCreateNormalRequest.getEmail());
 
@@ -57,6 +63,9 @@ public class UserService {
     }
 
     public void snsSignup(UserDto.SnsRequest requestDto) {
+        // 전화번호 인증 내역 체크
+        certValidation(requestDto.getPhoneNumber());
+
         // 이메일 중복 체크
         emailDuplicateValidation(requestDto.getEmail());
 
@@ -110,6 +119,14 @@ public class UserService {
         User user = userRepository.findByEmail(requestDto.getEmail())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
         user.encodePassword(passwordEncoder.encode(requestDto.getNewPassword()));
+    }
+
+    private void certValidation(String phoneNumber) {
+        Cert cert = certRepository.findByPhoneNumber(phoneNumber)
+                .orElseThrow(() -> new CustomException(CERT_NOT_FOUND));
+        if(!cert.getIsChecked()) {
+            throw new CustomException(CERT_FAILED);
+        }
     }
 
     private void phoneNumberDuplicateValidation(String phoneNumber) {
