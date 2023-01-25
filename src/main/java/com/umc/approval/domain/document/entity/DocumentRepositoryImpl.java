@@ -3,6 +3,7 @@ package com.umc.approval.domain.document.entity;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.global.type.CategoryType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
