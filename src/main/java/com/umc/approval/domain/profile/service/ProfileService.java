@@ -39,8 +39,17 @@ public class ProfileService {
     private final FollowRepository followRepository;
     private final PerformanceRepository performanceRepository;
 
-    // 사용자 프로필 조회
-    public JSONObject getUserProfile (User user) {
+    // 사원증 프로필 조회
+    public JSONObject getUserProfile (Long userId) {
+        User user;
+
+        if (userId == null) { // 내 사원증 조회
+            user = certifyUser();
+        } else { // 타 사원증 조회
+            user = userRepository.findById(userId)
+                    .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+        }
+
         JSONObject profile = new JSONObject();
 
         profile.put("profileImage", user.getProfileImage());
@@ -82,8 +91,9 @@ public class ProfileService {
         JSONArray documentList = new JSONArray();
 
         for (int i = 0; i < documents.size(); i++) {
-            documentList.add(new DocumentDto.DocumentListResponse(documents.get(i), tagRepository.findTagNameList(documents.get(i).getId()), imageRepository.findImageUrlList(documents.get(i).getId()),
-                    approvalRepository.countApproveByDocumentId(documents.get(i).getId()), approvalRepository.countRejectByDocumentId(documents.get(i).getId())));
+            documentList.add(new DocumentDto.DocumentListResponse(documents.get(i), tagRepository.findTagNameList(documents.get(i).getId()),
+                    imageRepository.findImageUrlList(documents.get(i).getId()), approvalRepository.countApproveByDocumentId(documents.get(i).getId()),
+                    approvalRepository.countRejectByDocumentId(documents.get(i).getId())));
         }
 
         result.put("totalCount", documents.size());
