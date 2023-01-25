@@ -191,6 +191,7 @@ public class DocumentDto {
         private LinkDto.Response link;
         private String thumbnailImage;
         private Integer imageCount;
+        private Long view;
         private Integer approvalCount;
         private Integer rejectCount;
         private String datetime;
@@ -209,6 +210,7 @@ public class DocumentDto {
                                     document.getImages().get(0).getImageUrl() : null
                     )
                     .imageCount(document.getImages() == null ? 0 : document.getImages().size())
+                    .view(document.getView())
                     .approvalCount(document.getApprovals() == null ?
                             0 : (int) document.getApprovals().stream().filter(Approval::getIsApprove).count()
                     )
