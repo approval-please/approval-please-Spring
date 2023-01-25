@@ -44,6 +44,7 @@ public class QDocument extends EntityPathBase<Document> {
 
     public final NumberPath<Integer> state = createNumber("state", Integer.class);
 
+
     public final ListPath<com.umc.approval.domain.tag.entity.Tag, com.umc.approval.domain.tag.entity.QTag> tags = this.<com.umc.approval.domain.tag.entity.Tag, com.umc.approval.domain.tag.entity.QTag>createList("tags", com.umc.approval.domain.tag.entity.Tag.class, com.umc.approval.domain.tag.entity.QTag.class, PathInits.DIRECT2);
 
     public final StringPath title = createString("title");

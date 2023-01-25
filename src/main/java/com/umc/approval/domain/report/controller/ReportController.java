@@ -23,6 +23,11 @@ public class ReportController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/{reportId}")
+    public ResponseEntity<ReportDto.GetReportResponse> getReport(@PathVariable("reportId") Long id) {
+        return ResponseEntity.ok(reportService.getReport(id));
+    }
+
     // 결재서류 글 작성시 결재서류 선택 리스트
     @GetMapping("/documents")
     public ResponseEntity<ReportDto.ReportGetDocumentResponse> selectDocument(@RequestParam("page") Integer page) {

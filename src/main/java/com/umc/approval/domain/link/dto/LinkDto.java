@@ -8,6 +8,7 @@ import javax.validation.constraints.NotBlank;
 public class LinkDto {
 
     @Getter
+    @NoArgsConstructor
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @NoArgsConstructor
     public static class Request {

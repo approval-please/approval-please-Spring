@@ -6,6 +6,7 @@ import com.umc.approval.domain.image.entity.ImageRepository;
 import com.umc.approval.domain.link.dto.LinkDto;
 import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.entity.LinkRepository;
+import com.umc.approval.domain.report.dto.ReportDto;
 import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.tag.entity.TagRepository;
 import com.umc.approval.domain.toktok.dto.ToktokDto;
@@ -71,10 +72,11 @@ public class ToktokService {
 
         toktokRepository.save(toktok);
 
-        // 링크 등록
+         //링크 등록
         if (request.getLink() != null && !request.getLink().isEmpty()) {
             List<LinkDto.Request> linkList = request.getLink();
             createLink(linkList, toktok);
+
         }
 
         //태그 등록
@@ -212,7 +214,6 @@ public class ToktokService {
 
         toktokRepository.deleteById(toktokId);
     }
-
 
     public CategoryType viewCategory(int category) {
         CategoryType categoryType = Arrays.stream(CategoryType.values())

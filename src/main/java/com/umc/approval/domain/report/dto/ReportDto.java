@@ -5,6 +5,8 @@ import com.umc.approval.domain.like.dto.LikeDto;
 import com.umc.approval.domain.like.dto.LikeDto.Response;
 import com.umc.approval.domain.like.entity.Like;
 import com.umc.approval.domain.link.dto.LinkDto;
+import com.umc.approval.domain.report.entity.Report;
+
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.global.util.DateUtil;
 import java.time.LocalDateTime;
@@ -23,6 +25,7 @@ public class ReportDto {
 
     @Data
     public static class ReportRequest {
+
         @NotNull(message = "결재서류를 선택해야합니다.")
         private Long documentId;
 
@@ -42,12 +45,14 @@ public class ReportDto {
     @Builder
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class ReportGetDocumentResponse {
+
         private Integer page;
         private Integer totalPage;
         private Long totalElement;
         private List<DocumentListResponse> content;
 
-        public static ReportGetDocumentResponse from(Page<Document> page, List<DocumentListResponse> content) {
+        public static ReportGetDocumentResponse from(Page<Document> page,
+            List<DocumentListResponse> content) {
             return ReportGetDocumentResponse.builder()
                 .page(page.getNumber())
                 .totalPage(page.getTotalPages())
@@ -62,6 +67,7 @@ public class ReportDto {
     @Builder
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class DocumentListResponse {
+
         private Long documentId;
         private String title;
         private Integer state;
@@ -75,6 +81,70 @@ public class ReportDto {
                 .datetime(DateUtil.convert(document.getCreatedAt()))
                 .build();
         }
+    }
+
+    // 게시글 상세 조회
+    @Data
+    public static class GetReportResponse {
+
+        // user
+        private String profileImage;
+        private String nickname;
+        private Integer level;
+
+        // document
+        private Long documentId;
+        private List<String> documentImageUrl;
+        private Integer documentCategory;
+        private String documentTitle;
+        private String documentContent;
+        private List<String> documentTag;
+
+        // report
+        private String reportContent;
+        private List<String> reportImageUrl;
+        private List<LinkDto.Response> reportLink;
+        private List<String> reportTag;
+
+        private Long likedCount;
+        private Boolean likeOrNot;
+        private Boolean followOrNot;
+        private Long scrapCount;
+        private Long commentCount;
+        private String datetime;
+        private Long view;
+
+        public GetReportResponse(User user, Document document, Report report,
+            List<String> documentTagList, List<String> documentImageUrlList,
+            List<String> reportTagList, List<String> reportImageUrlList,
+            List<LinkDto.Response> reportLink, Long likedCount, Long scrapCount, Long commentCount,
+            Boolean likeOrNot, Boolean followOrNot) {
+            this.profileImage = user.getProfileImage();
+            this.nickname = user.getNickname();
+            this.level = user.getLevel();
+
+            this.documentId = document.getId();
+            this.documentImageUrl = documentImageUrlList;
+            this.documentContent = document.getContent();
+            this.documentCategory = document.getCategory().getValue();
+            this.documentTitle = document.getTitle();
+            this.documentTag = documentTagList;
+
+            this.reportContent = report.getContent();
+            this.reportImageUrl = reportImageUrlList;
+            this.reportLink = reportLink;
+            this.reportTag = reportTagList;
+
+            this.likedCount = likedCount;
+            this.scrapCount = scrapCount;
+            this.datetime = DateUtil.convert(report.getCreatedAt());
+            this.commentCount = commentCount;
+            this.view = report.getView();
+            this.likeOrNot = likeOrNot;
+            this.followOrNot = followOrNot;
+        }
+
+
     }
 
 }

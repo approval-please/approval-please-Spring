@@ -1,15 +1,22 @@
 package com.umc.approval.domain.report.service;
 
+import static com.umc.approval.global.exception.CustomErrorType.*;
+
+import com.umc.approval.domain.comment.entity.CommentRepository;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.entity.DocumentRepository;
+import com.umc.approval.domain.follow.entity.FollowRepository;
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
+import com.umc.approval.domain.like.entity.LikeRepository;
 import com.umc.approval.domain.link.dto.LinkDto;
 import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.entity.LinkRepository;
 import com.umc.approval.domain.report.dto.ReportDto;
+import com.umc.approval.domain.report.dto.ReportDto.GetReportResponse;
 import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.report.entity.ReportRepository;
+import com.umc.approval.domain.scrap.entity.ScrapRepository;
 import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.tag.entity.TagRepository;
 import com.umc.approval.domain.toktok.entity.Toktok;
@@ -17,6 +24,11 @@ import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -43,6 +55,10 @@ public class ReportService {
     private final ReportRepository reportRepository;
     private final DocumentRepository documentRepository;
     private final ImageRepository imageRepository;
+    private final LikeRepository likeRepository;
+    private final CommentRepository commentRepository;
+    private final ScrapRepository scrapRepository;
+    private final FollowRepository followRepository;
 
     public void createPost(ReportDto.ReportRequest request) {
 
@@ -142,6 +158,58 @@ public class ReportService {
         report.update(request, updateDocument);
 
     }
+
+    // 게시글 상세 조회
+    public ReportDto.GetReportResponse getReport(Long reportId) {
+        reportRepository.updateView(reportId);
+
+        Report report = findReport(reportId);
+        Document document = report.getDocument();
+        User user = certifyUser();
+
+        // 결재서류 정보
+        List<String> documentTagList = tagRepository.findTagNameList(document.getId());
+        List<String> documentImageUrlList = imageRepository.findImageUrlList(document.getId());
+
+        // 결재보고서 정보
+        List<String> reportTagList = tagRepository.findTagNameListByReportId(reportId);
+        List<String> reportImageUrlList = imageRepository.findImageUrlListByReportId(reportId);
+        List<Link> reportLinkList = linkRepository.findByReportId(reportId);
+        List<LinkDto.Response> linkResponse;
+        linkResponse = reportLinkList.stream().map(LinkDto.Response::fromEntity).collect(Collectors.toList());
+
+
+        // 좋아요, 스크랩, 댓글 수
+        Long likedCount = likeRepository.countByReport(report);
+        Long commentCount = commentRepository.countByReportId(report.getId());
+        Long scrapCount = scrapRepository.countByReport(report);
+        Long likeReportOrNot = likeRepository.countByUserAndReport(user, report);
+        Boolean likeOrNot = true;
+        Boolean followOrNot = true;
+
+        // 해당 유저가 게시글을 눌렀는지 여부
+        if(likeReportOrNot == 0) {
+            likeOrNot = false;
+        }
+
+        // 게시글 상세 조회를 한 유저가 글을 쓴 유저를 팔로우 했는지 여부
+        Long from_userId = user.getId();
+        Long to_userId = document.getUser().getId();
+        Integer follow = followRepository.countFollowOrNot(from_userId, to_userId);
+        if (from_userId == to_userId) {
+            followOrNot = null;
+        } else if(follow == 0) {
+            followOrNot = false;
+        }
+
+
+
+        return new GetReportResponse(user, document, report,
+            documentTagList, documentImageUrlList,
+            reportTagList, reportImageUrlList,
+            linkResponse, likedCount, scrapCount, commentCount, likeOrNot, followOrNot);
+    }
+
 
 
     private User certifyUser() {
