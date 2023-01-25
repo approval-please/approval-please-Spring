@@ -42,4 +42,10 @@ public class ReportController {
         reportService.updatePost(id, request);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/{reportId}")
+    public ResponseEntity<Void> deletePost(@PathVariable("reportId") Long id) {
+        reportService.deletePost(id);
+        return ResponseEntity.ok().build();
+    }
 }
