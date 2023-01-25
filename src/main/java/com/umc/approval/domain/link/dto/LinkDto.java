@@ -7,6 +7,7 @@ public class LinkDto {
 
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @NoArgsConstructor
     public static class Request {
         private String url;
         private String title;
