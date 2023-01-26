@@ -30,8 +30,8 @@ public class ReportController {
 
     // 결재서류 글 작성시 결재서류 선택 리스트
     @GetMapping("/documents")
-    public ResponseEntity<ReportDto.ReportGetDocumentResponse> selectDocument(@RequestParam("page") Integer page) {
-        return ResponseEntity.ok(reportService.selectDocument(page));
+    public ResponseEntity<ReportDto.ReportGetDocumentResponse> selectDocument() {
+        return ResponseEntity.ok(reportService.selectDocument());
     }
 
     @PutMapping("/{reportId}")

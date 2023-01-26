@@ -26,7 +26,7 @@ public interface DocumentRepository extends JpaRepository<Document, Long>, Docum
     void updateStateRejected(@Param("document_id") Long documentId);
 
     @Query("select i from Document i where (i.state = 0 or i.state = 1) and i.user.id = :user_id")
-    Page<Document> findByUserId(@Param("user_id") Long userId, Pageable pageable);
+    List<Document> findByUserId(@Param("user_id") Long userId);
     
     @Query("select d from Document d " +
             "join fetch d.user u " +

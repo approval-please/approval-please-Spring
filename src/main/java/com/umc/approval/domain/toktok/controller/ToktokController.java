@@ -2,6 +2,7 @@ package com.umc.approval.domain.toktok.controller;
 
 import com.umc.approval.domain.report.dto.ReportDto;
 import com.umc.approval.domain.toktok.dto.ToktokDto;
+import com.umc.approval.domain.toktok.dto.ToktokDto.GetToktokResponse;
 import com.umc.approval.domain.toktok.service.ToktokService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +27,8 @@ public class ToktokController {
     }
 
     @GetMapping("/{toktokId}")
-    public ResponseEntity<Void> getReport(@PathVariable("toktokId") Long id) {
-        return ResponseEntity.ok(toktokService.getToktok(id));
+    public ResponseEntity<ToktokDto.GetToktokResponse> getReport(@PathVariable("toktokId") Long id) {
+        return ResponseEntity.ok().body(toktokService.getToktok(id));
     }
 
 

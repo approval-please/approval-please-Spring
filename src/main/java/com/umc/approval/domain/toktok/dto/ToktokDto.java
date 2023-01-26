@@ -1,6 +1,14 @@
 package com.umc.approval.domain.toktok.dto;
 
+import com.umc.approval.domain.link.entity.Link;
+import com.umc.approval.domain.tag.entity.Tag;
+import com.umc.approval.domain.toktok.entity.Toktok;
+import com.umc.approval.domain.user.entity.User;
+import com.umc.approval.domain.vote.entity.Vote;
+import com.umc.approval.global.util.DateUtil;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -53,6 +61,7 @@ public class ToktokDto {
     //게시글 상세 조회
     @Data
     public static class GetToktokResponse {
+
         // user
         private String profileImage;
         private String nickname;
@@ -61,7 +70,7 @@ public class ToktokDto {
         // toktok
         private Integer category;
         private String content;
-        private LinkDto.Response link;
+        private List<LinkDto.Response> link;
         private List<String> tag;
         private List<String> images;
 
@@ -83,6 +92,36 @@ public class ToktokDto {
         private Long commentCount;
         private String datetime;
         private Long view;
+
+        public GetToktokResponse(User user, Toktok toktok, Vote vote, List<String> tags,
+            List<String> images, List<LinkDto.Response> linkResponse, Long likedCount,
+            Long commentCount, Long scrapCount, Boolean likeOrNot,
+            Boolean followOrNot, List<String> voteOption, List<String> voteSelect,
+            Integer votePeople, List<Integer> votePeopleEachOption, Boolean writerOrNot) {
+            this.profileImage = user.getProfileImage();
+            this.level = user.getLevel();
+            this.nickname = user.getNickname();
+            this.category = toktok.getCategory().getValue();
+            this.content = toktok.getContent();
+            this.link = linkResponse;
+            this.tag = tags;
+            this.images = images;
+            this.voteTitle = vote.getTitle();
+            this.voteIsEnd = vote.getIsEnd();
+            this.votePeople = votePeople;
+            this.voteIsSingle = vote.getIsSingle();
+            this.voteOption = voteOption;
+            this.voteSelect = voteSelect;
+            this.votePeopleEachOption = votePeopleEachOption;
+            this.writerOrNot = writerOrNot;
+            this.likedCount = likedCount;
+            this.likeOrNot = likeOrNot;
+            this.followOrNot = followOrNot;
+            this.scrapCount = scrapCount;
+            this.commentCount = commentCount;
+            this.datetime = DateUtil.convert(toktok.getCreatedAt());
+            this.view = toktok.getView();
+        }
 
     }
 
