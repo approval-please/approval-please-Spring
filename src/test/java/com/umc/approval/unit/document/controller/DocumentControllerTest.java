@@ -96,12 +96,10 @@ public class DocumentControllerTest {
                 .rejectCount(3)
                 .build();
         DocumentDto.SearchResponse response = DocumentDto.SearchResponse.builder()
-                .page(0)
-                .totalPage(2)
-                .totalElement(55L)
+                .documentCount(1)
                 .content(List.of(content))
                 .build();
-        given(documentService.search(any(), any(), any(), any(), any(), any())).willReturn(response);
+        given(documentService.search(any(), any(), any(), any(), any())).willReturn(response);
 
         // when & then
         mvc.perform(get("/documents/search")
@@ -110,7 +108,7 @@ public class DocumentControllerTest {
                         .param("sortBy", "1")
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.page").value(response.getPage()))
+                .andExpect(jsonPath("$.documentCount").value(1))
                 .andExpect(jsonPath("$.content[0].title").value(response.getContent().get(0).getTitle()))
                 .andDo(print());
     }
