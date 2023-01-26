@@ -1,5 +1,6 @@
 package com.umc.approval.domain.toktok.controller;
 
+import com.umc.approval.domain.document.dto.DocumentDto;
 import com.umc.approval.domain.toktok.dto.ToktokDto;
 import com.umc.approval.domain.toktok.service.ToktokService;
 import lombok.RequiredArgsConstructor;
@@ -37,5 +38,15 @@ public class ToktokController {
     public ResponseEntity<Void> deletePost(@PathVariable("toktokId") Long id) {
         toktokService.deletePost(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<DocumentDto.SearchResponse> search(
+            @RequestParam("query") String query,
+            @RequestParam("isTag") Integer isTag,
+            @RequestParam(value = "category", required = false) Integer category,
+            @RequestParam("sortBy") Integer sortBy
+    ) {
+        return ResponseEntity.ok(toktokService.search(query, isTag, category, sortBy));
     }
 }
