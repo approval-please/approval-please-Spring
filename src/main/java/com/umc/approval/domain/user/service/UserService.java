@@ -3,6 +3,7 @@ package com.umc.approval.domain.user.service;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.umc.approval.domain.cert.entity.Cert;
 import com.umc.approval.domain.cert.entity.CertRepository;
+import com.umc.approval.domain.cert.service.CertService;
 import com.umc.approval.domain.user.dto.UserDto;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
@@ -38,9 +39,9 @@ public class UserService {
         if (user == null) {
             return new UserDto.EmailCheckResponse(0, null, null);
         } else if (user.getSocialType() == null) {
-            return new UserDto.EmailCheckResponse(1, user.getEmail(), null);
+            return new UserDto.EmailCheckResponse(1, CertService.maskEmail(user.getEmail()), null);
         } else {
-            return new UserDto.EmailCheckResponse(2, user.getEmail(), user.getSocialType());
+            return new UserDto.EmailCheckResponse(2, CertService.maskEmail(user.getEmail()), user.getSocialType());
         }
     }
 

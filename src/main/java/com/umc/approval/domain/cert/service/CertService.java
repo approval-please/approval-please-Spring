@@ -110,7 +110,7 @@ public class CertService {
     }
 
     // 이메일 마스킹 메서드
-    private static String maskEmail(String email) {
+    public static String maskEmail(String email) {
         /*
          * 요구되는 메일 포맷
          * {userId}@{domain}
