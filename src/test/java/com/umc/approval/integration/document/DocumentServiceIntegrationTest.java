@@ -155,7 +155,7 @@ public class DocumentServiceIntegrationTest {
 
         // when
         DocumentDto.SearchResponse response =
-                documentService.search("아이", 0, ANIMAL_PLANT.getValue(), 1, 0, PageRequest.of(0, 25));
+                documentService.search("아이", 0, ANIMAL_PLANT.getValue(), 1, 0);
         DocumentDto.SearchListResponse findResponse = response.getContent().get(0);
 
         // then
