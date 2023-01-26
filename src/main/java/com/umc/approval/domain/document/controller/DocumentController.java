@@ -47,16 +47,14 @@ public class DocumentController {
 
     @GetMapping
     public ResponseEntity<DocumentDto.GetDocumentListResponse> getDocumentList(
-        @RequestParam("page") Integer page,
         @RequestParam(required = false) Integer category) {
-        return ResponseEntity.ok().body(documentService.getDocumentList(page, category));
+        return ResponseEntity.ok().body(documentService.getDocumentList(category));
     }
 
     @GetMapping("/likes")
     public ResponseEntity<DocumentDto.GetDocumentListResponse> getLikedLDocumentList(
-            @RequestParam("page") Integer page,
             @RequestParam(value = "category", required = false) Integer category){
-        return ResponseEntity.ok().body(documentService.getLikedDocumentList(page, category));
+        return ResponseEntity.ok().body(documentService.getLikedDocumentList(category));
     }
 
     @GetMapping("/search")

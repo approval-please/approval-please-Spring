@@ -155,21 +155,21 @@ public class DocumentService {
         documentRepository.deleteById(documentId);
     }
 
-    public DocumentDto.GetDocumentListResponse getDocumentList(Integer page, Integer category) {
-        Pageable pageable = PageRequest.of(page, 20, Sort.by("createdAt").descending()); // 최신순
+    public DocumentDto.GetDocumentListResponse getDocumentList(Integer category) {
+        // 게시글 목록 조회
+        List<Document> documents = null;
 
-        Page<Document> documents;
-        if (category == null) { // 전체 조회
-            documents = documentRepository.findAllWithJoin(pageable);
-        } else { // 부서별 조회
+        if (category == null) { // 전체 게시글
+            documents = documentRepository.findAllWithJoin();
+        } else { // 특정 부서에 대한 게시글
             if (category < 0 || category > 17) {
                 throw new CustomException(INVALID_VALUE, "카테고리는 0부터 17까지의 정수 값입니다.");
             }
             CategoryType categoryType = findCategory(category);
-            documents = documentRepository.findAllByCategory(categoryType, pageable);
+            documents = documentRepository.findAllByCategory(categoryType);
         }
 
-        List<DocumentDto.DocumentListResponse> response = documents.getContent().stream()
+        List<DocumentDto.DocumentListResponse> response = documents.stream()
                 .map(document ->
                         new DocumentDto.DocumentListResponse(
                                 document,
@@ -178,32 +178,31 @@ public class DocumentService {
                                 document.getApprovals()))
                 .collect(Collectors.toList());
 
-        return new DocumentDto.GetDocumentListResponse(documents, response);
+        return new DocumentDto.GetDocumentListResponse(response);
     }
 
-    public DocumentDto.GetDocumentListResponse getLikedDocumentList(Integer page, Integer category){
+    public DocumentDto.GetDocumentListResponse getLikedDocumentList(Integer category){
         User user = certifyUser();
 
         // 사용자의 관심부서
         List<CategoryType> likedCategoryList = likeCategoryRepository.findCategoryListByUserId(user.getId());
 
-        // 게시글 목록 조회 페이징 처리
-        Pageable pageable = PageRequest.of(page, 20, Sort.by("createdAt").descending()); // 최신순
-        Page<Document> documents = null;
+        // 게시글 목록 조회
+        List<Document> documents = null;
 
-        if(category != null){ // 관심부서 중 특정 부서 게시글
+        if(category == null){ // 관심부서 전체 게시글
+            documents = documentRepository.findAllByLikedCategory(likedCategoryList);
+        }else{ // 관심부서 중 특정 부서에 대한 게시글
             if (category < 0 || category > 17) {
                 throw new CustomException(INVALID_VALUE, "카테고리는 0부터 17까지의 정수 값입니다.");
             }
             CategoryType categoryType = findCategory(category);
             if (likedCategoryList.contains(categoryType)){
-                documents = documentRepository.findAllByCategory(categoryType, pageable);
+                documents = documentRepository.findAllByCategory(categoryType);
             }
-        }else{ // 관심부서 전체 게시글
-            documents = documentRepository.findAllByLikedCategory(likedCategoryList, pageable);
         }
 
-        List<DocumentDto.DocumentListResponse> response = documents.getContent().stream()
+        List<DocumentDto.DocumentListResponse> response = documents.stream()
                 .map(document ->
                         new DocumentDto.DocumentListResponse(
                                 document,
@@ -212,7 +211,7 @@ public class DocumentService {
                                 document.getApprovals()))
                 .collect(Collectors.toList());
 
-        return new DocumentDto.GetDocumentListResponse(documents, response);
+        return new DocumentDto.GetDocumentListResponse(response);
     }
 
 
