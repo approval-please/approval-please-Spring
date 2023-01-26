@@ -163,17 +163,13 @@ public class DocumentDto {
     @Builder
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class SearchResponse {
-        private Integer page;
-        private Integer totalPage;
-        private Long totalElement;
+        private Integer documentCount;
         private List<SearchListResponse> content;
 
-        public static SearchResponse from(Page<Document> page) {
+        public static SearchResponse from(List<Document> page) {
             return SearchResponse.builder()
-                    .page(page.getNumber())
-                    .totalPage(page.getTotalPages())
-                    .totalElement(page.getTotalElements())
-                    .content(page.getContent().stream().map(SearchListResponse::fromEntity).collect(Collectors.toList()))
+                    .documentCount(page.size())
+                    .content(page.stream().map(SearchListResponse::fromEntity).collect(Collectors.toList()))
                     .build();
         }
     }

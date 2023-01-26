@@ -65,9 +65,8 @@ public class DocumentController {
         @RequestParam("isTag") Integer isTag,
         @RequestParam(value = "category", required = false) Integer category,
         @RequestParam(value = "state", required = false) Integer state,
-        @RequestParam("sortBy") Integer sortBy,
-        @PageableDefault(size = 25) Pageable pageable
+        @RequestParam("sortBy") Integer sortBy
     ) {
-        return ResponseEntity.ok(documentService.search(query, isTag, category, state, sortBy, pageable));
+        return ResponseEntity.ok(documentService.search(query, isTag, category, state, sortBy));
     }
 }

@@ -28,7 +28,46 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
     }
 
     @Override
-    public Page<Document> findAllByQuery(String query, Integer isTag, Integer category, Integer state, Integer sortBy, Pageable pageable) {
+    public List<Document> findAllByQuery(String query, Integer isTag, Integer category, Integer state, Integer sortBy) {
+        if (isTag == 1) {
+            return queryFactory
+                    .select(document)
+                    .from(tag1)
+                    .leftJoin(tag1.document, document)
+                    .leftJoin(document.likes).fetchJoin()
+                    .leftJoin(document.tags)
+                    .join(document.link).fetchJoin()
+                    .leftJoin(document.approvals)
+                    .leftJoin(document.images)
+                    .where(
+                            tagEq(query),
+                            categoryEq(category),
+                            stateEq(state)
+                    )
+                    .distinct()
+                    .orderBy(sortBy == 0 ? document.createdAt.desc() : document.likes.size().desc())
+                    .fetch();
+        } else {
+            return queryFactory
+                    .selectFrom(document)
+                    .leftJoin(document.likes).fetchJoin()
+                    .leftJoin(document.tags)
+                    .leftJoin(document.link).fetchJoin()
+                    .leftJoin(document.approvals)
+                    .leftJoin(document.images)
+                    .where(
+                            titleLike(query).or(contentLike(query)),
+                            categoryEq(category),
+                            stateEq(state)
+                    )
+                    .distinct()
+                    .orderBy(sortBy == 0 ? document.createdAt.desc() : document.likes.size().desc())
+                    .fetch();
+        }
+    }
+
+    @Override
+    public Page<Document> findAllByQueryPaging(String query, Integer isTag, Integer category, Integer state, Integer sortBy, Pageable pageable) {
         List<Document> documents;
         JPAQuery<Long> countQuery;
         if (isTag == 1) {
