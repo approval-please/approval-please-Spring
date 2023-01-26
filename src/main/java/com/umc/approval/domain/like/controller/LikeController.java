@@ -20,10 +20,9 @@ public class LikeController {
     @GetMapping
     public ResponseEntity<LikeDto.ListResponse> getLikeList(
             HttpServletRequest request,
-            @PageableDefault(size = 50) Pageable pageable,
             @RequestBody LikeDto.Request requestDto
     ) {
-        return ResponseEntity.ok(likeService.getLikeList(request, pageable, requestDto));
+        return ResponseEntity.ok(likeService.getLikeList(request, requestDto));
     }
 
     @PostMapping

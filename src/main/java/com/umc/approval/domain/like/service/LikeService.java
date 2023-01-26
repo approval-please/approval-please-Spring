@@ -45,9 +45,9 @@ public class LikeService {
     private final CommentRepository commentRepository;
 
     @Transactional(readOnly = true)
-    public LikeDto.ListResponse getLikeList(HttpServletRequest request, Pageable pageable, LikeDto.Request requestDto) {
+    public LikeDto.ListResponse getLikeList(HttpServletRequest request, LikeDto.Request requestDto) {
 
-        Page<Like> likes = likeRepository.findAllByPost(pageable, requestDto);
+        List<Like> likes = likeRepository.findAllByPost(requestDto);
 
         // 팔로우 처리
         Long userId = jwtService.getIdDirectHeader(request);
@@ -57,7 +57,7 @@ public class LikeService {
             List<Long> userIds = likes.stream().map(l -> l.getUser().getId()).collect(Collectors.toList());
             List<Follow> follows = followRepository.findAllByToUserId(userId, userIds);
 
-            response = likes.getContent().stream()
+            response = likes.stream()
                     .map(l -> {
                         Boolean isFollow = follows.stream().anyMatch(f ->
                                 f.getToUser().getId() == l.getUser().getId());
@@ -65,7 +65,7 @@ public class LikeService {
                     }).collect(Collectors.toList());
         } else {
             // 로그인 X
-            response = likes.getContent().stream()
+            response = likes.stream()
                     .map(l -> LikeDto.Response.fromEntity(l, false))
                     .collect(Collectors.toList());
         }
