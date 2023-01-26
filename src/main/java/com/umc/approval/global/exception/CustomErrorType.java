@@ -34,6 +34,7 @@ public enum CustomErrorType {
     APPROVAL_ALREADY_EXISTS(FORBIDDEN, 30003, "[승인/반려] 선택은 한 번만 가능합니다."),
     CANNOT_APPROVE_OTHER(FORBIDDEN, 30004, "결재서류 최종 [승인/반려] 처리에 대한 권한이 없습니다."),
     ALREADY_APPROVED(FORBIDDEN, 30005, "최종 [승인/반려] 처리된 결재서류입니다."),
+    NOT_LIKED_CATEGORY(NOT_FOUND, 30005, "관심 부서로 설정되지 않은 카테고리입니다."),
 
     // Toktok (4xxxx)
     TOKTOKPOST_NOT_FOUND(NOT_FOUND, 40001, "존재하지 않는 결재톡톡입니다."),
