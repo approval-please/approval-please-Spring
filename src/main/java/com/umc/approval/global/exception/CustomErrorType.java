@@ -57,7 +57,11 @@ public enum CustomErrorType {
     // General (9xxxx)
     INVALID_HTTP_METHOD(METHOD_NOT_ALLOWED, 90001, "잘못된 Http Method 요청입니다."),
     INVALID_VALUE(BAD_REQUEST, 90002, "잘못된 입력값입니다."),
-    SERVER_INTERNAL_ERROR(INTERNAL_SERVER_ERROR, 90003, "서버 내부에 오류가 발생했습니다.");
+    SERVER_INTERNAL_ERROR(INTERNAL_SERVER_ERROR, 90003, "서버 내부에 오류가 발생했습니다."),
+
+    // Follow (10xxxx)
+    FOLLOW_NOT_FOUND(NOT_FOUND, 100001,"존재하는 팔로워 사용자가 없습니다."),
+    FOLLOWING_NOT_FOUND(NOT_FOUND, 100002, "존재하는 팔로잉 사용자가 없습니다.");
 
     private final HttpStatus httpStatus;
     private final int code;
