@@ -52,6 +52,7 @@ public class ProfileService {
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
         }
 
+        JSONObject result = new JSONObject();
         JSONObject profile = new JSONObject();
 
         profile.put("profileImage", user.getProfileImage());
@@ -62,7 +63,9 @@ public class ProfileService {
         profile.put("follows", followRepository.countByToUser(user.getId()));
         profile.put("followings", followRepository.countByFromUser(user.getId()));
 
-        return profile;
+        result.put("content", profile);
+
+        return result;
     }
 
     // 결재서류 조회
@@ -91,24 +94,23 @@ public class ProfileService {
             documents = documentRepository.findAllByUserId(user.getId());
         }
 
-
         if (documents.isEmpty()) {
             throw new CustomException(DOCUMENT_NOT_FOUND);
         }
 
         JSONObject result = new JSONObject();
-        JSONArray documentList = new JSONArray();
 
-        for (int i = 0; i < documents.size(); i++) {
-            Document document = documents.get(i);
-            documentList.add(new DocumentDto.DocumentListResponse(document,
-                    document.getTags(),
-                    document.getImages(),
-                    document.getApprovals()));
-        }
+        List<DocumentDto.DocumentListResponse> response = documents.stream()
+                .map(document ->
+                        new DocumentDto.DocumentListResponse(
+                                document,
+                                document.getTags(),
+                                document.getImages(),
+                                document.getApprovals()))
+                .collect(Collectors.toList());
 
-        result.put("totalCount", documents.size());
-        result.put("documentList", documentList);
+        result.put("totalElement", documents.size());
+        result.put("content", response);
 
         return result;
     }
@@ -137,8 +139,8 @@ public class ProfileService {
             performanceList.add(performanceRef);
         }
 
-        result.put("totalCount", performances.size());
-        result.put("performanceList", performanceList);
+        result.put("totalElement", performances.size());
+        result.put("content", performanceList);
 
         return result;
     }
@@ -165,20 +167,20 @@ public class ProfileService {
             }
 
             result.put("nickname", user.getNickname());
-            result.put("totalCount", follows.size());
+            result.put("totalElement", follows.size());
             result.put("followerCount", followRepository.countByToUser(user.getId()));
             result.put("followingCount", followRepository.countByFromUser(user.getId()));
-            result.put("followerList", followerList);
+            result.put("content", followerList);
 
             return result;
         }
 
         // 팔로잉 목록 조회
-        public JSONObject findMyFollowing () {
+        public JSONObject findMyFollowings () {
             User user = certifyUser();
             List<Follow> follows;
 
-            follows = followRepository.findMyFollowing(user.getId());
+            follows = followRepository.findMyFollowings(user.getId());
 
             JSONObject result = new JSONObject();
             JSONArray followingList = new JSONArray();
@@ -195,10 +197,10 @@ public class ProfileService {
             }
 
             result.put("nickname", user.getNickname());
-            result.put("totalCount", follows.size());
+            result.put("totalElement", follows.size());
             result.put("followerCount", followRepository.countByToUser(user.getId()));
             result.put("followingCount", followRepository.countByFromUser(user.getId()));
-            result.put("followingList", followingList);
+            result.put("content", followingList);
 
             return result;
         }

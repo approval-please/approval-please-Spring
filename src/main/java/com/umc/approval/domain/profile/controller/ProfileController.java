@@ -32,22 +32,30 @@ public class ProfileController {
         return profileService.findDocuments(userId, state, isApproved);
     }
 
+    // 커뮤니티 - 결재톡톡 조회
+
+    // 커뮤니티 - 결재보고서 조회
+
+    // 댓글 조회
+
+    // 스크랩 조회
+
     // 실적 조회
     @GetMapping("/my/performances")
     public JSONObject findPerformances () {
         return profileService.findPerformances();
     }
 
-    // 팔로우 목록 조회
+    // 팔로우 조회
     @GetMapping("/my/followers")
     public JSONObject findMyFollowers () {
         return profileService.findMyFollowers();
     }
 
-    // 팔로잉 목록 조회
+    // 팔로잉 조회
     @GetMapping("/my/following")
     public JSONObject findMyFollowing () {
-        return profileService.findMyFollowing();
+        return profileService.findMyFollowings();
     }
 
     // 사원증 프로필 수정
