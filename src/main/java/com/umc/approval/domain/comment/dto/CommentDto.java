@@ -2,14 +2,12 @@ package com.umc.approval.domain.comment.dto;
 
 import com.umc.approval.domain.comment.entity.Comment;
 import com.umc.approval.domain.document.entity.Document;
-import com.umc.approval.domain.like.dto.LikeDto;
 import com.umc.approval.domain.like.entity.Like;
 import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.global.util.DateUtil;
 import lombok.*;
-import org.springframework.data.domain.Page;
 
 import javax.validation.constraints.NotBlank;
 import java.util.List;
@@ -61,21 +59,15 @@ public class CommentDto {
     @Builder
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class ListResponse {
-        private Integer page;
-        private Integer totalPage;
-        private Integer totalCommentCount;
+        private Integer commentCount;
         private List<ParentResponse> content;
 
-        public static ListResponse from(
-                Page<Comment> comments, Integer commentCount, Long userId, Long writerId, List<Like> likes
-        ) {
-            List<ParentResponse> content = comments.getContent().stream()
+        public static ListResponse from(List<Comment> comments, Long userId, Long writerId, List<Like> likes) {
+            List<ParentResponse> content = comments.stream()
                     .map(c -> ParentResponse.from(c, userId, writerId, likes))
                     .collect(Collectors.toList());
             return ListResponse.builder()
-                    .page(comments.getNumber())
-                    .totalPage(comments.getTotalPages())
-                    .totalCommentCount(commentCount)
+                    .commentCount(comments.size())
                     .content(content)
                     .build();
         }

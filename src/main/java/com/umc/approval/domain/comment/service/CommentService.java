@@ -16,8 +16,6 @@ import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -116,10 +114,9 @@ public class CommentService {
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
     }
 
-    public CommentDto.ListResponse getCommentList(HttpServletRequest request, Pageable pageable, CommentDto.Request requestDto) {
+    public CommentDto.ListResponse getCommentList(HttpServletRequest request, CommentDto.Request requestDto) {
 
-        Page<Comment> comments = commentRepository.findAllByPost(pageable, requestDto);
-        Integer commentCount = commentRepository.countByPost(requestDto);
+        List<Comment> comments = commentRepository.findAllByPost(requestDto);
 
         // 글쓴이 조회
         User writer;
@@ -139,13 +136,13 @@ public class CommentService {
 
         // (로그인 시) 사용자가 좋아요 누른 댓글 리스트 조회
         Long userId = jwtService.getIdDirectHeader(request);
-        List<Comment> allComments = new ArrayList<>(comments.getContent());
-        comments.getContent().forEach(c -> {
+        List<Comment> allComments = new ArrayList<>(comments);
+        comments.forEach(c -> {
             if (c.getChildComment() != null) allComments.addAll(c.getChildComment());
         });
         List<Long> commentIds = allComments.stream().map(Comment::getId).collect(Collectors.toList());
         List<Like> likes = likeRepository.findAllByUserAndCommentIn(userId, commentIds);
 
-        return CommentDto.ListResponse.from(comments, commentCount, userId, writer.getId(), likes);
+        return CommentDto.ListResponse.from(comments, userId, writer.getId(), likes);
     }
 }
