@@ -1,5 +1,6 @@
 package com.umc.approval.domain.toktok.controller;
 
+import com.umc.approval.domain.report.dto.ReportDto;
 import com.umc.approval.domain.toktok.dto.ToktokDto;
 import com.umc.approval.domain.toktok.service.ToktokService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,12 @@ public class ToktokController {
         toktokService.createPost(request);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/{toktokId}")
+    public ResponseEntity<Void> getReport(@PathVariable("toktokId") Long id) {
+        return ResponseEntity.ok(toktokService.getToktok(id));
+    }
+
 
     @PutMapping("/{toktokId}")
     public ResponseEntity<Void> updatePost(

@@ -50,5 +50,41 @@ public class ToktokDto {
         private List<String> images;
     }
 
+    //게시글 상세 조회
+    @Data
+    public static class GetToktokResponse {
+        // user
+        private String profileImage;
+        private String nickname;
+        private Integer level;
+
+        // toktok
+        private Integer category;
+        private String content;
+        private LinkDto.Response link;
+        private List<String> tag;
+        private List<String> images;
+
+        // vote
+        private String voteTitle;
+        private Boolean voteIsEnd;
+        private Integer votePeople;  // 투표 총 참여자 수
+        private Boolean voteIsSingle;
+        private List<String> voteOption;
+        private List<String> voteSelect;
+        private List<Integer> votePeopleEachOption;
+
+        // etc
+        private Boolean writerOrNot;  // 작성자인지 여부
+        private Long likedCount;
+        private Boolean likeOrNot;
+        private Boolean followOrNot;
+        private Long scrapCount;
+        private Long commentCount;
+        private String datetime;
+        private Long view;
+
+    }
+
 
 }

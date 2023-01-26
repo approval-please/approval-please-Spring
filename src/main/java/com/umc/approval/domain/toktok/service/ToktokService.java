@@ -1,12 +1,16 @@
 package com.umc.approval.domain.toktok.service;
 
 
+import com.umc.approval.domain.comment.entity.CommentRepository;
+import com.umc.approval.domain.follow.entity.FollowRepository;
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
+import com.umc.approval.domain.like.entity.LikeRepository;
 import com.umc.approval.domain.link.dto.LinkDto;
 import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.entity.LinkRepository;
 import com.umc.approval.domain.report.dto.ReportDto;
+import com.umc.approval.domain.scrap.entity.ScrapRepository;
 import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.tag.entity.TagRepository;
 import com.umc.approval.domain.toktok.dto.ToktokDto;
@@ -14,6 +18,7 @@ import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.toktok.entity.ToktokRepository;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
+import com.umc.approval.domain.vote.entity.UserVoteRepository;
 import com.umc.approval.domain.vote.entity.Vote;
 import com.umc.approval.domain.vote.entity.VoteOption;
 import com.umc.approval.domain.vote.entity.VoteOptionRepository;
@@ -21,6 +26,8 @@ import com.umc.approval.domain.vote.entity.VoteRepository;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import com.umc.approval.global.type.CategoryType;
+import java.util.Collections;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +53,11 @@ public class ToktokService {
     private final TagRepository tagRepository;
     private final ImageRepository imageRepository;
     private final EntityManager entityManager;
+    private final LikeRepository likeRepository;
+    private final FollowRepository followRepository;
+    private final ScrapRepository scrapRepository;
+    private final CommentRepository commentRepository;
+    private final UserVoteRepository userVoteRepository;
 
     public void createPost(ToktokDto.PostToktokRequest request) {
         User user = certifyUser();
@@ -92,6 +104,58 @@ public class ToktokService {
                 imageRepository.save(uploadImg);
             }
         }
+    }
+
+    public void getToktok(Long toktokId) {
+        toktokRepository.updateView(toktokId);
+
+        // 결재톡톡 정보
+        Toktok toktok = findToktok(toktokId);
+        User user = certifyUser();
+        List<String> tags = tagRepository.findTagNameListByToktokId(toktokId);
+        List<String> images = imageRepository.findImageUrlListBytoktokId(toktokId);
+        List<Link> reportLinkList = linkRepository.findByToktokId(toktokId);
+        List<LinkDto.Response> linkResponse;
+        linkResponse = reportLinkList.stream().map(LinkDto.Response::fromEntity).collect(Collectors.toList());
+
+        // 좋아요, 스크랩, 댓글 수
+        Long likedCount = likeRepository.countByToktok(toktok);
+        Long commentCount = commentRepository.countByToktokId(toktok.getId());
+        Long scrapCount = scrapRepository.countByToktok(toktok);
+        Long likeReportOrNot = likeRepository.countByUserAndToktok(user, toktok);
+        Boolean likeOrNot = true;
+        Boolean followOrNot = true;
+
+        // 투표 정보
+        Vote vote = voteRepository.findById(toktok.getVote().getId()).get();
+        List<String> voteOption = voteOptionRepository.findOptionListByVote(vote);
+        List<String> voteSelect = userVoteRepository.findUserVoteOption(vote.getId());
+        Integer votePeople = userVoteRepository.findVotePeople(vote.getId());  // 투표 총 참여자 수
+        List<Integer> votePeopleEachOption = Collections
+            .singletonList(userVoteRepository.findVotePeople(vote.getId()));
+
+        // 게시글 조회한 유저가 게시글 작성자인지 여부
+        Boolean writerOrNot = false;
+        if (user == toktok.getUser()) {
+            writerOrNot = true;
+        }
+
+        // 해당 유저가 게시글을 눌렀는지 여부
+        if(likeReportOrNot == 0) {
+            likeOrNot = false;
+        }
+
+        // 게시글 상세 조회를 한 유저가 글을 쓴 유저를 팔로우 했는지 여부
+        Long from_userId = user.getId();
+        Long to_userId = toktok.getUser().getId();
+        Integer follow = followRepository.countFollowOrNot(from_userId, to_userId);
+        if (from_userId == to_userId) {
+            followOrNot = null;
+        } else if(follow == 0) {
+            followOrNot = false;
+        }
+
+
     }
 
     public void updatePost(Long id, ToktokDto.PostToktokRequest request) {

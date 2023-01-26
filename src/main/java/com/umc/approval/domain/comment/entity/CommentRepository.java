@@ -27,4 +27,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
 
     @Query(value = "select count(*) from comment where report_id = :report_id and comment.is_deleted = 0", nativeQuery = true)
     Long countByReportId(@Param("report_id") Long reportId);
+
+    @Query(value = "select count(*) from comment where toktok_id = :toktok_id and comment.is_deleted = 0", nativeQuery = true)
+    Long countByToktokId(@Param("toktok_id") Long toktokId);
+
 }

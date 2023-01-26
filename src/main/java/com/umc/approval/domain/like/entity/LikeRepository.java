@@ -1,6 +1,7 @@
 package com.umc.approval.domain.like.entity;
 
 import com.umc.approval.domain.report.entity.Report;
+import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,5 +22,10 @@ public interface LikeRepository extends JpaRepository<Like, Long>, LikeRepositor
 
     Long countByReport(Report report);
 
+    Long countByToktok(Toktok toktok);
+
     Long countByUserAndReport(User user, Report report);
+
+    Long countByUserAndToktok(User user, Toktok toktok);
+
 }
