@@ -19,6 +19,7 @@ public class FollowDto {
         }
     }
 
+    @Data
     public static class FollowingListResponse {
         // follow
         private Integer level;

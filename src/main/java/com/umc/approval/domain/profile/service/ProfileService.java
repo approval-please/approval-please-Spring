@@ -195,6 +195,7 @@ public class ProfileService {
         public JSONObject findMyFollowings () {
             User user = certifyUser(null);
             List<Follow> followings;
+            Boolean isFollow;
 
             followings = followRepository.findMyFollowings(user.getId());
 
@@ -204,12 +205,13 @@ public class ProfileService {
 
             JSONObject result = new JSONObject();
 
-            List<FollowDto.FollowListResponse> response = followings.stream()
-                    .map(follow ->
-                            new FollowDto.FollowListResponse(
-                                    follow.getToUser().getLevel(),
-                                    follow.getToUser().getNickname(),
-                                    follow.getToUser().getProfileImage()))
+            List<FollowDto.FollowingListResponse> response = followings.stream()
+                    .map(following ->
+                            new FollowDto.FollowingListResponse(
+                                    following.getToUser().getLevel(),
+                                    following.getToUser().getNickname(),
+                                    following.getToUser().getProfileImage(),
+                                    isFollow(following.getToUser().getId(), user.getId())))
                     .collect(Collectors.toList());
 
             result.put("nickname", user.getNickname());
@@ -230,5 +232,16 @@ public class ProfileService {
             String image = request.getImage();
 
             user.update(nickname, introduction, image);
+        }
+
+        // 내 팔로잉 사용자가 나를 팔로우 하는지
+        public Boolean isFollow (Long fromUserId, Long toUserId) {
+            Integer isfollow = followRepository.countFollowOrNot(fromUserId, toUserId);
+
+            if(isfollow == 0) {
+                return false;
+            } else {
+                return true;
+            }
         }
 }
