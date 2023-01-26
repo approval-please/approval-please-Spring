@@ -13,6 +13,7 @@ import java.util.List;
 
 import static com.umc.approval.domain.comment.entity.QComment.comment;
 
+
 public class CommentRepositoryImpl implements CommentRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
