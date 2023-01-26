@@ -7,6 +7,8 @@ spring:
     url: jdbc:mysql://localhost:3306/approval?characterEncoding=UTF-8&serverTimezone=UTC
     username: approval
     password: 1234
+  config:
+    use-legacy-processing: true
 
   # Spring Multipart
   servlet:
@@ -22,6 +24,12 @@ spring:
         show_sql: true
         format_sql: true
         default_batch_fetch_size: 100
+
+# Ncloud SMS API
+accessKey: none
+secretKey: none
+serviceId: none
+senderPhone: none
 
 # Logging level
 logging:

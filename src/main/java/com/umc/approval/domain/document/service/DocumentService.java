@@ -270,9 +270,8 @@ public class DocumentService {
         }
     }
 
-    public DocumentDto.SearchResponse search(
-            String query, Integer category, Integer state, Integer sortBy, Pageable pageable
-    ) {
-        return null;
+    public DocumentDto.SearchResponse search(String query, Integer isTag, Integer category, Integer state, Integer sortBy, Pageable pageable) {
+        Page<Document> documents = documentRepository.findAllByQuery(query, isTag, category, state, sortBy, pageable);
+        return DocumentDto.SearchResponse.from(documents);
     }
 }

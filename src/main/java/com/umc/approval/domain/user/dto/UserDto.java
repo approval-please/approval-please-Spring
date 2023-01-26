@@ -25,6 +25,8 @@ public class UserDto {
     @AllArgsConstructor
     public static class EmailCheckResponse {
         private Integer status;
+        private String email;
+        private SocialType socialType;
     }
 
     @Getter

@@ -5,5 +5,5 @@ import org.springframework.data.domain.Pageable;
 
 public interface DocumentRepositoryCustom {
 
-    Page<Document> findAllByQuery(String query, Integer category, Integer state, Integer sortBy, Pageable pageable);
+    Page<Document> findAllByQuery(String query, Integer isTag, Integer category, Integer state, Integer sortBy, Pageable pageable);
 }
