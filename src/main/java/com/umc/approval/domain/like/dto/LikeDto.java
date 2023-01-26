@@ -27,7 +27,7 @@ public class LikeDto {
         private Integer likeCount;
         private List<Response> content;
 
-        public static ListResponse from(List<Like> page, List<Response> content) {
+        public static ListResponse from(List<Response> content) {
             return ListResponse.builder()
                     .likeCount(content.size())
                     .content(content)

@@ -10,7 +10,6 @@ import com.umc.approval.domain.like.entity.LikeRepository;
 import com.umc.approval.domain.link.dto.LinkDto;
 import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.entity.LinkRepository;
-import com.umc.approval.domain.report.dto.ReportDto;
 import com.umc.approval.domain.scrap.entity.Scrap;
 import com.umc.approval.domain.scrap.entity.ScrapRepository;
 import com.umc.approval.domain.tag.entity.Tag;
@@ -20,11 +19,7 @@ import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.toktok.entity.ToktokRepository;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
-import com.umc.approval.domain.vote.entity.UserVoteRepository;
-import com.umc.approval.domain.vote.entity.Vote;
-import com.umc.approval.domain.vote.entity.VoteOption;
-import com.umc.approval.domain.vote.entity.VoteOptionRepository;
-import com.umc.approval.domain.vote.entity.VoteRepository;
+import com.umc.approval.domain.vote.entity.*;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import com.umc.approval.global.type.CategoryType;
@@ -83,7 +78,7 @@ public class ToktokService {
 
         toktokRepository.save(toktok);
 
-         //링크 등록
+        //링크 등록
         if (request.getLink() != null && !request.getLink().isEmpty()) {
             List<LinkDto.Request> linkList = request.getLink();
             createLink(linkList, toktok);
@@ -211,19 +206,19 @@ public class ToktokService {
 
         //좋아요 삭제
         List<Like> likes = likeRepository.findByToktokId(toktokId);
-        if(likes != null) {
+        if (likes != null) {
             likeRepository.deleteAll(likes);
         }
 
         // 스크랩 삭제
         List<Scrap> scraps = scrapRepository.findByToktokId(toktokId);
-        if(scraps != null) {
+        if (scraps != null) {
             scrapRepository.deleteAll(scraps);
         }
 
         // 댓글 삭제
         List<Comment> comments = commentRepository.findByToktokId(toktokId);
-        if(comments != null) {
+        if (comments != null) {
             commentRepository.deleteAll(comments);
         }
 
@@ -243,6 +238,12 @@ public class ToktokService {
         }
 
         toktokRepository.deleteById(toktokId);
+    }
+
+    @Transactional(readOnly = true)
+    public ToktokDto.SearchResponse search(String query, Integer isTag, Integer category, Integer sortBy) {
+        List<Toktok> toktoks = toktokRepository.findAllByQuery(query, isTag, category, sortBy);
+        return ToktokDto.SearchResponse.from(toktoks);
     }
 
     public CategoryType viewCategory(int category) {
@@ -302,5 +303,4 @@ public class ToktokService {
                 .orElseThrow(() -> new CustomException(TOKTOKPOST_NOT_FOUND));
         return toktok;
     }
-
 }

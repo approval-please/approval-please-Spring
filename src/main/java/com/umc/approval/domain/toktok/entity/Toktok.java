@@ -1,6 +1,11 @@
 package com.umc.approval.domain.toktok.entity;
 
 import com.umc.approval.domain.BaseTimeEntity;
+import com.umc.approval.domain.image.entity.Image;
+import com.umc.approval.domain.like.entity.Like;
+import com.umc.approval.domain.link.entity.Link;
+import com.umc.approval.domain.scrap.entity.Scrap;
+import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.toktok.dto.ToktokDto;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.vote.entity.Vote;
@@ -11,6 +16,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+
+import java.util.List;
 
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.FetchType.LAZY;
@@ -51,6 +58,21 @@ public class Toktok extends BaseTimeEntity {
 
     @Column(nullable = false)
     private boolean notification;
+
+    @OneToMany(fetch = LAZY, mappedBy = "toktok")
+    private List<Tag> tags;
+
+    @OneToMany(fetch = LAZY, mappedBy = "toktok")
+    private List<Link> links;
+
+    @OneToMany(fetch = LAZY, mappedBy = "toktok")
+    private List<Like> likes;
+
+    @OneToMany(fetch = LAZY, mappedBy = "toktok")
+    private List<Scrap> scraps;
+
+    @OneToMany(fetch = LAZY, mappedBy = "toktok")
+    private List<Image> images;
 
     public void update(ToktokDto.PostToktokRequest request, CategoryType categoryType, Vote vote) {
         this.category = categoryType;
