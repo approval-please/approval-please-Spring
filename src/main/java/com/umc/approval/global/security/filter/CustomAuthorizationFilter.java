@@ -43,6 +43,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                         || pathMatcher.match("/documents/**", path) && request.getMethod().equals("POST")
                         || pathMatcher.match("/documents/**", path) && request.getMethod().equals("DELETE")
                         || pathMatcher.match("/documents/**", path) && request.getMethod().equals("PUT")
+                        || pathMatcher.match("/documents/likes/**", path) && request.getMethod().equals("GET")
                         || pathMatcher.match("/community/toktoks/**", path) && request.getMethod().equals("POST")
                         || pathMatcher.match("/community/toktoks/**", path) && request.getMethod().equals("PUT")
                         || pathMatcher.match("/community/toktoks/**", path) && request.getMethod().equals("DELETE")
