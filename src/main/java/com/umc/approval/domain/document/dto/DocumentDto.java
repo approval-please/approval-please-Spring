@@ -166,10 +166,10 @@ public class DocumentDto {
         private Integer documentCount;
         private List<SearchListResponse> content;
 
-        public static SearchResponse from(List<Document> page) {
+        public static SearchResponse from(List<Document> documents) {
             return SearchResponse.builder()
-                    .documentCount(page.size())
-                    .content(page.stream().map(SearchListResponse::fromEntity).collect(Collectors.toList()))
+                    .documentCount(documents.size())
+                    .content(documents.stream().map(SearchListResponse::fromEntity).collect(Collectors.toList()))
                     .build();
         }
     }

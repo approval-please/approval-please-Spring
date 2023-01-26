@@ -1,20 +1,17 @@
 package com.umc.approval.domain.toktok.dto;
 
-import java.util.List;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.link.dto.LinkDto;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.w3c.dom.stylesheets.LinkStyle;
+import com.umc.approval.domain.tag.entity.Tag;
+import com.umc.approval.domain.toktok.entity.Toktok;
+import com.umc.approval.domain.vote.entity.Vote;
+import com.umc.approval.domain.vote.entity.VoteOption;
+import com.umc.approval.global.util.DateUtil;
+import lombok.*;
+
+import javax.validation.constraints.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class ToktokDto {
@@ -50,5 +47,104 @@ public class ToktokDto {
         private List<String> images;
     }
 
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class SearchResponse {
+        private Integer toktokCount;
+        private List<SearchListResponse> content;
 
+        public static SearchResponse from(List<Toktok> toktoks) {
+            return SearchResponse.builder()
+                    .toktokCount(toktoks.size())
+                    .content(toktoks.stream().map(SearchListResponse::fromEntity).collect(Collectors.toList()))
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class SearchListResponse {
+        private Long toktokId;
+        private Integer category;
+        private Long userId;
+        private String nickname;
+        private Integer userLevel;
+        private String profileImage;
+        private Integer likeCount;
+        private Integer scrapCount;
+        private Long view;
+        private String content;
+        private List<String> tag;
+        private List<String> images;
+        private LinkDto.Response link;
+        private String datetime;
+        private VoteResponse vote;
+
+        public static SearchListResponse fromEntity(Toktok toktok) {
+            return SearchListResponse.builder()
+                    .toktokId(toktok.getId())
+                    .category(toktok.getCategory().getValue())
+                    .userId(toktok.getUser().getId())
+                    .nickname(toktok.getUser().getNickname())
+                    .userLevel(toktok.getUser().getLevel())
+                    .profileImage(toktok.getUser().getProfileImage())
+                    .likeCount(toktok.getLikes() == null ? 0 : toktok.getLikes().size())
+                    .scrapCount(toktok.getScraps() == null ? 0 : toktok.getScraps().size())
+                    .view(toktok.getView())
+                    .content(toktok.getContent())
+                    .tag(toktok.getTags() == null ? null :
+                            toktok.getTags().stream().map(Tag::getTag).collect(Collectors.toList()))
+                    .images(toktok.getImages() == null ? null :
+                            toktok.getImages().stream().map(Image::getImageUrl).collect(Collectors.toList()))
+                    .link((toktok.getLinks() == null || toktok.getLinks().isEmpty()) ? null :
+                            LinkDto.Response.fromEntity(toktok.getLinks().get(0)))
+                    .datetime(DateUtil.convert(toktok.getCreatedAt()))
+                    .vote(toktok.getVote() == null ? null : VoteResponse.fromEntity(toktok.getVote()))
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class VoteResponse {
+        private Long voteId;
+        private String title;
+        private Boolean isEnd;
+        private Boolean isSingle;
+        private Boolean isAnonymous;
+        private Integer voteUserCount;
+        private List<VoteOptionResponse> voteOptions;
+
+        public static VoteResponse fromEntity(Vote vote) {
+            return VoteResponse.builder()
+                    .voteId(vote.getId())
+                    .title(vote.getTitle())
+                    .isEnd(vote.getIsEnd())
+                    .isSingle(vote.getIsSingle())
+                    .isAnonymous(vote.getIsAnonymous())
+                    .voteUserCount(vote.getUserVotes() == null ? 0 : vote.getUserVotes().size())
+                    .voteOptions(vote.getVoteOptions().stream()
+                            .map(VoteOptionResponse::fromEntity).collect(Collectors.toList())
+                    )
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class VoteOptionResponse {
+        private Long voteOptionId;
+        private String opt;
+
+        public static VoteOptionResponse fromEntity(VoteOption voteOption) {
+            return VoteOptionResponse.builder()
+                    .voteOptionId(voteOption.getId())
+                    .opt(voteOption.getOpt())
+                    .build();
+        }
+    }
 }

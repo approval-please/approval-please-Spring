@@ -33,10 +33,10 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
             return queryFactory
                     .select(document)
                     .from(tag1)
-                    .leftJoin(tag1.document, document)
-                    .leftJoin(document.likes).fetchJoin()
+                    .innerJoin(tag1.document, document)
+                    .leftJoin(document.likes)
                     .leftJoin(document.tags)
-                    .join(document.link).fetchJoin()
+                    .leftJoin(document.link).fetchJoin()
                     .leftJoin(document.approvals)
                     .leftJoin(document.images)
                     .where(
@@ -50,7 +50,7 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
         } else {
             return queryFactory
                     .selectFrom(document)
-                    .leftJoin(document.likes).fetchJoin()
+                    .leftJoin(document.likes)
                     .leftJoin(document.tags)
                     .leftJoin(document.link).fetchJoin()
                     .leftJoin(document.approvals)
@@ -74,10 +74,10 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
             documents = queryFactory
                     .select(document)
                     .from(tag1)
-                    .leftJoin(tag1.document, document)
+                    .innerJoin(tag1.document, document)
                     .leftJoin(document.likes)
                     .leftJoin(document.tags)
-                    .join(document.link).fetchJoin()
+                    .leftJoin(document.link).fetchJoin()
                     .leftJoin(document.approvals)
                     .leftJoin(document.images)
                     .where(

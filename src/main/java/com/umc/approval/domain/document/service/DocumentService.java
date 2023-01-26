@@ -270,6 +270,7 @@ public class DocumentService {
         }
     }
 
+    @Transactional(readOnly = true)
     public DocumentDto.SearchResponse search(String query, Integer isTag, Integer category, Integer state, Integer sortBy) {
         List<Document> documents = documentRepository.findAllByQuery(query, isTag, category, state, sortBy);
         return DocumentDto.SearchResponse.from(documents);

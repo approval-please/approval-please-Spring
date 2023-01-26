@@ -69,7 +69,7 @@ public class LikeService {
                     .map(l -> LikeDto.Response.fromEntity(l, false))
                     .collect(Collectors.toList());
         }
-        return LikeDto.ListResponse.from(likes, response);
+        return LikeDto.ListResponse.from(response);
     }
 
     public LikeDto.UpdateResponse like(LikeDto.Request requestDto) {

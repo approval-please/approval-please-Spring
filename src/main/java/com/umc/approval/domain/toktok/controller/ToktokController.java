@@ -41,7 +41,7 @@ public class ToktokController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<DocumentDto.SearchResponse> search(
+    public ResponseEntity<ToktokDto.SearchResponse> search(
             @RequestParam("query") String query,
             @RequestParam("isTag") Integer isTag,
             @RequestParam(value = "category", required = false) Integer category,
