@@ -199,6 +199,8 @@ public class DocumentService {
             CategoryType categoryType = findCategory(category);
             if (likedCategoryList.contains(categoryType)){
                 documents = documentRepository.findAllByCategory(categoryType);
+            }else{
+                throw new CustomException(NOT_LIKED_CATEGORY);
             }
         }
 
