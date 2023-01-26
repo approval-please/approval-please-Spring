@@ -52,6 +52,13 @@ public class DocumentController {
         return ResponseEntity.ok().body(documentService.getDocumentList(page, category));
     }
 
+    @GetMapping("/likes")
+    public ResponseEntity<DocumentDto.GetDocumentListResponse> getLikedLDocumentList(
+            @RequestParam("page") Integer page,
+            @RequestParam(value = "category", required = false) Integer category){
+        return ResponseEntity.ok().body(documentService.getLikedDocumentList(page, category));
+    }
+
     @GetMapping("/search")
     public ResponseEntity<DocumentDto.SearchResponse> search(
             @RequestParam("query") String query,
