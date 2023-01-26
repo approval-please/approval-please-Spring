@@ -62,9 +62,6 @@ public interface DocumentRepository extends JpaRepository<Document, Long>, Docum
     List<Document> findAllByStateApproval(@Param("userId") Long userId,
                                           @Param("state") Integer state, @Param("isApproved") Boolean isApproved); // 사용자가 결재한 결재서류 상태별 & 승인별 조회
 
-    @Query(value = "select d from Document d where d.category = :category")
-    Page<Document> findAllByCategory(@Param("category") CategoryType categoryType, Pageable pageable);
-
     @Query("select distinct d from Document d " +
             "left join d.tags t " +
             "left join d.images i " +

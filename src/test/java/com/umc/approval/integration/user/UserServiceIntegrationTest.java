@@ -1,5 +1,7 @@
 package com.umc.approval.integration.user;
 
+import com.umc.approval.domain.cert.entity.Cert;
+import com.umc.approval.domain.cert.entity.CertRepository;
 import com.umc.approval.domain.user.dto.UserDto;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
@@ -37,6 +39,9 @@ public class UserServiceIntegrationTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    CertRepository certRepository;
 
     @Autowired
     JwtService jwtService;
@@ -129,7 +134,11 @@ public class UserServiceIntegrationTest {
 
         // given
         UserDto.SnsRequest requestDto = new UserDto.SnsRequest(
-                "test", "test@test.com", "010-1234-5678", KAKAO, 12345L);
+                "test", "test@test.com", "01012345678", KAKAO, 12345L);
+        certRepository.save(Cert.builder()
+                        .certNumber("123456")
+                .phoneNumber(requestDto.getPhoneNumber())
+                .isChecked(true).build());
 
         // when
         userService.snsSignup(requestDto);
@@ -149,7 +158,12 @@ public class UserServiceIntegrationTest {
         User user = createUser(1L);
         userRepository.save(user);
         UserDto.SnsRequest requestDto = new UserDto.SnsRequest(
-                "test", user.getEmail(), "010-1234-5678", KAKAO, 12345L);
+                "test", user.getEmail(), "01012345678", KAKAO, 12345L);
+        certRepository.save(Cert.builder()
+                .certNumber("123456")
+                .phoneNumber(requestDto.getPhoneNumber())
+                .isChecked(true)
+                .build());
 
         // when & then
         CustomException e = assertThrows(CustomException.class, () -> userService.snsSignup(requestDto));
@@ -165,6 +179,11 @@ public class UserServiceIntegrationTest {
         userRepository.save(user);
         UserDto.SnsRequest requestDto = new UserDto.SnsRequest(
                 "test", "test@test.com", user.getPhoneNumber(), KAKAO, 12345L);
+        certRepository.save(Cert.builder()
+                .certNumber("123456")
+                .phoneNumber(requestDto.getPhoneNumber())
+                .isChecked(true)
+                .build());
 
         // when & then
         CustomException e = assertThrows(CustomException.class, () -> userService.snsSignup(requestDto));
