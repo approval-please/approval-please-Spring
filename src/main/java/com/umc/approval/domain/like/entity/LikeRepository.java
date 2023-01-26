@@ -26,4 +26,7 @@ public interface LikeRepository extends JpaRepository<Like, Long>, LikeRepositor
     List<Like> findByReportId(Long reportId);
 
     List<Like> findByToktokId(Long toktokId);
+
+    List<Like> findByDocumentId(Long documentId);
+
 }

@@ -1,6 +1,7 @@
 package com.umc.approval.domain.document.service;
 
 import com.umc.approval.domain.approval.entity.ApprovalRepository;
+import com.umc.approval.domain.comment.entity.Comment;
 import com.umc.approval.domain.comment.entity.CommentRepository;
 import com.umc.approval.domain.document.dto.DocumentDto;
 import com.umc.approval.domain.document.entity.Document;
@@ -13,6 +14,8 @@ import com.umc.approval.domain.like_category.entity.LikeCategory;
 import com.umc.approval.domain.like_category.entity.LikeCategoryRepository;
 import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.entity.LinkRepository;
+import com.umc.approval.domain.scrap.entity.Scrap;
+import com.umc.approval.domain.scrap.entity.ScrapRepository;
 import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.tag.entity.TagRepository;
 import com.umc.approval.domain.user.entity.User;
@@ -52,6 +55,7 @@ public class DocumentService {
     private final CommentRepository commentRepository;
     private final ApprovalRepository approvalRepository;
     private final LikeCategoryRepository likeCategoryRepository;
+    private final ScrapRepository scrapRepository;
 
     public void createDocument(DocumentDto.DocumentRequest request) {
         User user = certifyUser();
@@ -150,6 +154,24 @@ public class DocumentService {
 
         // link 삭제
         linkRepository.findByDocumentId(documentId).ifPresent(linkRepository::delete);
+
+        // 댓글 삭제
+        List<Comment> commentList = commentRepository.findByDocumentId(documentId);
+        if (commentList != null) {
+            commentRepository.deleteAll(commentList);
+        }
+
+        // 좋아요 삭제
+        List<Like> likedList = likeRepository.findByDocumentId(documentId);
+        if (likedList != null) {
+            likeRepository.deleteAll(likedList);
+        }
+
+        // 스크랩 삭제
+        List<Scrap> scrapList = scrapRepository.findByDocumentId(documentId);
+        if (scrapList != null) {
+            scrapRepository.deleteAll(scrapList);
+        }
 
         // document 삭제
         documentRepository.deleteById(documentId);
@@ -258,9 +280,7 @@ public class DocumentService {
     private void deleteTag(Long documentId) {
         List<Tag> tagList = tagRepository.findByDocumentId(documentId);
         if (tagList != null) {
-            for (Tag tag : tagList) {
-                tagRepository.deleteById(tag.getId());
-            }
+            tagRepository.deleteAll(tagList);
         }
     }
 
