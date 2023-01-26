@@ -110,15 +110,9 @@ public class DocumentDto {
 
     @Data
     public static class GetDocumentListResponse {
-        private Integer page;
-        private Integer totalPage;
-        private Long totalElement;
         private List<DocumentDto.DocumentListResponse> content;
 
-        public GetDocumentListResponse(Page<Document> documents, List<DocumentDto.DocumentListResponse> content){
-            this.page = documents.getNumber();
-            this.totalPage = documents.getTotalPages();
-            this.totalElement = documents.getTotalElements();
+        public GetDocumentListResponse(List<DocumentDto.DocumentListResponse> content){
             this.content = content;
         }
     }
