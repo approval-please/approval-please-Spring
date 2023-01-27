@@ -58,6 +58,8 @@ public class DocumentDto {
     // 결재서류 상세 조회
     @Data
     public static class GetDocumentResponse{
+        private Long documentId;
+
         // user
         private String profileImage;
         private String nickname;
@@ -90,6 +92,7 @@ public class DocumentDto {
             this.nickname = user.getNickname();
             this.level = user.getLevel();
 
+            this.documentId = document.getId();
             this.category = document.getCategory().getValue();
             this.title = document.getTitle();
             this.content = document.getContent();
@@ -121,6 +124,7 @@ public class DocumentDto {
     @Data
     public static class DocumentListResponse {
         // document
+        private Long documentId;
         private Integer category;
         private String title;
         private String content;
@@ -139,6 +143,7 @@ public class DocumentDto {
 
         // Entity -> DTO
         public DocumentListResponse(Document document, List<Tag> tagNameList, List<Image> imageList, List<Approval> approvalList) {
+            this.documentId = document.getId();
             this.category = document.getCategory().getValue();
             this.title = document.getTitle();
             this.content = document.getContent();
