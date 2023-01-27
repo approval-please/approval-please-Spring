@@ -118,7 +118,7 @@ public class ToktokService {
         linkResponse = reportLinkList.stream().map(LinkDto.Response::fromEntity).collect(Collectors.toList());
         Boolean isModified = true;
         // 게시글이 수정된 적이 있는 확인
-        if (toktok.getCreatedAt() != toktok.getModifiedAt()) {
+        if (toktok.getCreatedAt() == toktok.getModifiedAt()) {
             isModified = false;
         }
 
