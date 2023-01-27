@@ -84,7 +84,7 @@ public class ToktokDto {
         private Boolean voteIsSingle;
         private List<String> voteOption;
         private List<String> voteSelect;
-        private List<Integer> votePeopleEachOption;
+        private List<Long> votePeopleEachOption;
 
         // etc
         private Boolean writerOrNot;  // 작성자인지 여부
@@ -100,7 +100,7 @@ public class ToktokDto {
             List<String> images, List<LinkDto.Response> linkResponse, Long likedCount,
             Long commentCount, Long scrapCount, Boolean likeOrNot,
             Boolean followOrNot, List<String> voteOption, List<String> voteSelect,
-            Integer votePeople, List<Integer> votePeopleEachOption, Boolean writerOrNot) {
+            Integer votePeople, List<Long> votePeopleEachOption, Boolean writerOrNot) {
             this.profileImage = user.getProfileImage();
             this.level = user.getLevel();
             this.nickname = user.getNickname();
