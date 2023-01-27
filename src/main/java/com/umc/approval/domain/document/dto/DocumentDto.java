@@ -82,12 +82,15 @@ public class DocumentDto {
         private Integer likedCount;
         private Integer commentCount;
         private String datetime;
+        private boolean isModified;
         private Long view;
 
 
         // Entity -> DTO
-        public GetDocumentResponse(Document document, User user, List<String> tagNameList, List<String> imageUrlList,
-                                   Link link, int approveCount, int rejectCount, int likedCount, int commentCount) {
+        public GetDocumentResponse(Document document, User user,
+                                   List<String> tagNameList, List<String> imageUrlList,
+                                   Link link, int approveCount, int rejectCount,
+                                   int likedCount, int commentCount, boolean isModified) {
             this.profileImage = user.getProfileImage();
             this.nickname = user.getNickname();
             this.level = user.getLevel();
@@ -107,6 +110,7 @@ public class DocumentDto {
             this.likedCount = likedCount;
             this.commentCount = commentCount;
             this.datetime = DateUtil.convert(document.getCreatedAt());
+            this.isModified = isModified;
             this.view = document.getView();
         }
     }

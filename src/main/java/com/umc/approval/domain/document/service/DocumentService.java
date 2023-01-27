@@ -104,8 +104,11 @@ public class DocumentService {
         int likedCount = likeRepository.countByDocumentId(documentId);
         int commentCount = commentRepository.countByDocumentId(documentId);
 
+        // 게시글 수정 유무
+        boolean isModified = document.getCreatedAt().isEqual(document.getModifiedAt()) ? false : true;
+
         return new DocumentDto.GetDocumentResponse(document, user, tagNameList, imageUrlList, link,
-                approveCount, rejectCount, likedCount, commentCount);
+                approveCount, rejectCount, likedCount, commentCount, isModified);
     }
 
     public void updateDocument(Long documentId, DocumentDto.DocumentRequest request) {
