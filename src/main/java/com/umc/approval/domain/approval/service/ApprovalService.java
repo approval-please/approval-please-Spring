@@ -13,7 +13,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.umc.approval.global.exception.CustomErrorType.*;
 
@@ -40,6 +43,9 @@ public class ApprovalService {
                 if(isApproved == 0){
                     Approval approval = request.toEntity(user, document);
                     approvalRepository.save(approval);
+
+                    // 포인트 적립
+                    userRepository.updatePoint(user.getId(), 50L);
                 }else{
                     throw new CustomException(APPROVAL_ALREADY_EXISTS);
                 }
@@ -61,10 +67,16 @@ public class ApprovalService {
         if(document.getUser().getId() == user.getId()){ // 내 게시글인 경우
             if(document.getState() == 2){ // 승인 대기 중인 경우
                 if(request.getIsApprove() == true){ // 최종 승인 처리
-                    documentRepository.updateStateApproved(document.getId());
+                    documentRepository.updateState(document.getId(), 0);
                 }else{
-                    documentRepository.updateStateRejected(document.getId());
+                    documentRepository.updateState(document.getId(), 1);
                 }
+
+                // 작성자 포인트 적립
+                userRepository.updatePoint(user.getId(), 100L);
+                // 결재 참여자 포인트 적립
+                List<Long> userIdList = approvalRepository.findByDocumentIdAndIsApprove(document.getId(), request.getIsApprove());
+                userRepository.updatePoint(userIdList, 100L);
             }else{
                 throw new CustomException(ALREADY_APPROVED);
             }

@@ -79,6 +79,9 @@ public class DocumentService {
         }
 
         createImages(request.getImages(), document);
+
+        // 포인트 적립
+        userRepository.updatePoint(user.getId(),100L);
     }
 
     public DocumentDto.GetDocumentResponse getDocument(Long documentId) {

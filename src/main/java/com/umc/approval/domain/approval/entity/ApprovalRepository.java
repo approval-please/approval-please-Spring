@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ApprovalRepository extends JpaRepository<Approval, Long> {
@@ -17,5 +18,8 @@ public interface ApprovalRepository extends JpaRepository<Approval, Long> {
 
     @Query(value = "select count(*) from approval where document_id = :document_id and is_approve = 0", nativeQuery = true)
     int countRejectByDocumentId(@Param("document_id") Long documentId);
+
+    @Query(value = "select user_id from approval where document_id = :document_id and is_approve = :is_approve", nativeQuery = true)
+    List<Long> findByDocumentIdAndIsApprove(@Param("document_id") Long documentId, @Param("is_approve") Boolean isApprove);
 
 }
