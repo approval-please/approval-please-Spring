@@ -157,8 +157,8 @@ public class ToktokService {
                 List<Long> voteOptionIds = vote.getVoteOptions().stream()
                         .map(VoteOption::getId).collect(Collectors.toList());
                 votePeopleEachOption = voteOptionIds.stream().map(id ->
-                                vote.getUserVotes().stream().
-                                        filter(uv ->
+                                vote.getUserVotes().stream()
+                                        .filter(uv ->
                                                 uv.getVoteOption().getId() == id)
                                         .count())
                         .collect(Collectors.toList());
