@@ -5,7 +5,7 @@ import com.umc.approval.domain.toktok.entity.Toktok;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ScrapRepository extends JpaRepository<Scrap, Long> {
+public interface ScrapRepository extends JpaRepository<Scrap, Long>, ScrapRepositoryCustom{
 
     Long countByReport(Report report);
 
