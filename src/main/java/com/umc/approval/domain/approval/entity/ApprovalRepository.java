@@ -22,4 +22,6 @@ public interface ApprovalRepository extends JpaRepository<Approval, Long> {
     @Query(value = "select user_id from approval where document_id = :document_id and is_approve = :is_approve", nativeQuery = true)
     List<Long> findByDocumentIdAndIsApprove(@Param("document_id") Long documentId, @Param("is_approve") Boolean isApprove);
 
+    @Query(value = "select user_id from approval where document_id = :document_id", nativeQuery = true)
+    List<Long> findByDocumentId(@Param("document_id") Long documentId);
 }

@@ -2,6 +2,7 @@ package com.umc.approval.domain.report.service;
 
 import static com.umc.approval.global.exception.CustomErrorType.*;
 
+import com.umc.approval.domain.approval.entity.ApprovalRepository;
 import com.umc.approval.domain.comment.entity.Comment;
 import com.umc.approval.domain.comment.entity.CommentRepository;
 import com.umc.approval.domain.document.entity.Document;
@@ -63,6 +64,7 @@ public class ReportService {
     private final CommentRepository commentRepository;
     private final ScrapRepository scrapRepository;
     private final FollowRepository followRepository;
+    private final ApprovalRepository approvalRepository;
 
     public void createPost(ReportDto.ReportRequest request) {
 
@@ -97,6 +99,12 @@ public class ReportService {
 
         //이미지 등록
         createImages(request.getImages(), report);
+
+        // 작성자 포인트 적립
+        userRepository.updatePoint(document.getUser().getId(),500L);
+        // 결재 참여자 포인트 적립
+        List<Long> userIdList = approvalRepository.findByDocumentId(document.getId());
+        userRepository.updatePoint(userIdList, 200L);
     }
 
     // 결재서류 글 작성시 결재서류 선택 리스트
