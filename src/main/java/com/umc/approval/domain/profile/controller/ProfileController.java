@@ -1,7 +1,7 @@
 package com.umc.approval.domain.profile.controller;
 
+import com.umc.approval.domain.profile.dto.ProfileDto;
 import com.umc.approval.domain.profile.service.ProfileService;
-import com.umc.approval.domain.report.dto.ReportDto;
 import com.umc.approval.domain.user.dto.UserDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,19 +52,19 @@ public class ProfileController {
 
     // 실적 조회
     @GetMapping("/my/performances")
-    public JSONObject findPerformances () {
+    public JSONObject findPerformances() {
         return profileService.findPerformances();
     }
 
     // 팔로우 조회
     @GetMapping("/my/followers")
-    public JSONObject findMyFollowers () {
+    public JSONObject findMyFollowers() {
         return profileService.findMyFollowers();
     }
 
     // 팔로잉 조회
     @GetMapping("/my/followings")
-    public JSONObject findMyFollowings () {
+    public JSONObject findMyFollowings() {
         return profileService.findMyFollowings();
     }
 
@@ -73,5 +73,11 @@ public class ProfileController {
     public ResponseEntity<Void> updateProfile(@Valid @RequestBody UserDto.ProfileRequest request) {
         profileService.updateProfile(request);
         return ResponseEntity.ok().build();
+    }
+
+    // 사원 검색
+    @GetMapping("/search")
+    public ResponseEntity<ProfileDto.SearchResponse> search(@RequestParam("query") String query) {
+        return ResponseEntity.ok(profileService.search(query));
     }
 }
