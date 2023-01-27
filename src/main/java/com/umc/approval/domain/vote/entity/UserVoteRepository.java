@@ -13,12 +13,13 @@ public interface UserVoteRepository extends JpaRepository<UserVote, Long> {
 //    @Query(value = "select count(*) from user_vote where user_vote.vote_id = :vote_id group by user_vote.vote_option_id", nativeQuery = true)
 //    List<Integer> findPeopleEachOption(@Param("vote_id") Long voteId);
 
-    @Query(value = "select count(*) from UserVote u " +
-                   "right join u.voteOption o " +
-                   "join o.vote v " +
-                   "where v.id = :vote_id " +
-                   "group by o.id")
-    List<Integer> findPeopleEachOption(@Param("vote_id") Long voteId);
+
+//    @Query(value = "select count(*) from UserVote u "
+//        + "join u.vote v "
+//        + "right join u.voteOption vo "
+//        + "where v.id = :vote_id "
+//        + "group by vo.id")
+//    List<Integer> findPeopleEachOption(@Param("vote_id") Long voteId);
 
 
     @Query("select uv from UserVote uv " +

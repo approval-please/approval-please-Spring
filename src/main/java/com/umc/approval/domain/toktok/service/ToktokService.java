@@ -135,7 +135,7 @@ public class ToktokService {
         User writer = toktok.getUser();
 
         // 투표 정보
-        Vote vote = voteRepository.findById(toktok.getVote().getId()).get();
+        Vote vote = toktok.getVote();
         List<String> voteOption = voteOptionRepository.findOptionListByVote(vote.getId());
         List<String> voteSelect = null;
         Integer votePeople = userVoteRepository.findVotePeople(vote.getId());  // 투표 총 참여자 수
@@ -149,14 +149,12 @@ public class ToktokService {
         Boolean likeOrNot = true;
         Boolean followOrNot = true;
 
-
         if(userId != null) {
             //로그인 한 사용자
             User user = userRepository.findById(userId).get();
             if(toktok.getVote() != null) {
                 voteSelect = userVoteRepository.findAllByUserAndVote(user.getId(), toktok.getId())
                     .stream().map(uv -> uv.getVoteOption().getOpt()).collect(Collectors.toList());
-                votePeopleEachOption = userVoteRepository.findPeopleEachOption(vote.getId());
             }
         } else {
             return new ToktokDto.GetToktokResponse(writer, toktok, vote, tags,
