@@ -1,8 +1,11 @@
 package com.umc.approval.domain.toktok.controller;
 
+import com.umc.approval.domain.report.dto.ReportDto;
 import com.umc.approval.domain.document.dto.DocumentDto;
 import com.umc.approval.domain.toktok.dto.ToktokDto;
+import com.umc.approval.domain.toktok.dto.ToktokDto.GetToktokResponse;
 import com.umc.approval.domain.toktok.service.ToktokService;
+import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +27,12 @@ public class ToktokController {
         toktokService.createPost(request);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/{toktokId}")
+    public ResponseEntity<ToktokDto.GetToktokResponse> getToktok(HttpServletRequest request, @PathVariable("toktokId") Long id) {
+        return ResponseEntity.ok().body(toktokService.getToktok(id, request));
+    }
+
 
     @PutMapping("/{toktokId}")
     public ResponseEntity<Void> updatePost(

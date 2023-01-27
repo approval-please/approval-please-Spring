@@ -46,17 +46,10 @@ public class ReportDto {
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class ReportGetDocumentResponse {
 
-        private Integer page;
-        private Integer totalPage;
-        private Long totalElement;
         private List<DocumentListResponse> content;
 
-        public static ReportGetDocumentResponse from(Page<Document> page,
-            List<DocumentListResponse> content) {
+        public static ReportGetDocumentResponse from(List<DocumentListResponse> content) {
             return ReportGetDocumentResponse.builder()
-                .page(page.getNumber())
-                .totalPage(page.getTotalPages())
-                .totalElement(page.getTotalElements())
                 .content(content)
                 .build();
         }

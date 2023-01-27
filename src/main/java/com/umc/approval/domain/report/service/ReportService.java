@@ -100,22 +100,22 @@ public class ReportService {
     }
 
     // 결재서류 글 작성시 결재서류 선택 리스트
-    public ReportDto.ReportGetDocumentResponse selectDocument(Integer page) {
+    public ReportDto.ReportGetDocumentResponse selectDocument() {
         User user = certifyUser();
 
-        //페이징
-        Pageable pageable =
-            PageRequest.of(page, 20, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-        Page<Document> documents = documentRepository.findByUserId(user.getId(), pageable);
+        List<Document> documents = documentRepository.findByUserId(user.getId());
 
         // Dto로 변환
         List<ReportDto.DocumentListResponse> response;
-        response = documents.getContent().stream()
+
+        response = documents.stream()
+                .map(ReportDto.DocumentListResponse::fromEntity)
+                .collect(Collectors.toList());
+        response = documents.stream()
             .map(ReportDto.DocumentListResponse::fromEntity)
             .collect(Collectors.toList());
 
-        return ReportDto.ReportGetDocumentResponse.from(documents, response);
+        return ReportDto.ReportGetDocumentResponse.from(response);
     }
 
     public void updatePost(Long id, ReportDto.ReportRequest request) {
@@ -166,7 +166,7 @@ public class ReportService {
 
         Report report = findReport(reportId);
         Document document = report.getDocument();
-        User user = certifyUser();
+        User user = document.getUser();
 
         // 결재서류 정보
         List<String> documentTagList = tagRepository.findTagNameList(document.getId());
