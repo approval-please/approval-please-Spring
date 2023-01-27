@@ -82,8 +82,8 @@ public class ToktokDto {
         private Boolean voteIsEnd;
         private Integer votePeople;  // 투표 총 참여자 수
         private Boolean voteIsSingle;
-        private List<String> voteOption;
-        private List<String> voteSelect;
+        private List<VoteOptionResponse> voteOption;
+        private List<VoteOptionResponse> voteSelect;
         private List<Long> votePeopleEachOption;
 
         // etc
@@ -99,7 +99,7 @@ public class ToktokDto {
         public GetToktokResponse(User user, Toktok toktok, Vote vote, List<String> tags,
             List<String> images, List<LinkDto.Response> linkResponse, Long likedCount,
             Long commentCount, Long scrapCount, Boolean likeOrNot,
-            Boolean followOrNot, List<String> voteOption, List<String> voteSelect,
+            Boolean followOrNot, List<VoteOptionResponse> voteOption, List<VoteOptionResponse> voteSelect,
             Integer votePeople, List<Long> votePeopleEachOption, Boolean writerOrNot) {
             this.profileImage = user.getProfileImage();
             this.level = user.getLevel();

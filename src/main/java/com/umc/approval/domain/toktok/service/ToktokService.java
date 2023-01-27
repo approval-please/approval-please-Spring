@@ -125,10 +125,18 @@ public class ToktokService {
 
         // 투표 정보
         Vote vote = toktok.getVote();
-        List<String> voteOption = voteOptionRepository.findOptionListByVote(vote.getId());
-        List<String> voteSelect = null;
-        Integer votePeople = userVoteRepository.findVotePeople(vote.getId());  // 투표 총 참여자 수
+        List<ToktokDto.VoteOptionResponse> voteOption = null;
+        List<ToktokDto.VoteOptionResponse> voteSelect = null;
         List<Long> votePeopleEachOption = null;
+        Integer votePeople = null;
+        if (vote != null) {
+            voteOption = vote.getVoteOptions().stream()
+                    .map(ToktokDto.VoteOptionResponse::fromEntity)
+                    .collect(Collectors.toList());
+            votePeople = userVoteRepository.findVotePeople(vote.getId());  // 투표 총 참여자 수
+        }
+
+
 
         // 좋아요, 스크랩, 댓글 수
         Long likedCount = likeRepository.countByToktok(toktok);
@@ -141,9 +149,11 @@ public class ToktokService {
         if (userId != null) {
             //로그인 한 사용자
             User user = userRepository.findById(userId).get();
-            if (toktok.getVote() != null) {
+            if (vote != null) {
                 voteSelect = userVoteRepository.findAllByUserAndVote(user.getId(), toktok.getId())
-                        .stream().map(uv -> uv.getVoteOption().getOpt()).collect(Collectors.toList());
+                        .stream()
+                        .map(uv -> ToktokDto.VoteOptionResponse.fromEntity(uv.getVoteOption()))
+                        .collect(Collectors.toList());
                 List<Long> voteOptionIds = vote.getVoteOptions().stream()
                         .map(VoteOption::getId).collect(Collectors.toList());
                 votePeopleEachOption = voteOptionIds.stream().map(id ->
@@ -186,13 +196,11 @@ public class ToktokService {
         if (userId == toktok.getUser().getId()) {
             voteSelect = null;
         }
-
         return new ToktokDto.GetToktokResponse(writer, toktok, vote, tags,
                 images, linkResponse, likedCount,
                 commentCount, scrapCount, likeOrNot,
                 followOrNot, voteOption, voteSelect,
                 votePeople, votePeopleEachOption, writerOrNot);
-
     }
 
     public void updatePost(Long id, ToktokDto.PostToktokRequest request) {
