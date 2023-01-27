@@ -122,7 +122,6 @@ public class ToktokService {
             isModified = false;
         }
 
-
         // 유저정보(글쓴이, 조회한 사람)
         Long userId = jwtService.getIdDirectHeader(request);
 //        User user = null;
@@ -140,8 +139,6 @@ public class ToktokService {
                     .collect(Collectors.toList());
             votePeople = userVoteRepository.findVotePeople(vote.getId());  // 투표 총 참여자 수
         }
-
-
 
         // 좋아요, 스크랩, 댓글 수
         Long likedCount = likeRepository.countByToktok(toktok);
@@ -175,7 +172,6 @@ public class ToktokService {
                     null, voteOption, null,
                     votePeople, null, null, isModified);
         }
-
 
         // 게시글 조회한 유저가 게시글 작성자인지 여부
         Boolean writerOrNot = false;
