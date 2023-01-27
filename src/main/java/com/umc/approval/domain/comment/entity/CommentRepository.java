@@ -35,4 +35,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
     List<Comment> findByReportId(Long reportId);
 
     List<Comment> findByToktokId(Long toktokId);
+
+    List<Comment> findByDocumentId(Long documentId);
+
 }
