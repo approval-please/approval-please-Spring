@@ -116,6 +116,11 @@ public class ToktokService {
         List<Link> reportLinkList = linkRepository.findByToktokId(toktokId);
         List<LinkDto.Response> linkResponse;
         linkResponse = reportLinkList.stream().map(LinkDto.Response::fromEntity).collect(Collectors.toList());
+        Boolean isModified = true;
+        // 게시글이 수정된 적이 있는 확인
+        if (toktok.getCreatedAt() != toktok.getModifiedAt()) {
+            isModified = false;
+        }
 
 
         // 유저정보(글쓴이, 조회한 사람)
@@ -168,7 +173,7 @@ public class ToktokService {
                     images, linkResponse, likedCount,
                     commentCount, scrapCount, null,
                     null, voteOption, null,
-                    votePeople, null, null);
+                    votePeople, null, null, isModified);
         }
 
 
@@ -200,7 +205,7 @@ public class ToktokService {
                 images, linkResponse, likedCount,
                 commentCount, scrapCount, likeOrNot,
                 followOrNot, voteOption, voteSelect,
-                votePeople, votePeopleEachOption, writerOrNot);
+                votePeople, votePeopleEachOption, writerOrNot, isModified);
     }
 
     public void updatePost(Long id, ToktokDto.PostToktokRequest request) {
@@ -251,6 +256,8 @@ public class ToktokService {
             Optional<Vote> vote = voteRepository.findById(toktok.getVote().getId());
             Vote getVote = vote.get();
             List<VoteOption> voteOption = voteOptionRepository.findByVote(getVote);
+            List<UserVote> userVotes = getVote.getUserVotes();
+            userVoteRepository.deleteAll(userVotes);
             voteOptionRepository.deleteAll(voteOption);
             // 있었던 투표를 없애는 경우
             if (getVote.getTitle() != null && request.getVoteTitle() == null) {

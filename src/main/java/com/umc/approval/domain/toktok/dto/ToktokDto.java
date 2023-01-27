@@ -71,6 +71,7 @@ public class ToktokDto {
         private Integer level;
 
         // toktok
+        private Long toktokId;
         private Integer category;
         private String content;
         private List<LinkDto.Response> link;
@@ -94,6 +95,7 @@ public class ToktokDto {
         private Boolean followOrNot;
         private Long scrapCount;
         private Long commentCount;
+        private Boolean isModified;
         private String datetime;
         private Long view;
 
@@ -101,7 +103,7 @@ public class ToktokDto {
             List<String> images, List<LinkDto.Response> linkResponse, Long likedCount,
             Long commentCount, Long scrapCount, Boolean likeOrNot,
             Boolean followOrNot, List<VoteOptionResponse> voteOption, List<VoteOptionResponse> voteSelect,
-            Integer votePeople, List<Long> votePeopleEachOption, Boolean writerOrNot) {
+            Integer votePeople, List<Long> votePeopleEachOption, Boolean writerOrNot, Boolean isModified) {
             this.profileImage = user.getProfileImage();
             this.level = user.getLevel();
             this.nickname = user.getNickname();
@@ -126,6 +128,8 @@ public class ToktokDto {
             this.datetime = DateUtil.convert(toktok.getCreatedAt());
             this.view = toktok.getView();
             this.voteId = vote == null ? null : toktok.getVote().getId();
+            this.toktokId = toktok.getId();
+            this.isModified = isModified;
         }
 
     }
