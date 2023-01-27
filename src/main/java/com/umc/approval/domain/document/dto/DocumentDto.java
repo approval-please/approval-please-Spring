@@ -125,7 +125,8 @@ public class DocumentDto {
         private String title;
         private String content;
         private List<String> tag;
-        private List<String> images;
+        private String image;
+        private Integer imageCount;
 
         // state
         private Integer state;
@@ -137,12 +138,13 @@ public class DocumentDto {
         private Long view;
 
         // Entity -> DTO
-        public DocumentListResponse(Document document, List<Tag> tagNameList, List<Image> imageUrlList, List<Approval> approvalList) {
+        public DocumentListResponse(Document document, List<Tag> tagNameList, List<Image> imageList, List<Approval> approvalList) {
             this.category = document.getCategory().getValue();
             this.title = document.getTitle();
             this.content = document.getContent();
             this.tag = tagNameList.stream().map(Tag::getTag).collect(Collectors.toList());
-            this.images = imageUrlList.stream().map(Image::getImageUrl).collect(Collectors.toList());
+            this.image = imageList.size() == 0 ? null : imageList.get(0).getImageUrl(); // 첫번째 이미지 url
+            this.imageCount = imageList.size(); // 이미지 개수
 
             this.state = document.getState();
             this.approveCount = (int) approvalList.stream().filter(Approval::getIsApprove).count();

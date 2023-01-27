@@ -32,6 +32,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.print.Doc;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -179,7 +181,7 @@ public class DocumentService {
 
     public DocumentDto.GetDocumentListResponse getDocumentList(Integer category) {
         // 게시글 목록 조회
-        List<Document> documents = null;
+        List<Document> documents = new ArrayList<>();
 
         if (category == null) { // 전체 게시글
             documents = documentRepository.findAllWithJoin();
@@ -210,7 +212,7 @@ public class DocumentService {
         List<CategoryType> likedCategoryList = likeCategoryRepository.findCategoryListByUserId(user.getId());
 
         // 게시글 목록 조회
-        List<Document> documents = null;
+        List<Document> documents = new ArrayList<>();
 
         if(category == null){ // 관심부서 전체 게시글
             documents = documentRepository.findAllByLikedCategory(likedCategoryList);
