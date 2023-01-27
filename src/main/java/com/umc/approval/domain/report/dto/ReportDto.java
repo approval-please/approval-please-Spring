@@ -94,6 +94,7 @@ public class ReportDto {
         private List<String> documentTag;
 
         // report
+        private Long reportId;
         private String reportContent;
         private List<String> reportImageUrl;
         private List<LinkDto.Response> reportLink;
@@ -105,13 +106,14 @@ public class ReportDto {
         private Long scrapCount;
         private Long commentCount;
         private String datetime;
+        private Boolean isModified;
         private Long view;
 
         public GetReportResponse(User user, Document document, Report report,
             List<String> documentTagList, List<String> documentImageUrlList,
             List<String> reportTagList, List<String> reportImageUrlList,
             List<LinkDto.Response> reportLink, Long likedCount, Long scrapCount, Long commentCount,
-            Boolean likeOrNot, Boolean followOrNot) {
+            Boolean likeOrNot, Boolean followOrNot, Boolean isModified) {
             this.profileImage = user.getProfileImage();
             this.nickname = user.getNickname();
             this.level = user.getLevel();
@@ -135,6 +137,8 @@ public class ReportDto {
             this.view = report.getView();
             this.likeOrNot = likeOrNot;
             this.followOrNot = followOrNot;
+            this.isModified = isModified;
+            this.reportId = report.getId();
         }
 
 

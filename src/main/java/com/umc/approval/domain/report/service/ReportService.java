@@ -188,6 +188,12 @@ public class ReportService {
         Boolean likeOrNot = true;
         Boolean followOrNot = true;
 
+        Boolean isModified = true;
+        // 게시글이 수정된 적이 있는 확인
+        if (report.getCreatedAt() == report.getModifiedAt()) {
+            isModified = false;
+        }
+
         // 해당 유저가 게시글을 눌렀는지 여부
         if(likeReportOrNot == 0) {
             likeOrNot = false;
@@ -205,7 +211,7 @@ public class ReportService {
         return new GetReportResponse(user, document, report,
             documentTagList, documentImageUrlList,
             reportTagList, reportImageUrlList,
-            linkResponse, likedCount, scrapCount, commentCount, likeOrNot, followOrNot);
+            linkResponse, likedCount, scrapCount, commentCount, likeOrNot, followOrNot, isModified);
     }
 
     public void deletePost(Long reportId) {
