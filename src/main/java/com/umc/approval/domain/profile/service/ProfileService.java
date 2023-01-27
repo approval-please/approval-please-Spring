@@ -11,6 +11,7 @@ import com.umc.approval.domain.image.entity.ImageRepository;
 import com.umc.approval.domain.performance.dto.PerformanceDto;
 import com.umc.approval.domain.performance.entity.Performance;
 import com.umc.approval.domain.performance.entity.PerformanceRepository;
+import com.umc.approval.domain.profile.dto.ProfileDto;
 import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.tag.entity.TagRepository;
 import com.umc.approval.domain.toktok.entity.Toktok;
@@ -244,4 +245,9 @@ public class ProfileService {
                 return true;
             }
         }
+
+    public ProfileDto.SearchResponse search(String query) {
+        List<User> users = userRepository.findByNicknameContains(query);
+        return ProfileDto.SearchResponse.from(users);
+    }
 }
