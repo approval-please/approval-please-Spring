@@ -78,6 +78,7 @@ public class ToktokDto {
         private List<String> images;
 
         // vote
+        private Long voteId;
         private String voteTitle;
         private Boolean voteIsEnd;
         private Integer votePeople;  // 투표 총 참여자 수
@@ -124,6 +125,7 @@ public class ToktokDto {
             this.commentCount = commentCount;
             this.datetime = DateUtil.convert(toktok.getCreatedAt());
             this.view = toktok.getView();
+            this.voteId = vote == null ? null : toktok.getVote().getId();
         }
 
     }
