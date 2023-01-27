@@ -144,12 +144,9 @@ public class LikeServiceIntegrationTest {
 
         // when
         LikeDto.ListResponse response = likeService.getLikeList(
-                new MockHttpServletRequest(), PageRequest.of(0, 20), requestDto);
+                new MockHttpServletRequest(), requestDto);
 
         // then
-        assertThat(response.getPage()).isEqualTo(0);
-        assertThat(response.getTotalPage()).isEqualTo(1);
-        assertThat(response.getTotalElement()).isEqualTo(3);
         assertThat(response.getContent().size()).isEqualTo(3);
         assertThat(response.getContent().get(0).getIsFollow()).isFalse();
         assertThat(response.getContent().get(1).getIsFollow()).isFalse();
@@ -188,12 +185,9 @@ public class LikeServiceIntegrationTest {
 
         // when
         LikeDto.ListResponse response = likeService.getLikeList(
-                request, PageRequest.of(0, 20), requestDto);
+                request, requestDto);
 
         // then
-        assertThat(response.getPage()).isEqualTo(0);
-        assertThat(response.getTotalPage()).isEqualTo(1);
-        assertThat(response.getTotalElement()).isEqualTo(3);
         assertThat(response.getContent().size()).isEqualTo(3);
         assertThat(response.getContent().get(0).getIsFollow()).isFalse();
         assertThat(response.getContent().get(1).getIsFollow()).isTrue();

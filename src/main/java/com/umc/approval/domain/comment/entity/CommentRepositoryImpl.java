@@ -24,7 +24,28 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
     }
 
     @Override
-    public Page<Comment> findAllByPost(Pageable pageable, CommentDto.Request requestDto) {
+    public List<Comment> findAllByPost(CommentDto.Request requestDto) {
+        QComment cc = new QComment("cc");
+
+        return queryFactory
+                .selectFrom(comment)
+                .leftJoin(comment.childComment, cc) // 대댓글 함께 조회
+                .leftJoin(cc.user) // 대댓글 유저 함께 조회
+                .leftJoin(cc.likes) // 대댓글 좋아요 함께 조회
+                .innerJoin(comment.user).fetchJoin() // 댓글 유저 함께 조회
+                .leftJoin(comment.likes) // 댓글 좋아요 함께 조회
+                .where(
+                        documentEq(requestDto.getDocumentId()),
+                        toktokEq(requestDto.getToktokId()),
+                        reportEq(requestDto.getReportId()),
+                        comment.parentComment.id.isNull() // 대댓글이 아닌 것만
+                )
+                .distinct()
+                .fetch();
+    }
+
+    @Override
+    public Page<Comment> findAllByPostPaging(Pageable pageable, CommentDto.Request requestDto) {
 
         QComment cc = new QComment("cc");
 

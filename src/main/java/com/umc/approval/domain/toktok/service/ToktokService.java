@@ -5,11 +5,17 @@ import com.umc.approval.domain.comment.entity.CommentRepository;
 import com.umc.approval.domain.follow.entity.FollowRepository;
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
+import com.umc.approval.domain.comment.entity.Comment;
+import com.umc.approval.domain.comment.entity.CommentRepository;
+import com.umc.approval.domain.image.entity.Image;
+import com.umc.approval.domain.image.entity.ImageRepository;
+import com.umc.approval.domain.like.entity.Like;
 import com.umc.approval.domain.like.entity.LikeRepository;
 import com.umc.approval.domain.link.dto.LinkDto;
 import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.entity.LinkRepository;
 import com.umc.approval.domain.report.dto.ReportDto;
+import com.umc.approval.domain.scrap.entity.Scrap;
 import com.umc.approval.domain.scrap.entity.ScrapRepository;
 import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.tag.entity.TagRepository;
@@ -24,11 +30,13 @@ import com.umc.approval.domain.vote.entity.Vote;
 import com.umc.approval.domain.vote.entity.VoteOption;
 import com.umc.approval.domain.vote.entity.VoteOptionRepository;
 import com.umc.approval.domain.vote.entity.VoteRepository;
+import com.umc.approval.domain.vote.entity.*;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import com.umc.approval.global.type.CategoryType;
 import java.util.Collections;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,6 +68,7 @@ public class ToktokService {
     private final CommentRepository commentRepository;
     private final UserVoteRepository userVoteRepository;
 
+
     public void createPost(ToktokDto.PostToktokRequest request) {
         User user = certifyUser();
 
@@ -85,7 +94,7 @@ public class ToktokService {
 
         toktokRepository.save(toktok);
 
-         //링크 등록
+        //링크 등록
         if (request.getLink() != null && !request.getLink().isEmpty()) {
             List<LinkDto.Request> linkList = request.getLink();
             createLink(linkList, toktok);
@@ -107,37 +116,62 @@ public class ToktokService {
         }
     }
 
-    public ToktokDto.GetToktokResponse getToktok(Long toktokId) {
+    public ToktokDto.GetToktokResponse getToktok(Long toktokId, HttpServletRequest request) {
         toktokRepository.updateView(toktokId);
 
         // 결재톡톡 정보
         Toktok toktok = findToktok(toktokId);
-        User user = certifyUser();
+
         List<String> tags = tagRepository.findTagNameListByToktokId(toktokId);
         List<String> images = imageRepository.findImageUrlListBytoktokId(toktokId);
         List<Link> reportLinkList = linkRepository.findByToktokId(toktokId);
         List<LinkDto.Response> linkResponse;
         linkResponse = reportLinkList.stream().map(LinkDto.Response::fromEntity).collect(Collectors.toList());
 
-        // 좋아요, 스크랩, 댓글 수
-        Long likedCount = likeRepository.countByToktok(toktok);
-        Long commentCount = commentRepository.countByToktokId(toktok.getId());
-        Long scrapCount = scrapRepository.countByToktok(toktok);
-        Long likeToktokOrNot = likeRepository.countByUserAndToktok(user, toktok);
-        Boolean likeOrNot = true;
-        Boolean followOrNot = true;
+
+        // 유저정보(글쓴이, 조회한 사람)
+        Long userId = jwtService.getIdDirectHeader(request);
+//        User user = null;
+        User writer = toktok.getUser();
 
         // 투표 정보
         Vote vote = voteRepository.findById(toktok.getVote().getId()).get();
         List<String> voteOption = voteOptionRepository.findOptionListByVote(vote.getId());
         List<String> voteSelect = null;
         Integer votePeople = userVoteRepository.findVotePeople(vote.getId());  // 투표 총 참여자 수
-        List<Integer> votePeopleEachOption = userVoteRepository.findPeopleEachOption(vote.getId());
+        List<Integer> votePeopleEachOption = null;
+
+        // 좋아요, 스크랩, 댓글 수
+        Long likedCount = likeRepository.countByToktok(toktok);
+        Long commentCount = commentRepository.countByToktokId(toktok.getId());
+        Long scrapCount = scrapRepository.countByToktok(toktok);
+        Long likeToktokOrNot = likeRepository.countByUserAndToktok(writer, toktok);
+        Boolean likeOrNot = true;
+        Boolean followOrNot = true;
+
+
+        if(userId != null) {
+            //로그인 한 사용자
+            User user = userRepository.findById(userId).get();
+            if(toktok.getVote() != null) {
+                voteSelect = userVoteRepository.findAllByUserAndVote(user.getId(), toktok.getId())
+                    .stream().map(uv -> uv.getVoteOption().getOpt()).collect(Collectors.toList());
+                votePeopleEachOption = userVoteRepository.findPeopleEachOption(vote.getId());
+            }
+        } else {
+            return new ToktokDto.GetToktokResponse(writer, toktok, vote, tags,
+                images, linkResponse, likedCount,
+                commentCount, scrapCount, null,
+                null, voteOption, null,
+                votePeople, null, null);
+        }
+
 
         // 게시글 조회한 유저가 게시글 작성자인지 여부
         Boolean writerOrNot = false;
-        if (user.getId() == toktok.getUser().getId()) {
+        if (userId == writer.getId()) {
             writerOrNot = true;
+            voteSelect = null;
         }
 
         // 해당 유저가 게시글을 눌렀는지 여부
@@ -146,7 +180,7 @@ public class ToktokService {
         }
 
         // 게시글 상세 조회를 한 유저가 글을 쓴 유저를 팔로우 했는지 여부
-        Long from_userId = user.getId();
+        Long from_userId = userId;
         Long to_userId = toktok.getUser().getId();
         Integer follow = followRepository.countFollowOrNot(from_userId, to_userId);
         if (from_userId == to_userId) {
@@ -154,11 +188,11 @@ public class ToktokService {
         } else if(follow == 0) {
             followOrNot = false;
         }
-        if(user.getId() == toktok.getUser().getId()) {
+        if(userId == toktok.getUser().getId()) {
             voteSelect = null;
         }
 
-        return new ToktokDto.GetToktokResponse(user, toktok, vote, tags,
+        return new ToktokDto.GetToktokResponse(writer, toktok, vote, tags,
             images, linkResponse, likedCount,
             commentCount, scrapCount, likeOrNot,
             followOrNot, voteOption, voteSelect,
@@ -270,10 +304,29 @@ public class ToktokService {
             imageRepository.deleteAll(imageList);
         }
 
+        //좋아요 삭제
+        List<Like> likes = likeRepository.findByToktokId(toktokId);
+        if (likes != null) {
+            likeRepository.deleteAll(likes);
+        }
+
+        // 스크랩 삭제
+        List<Scrap> scraps = scrapRepository.findByToktokId(toktokId);
+        if (scraps != null) {
+            scrapRepository.deleteAll(scraps);
+        }
+
+        // 댓글 삭제
+        List<Comment> comments = commentRepository.findByToktokId(toktokId);
+        if (comments != null) {
+            commentRepository.deleteAll(comments);
+        }
+
         //vote 삭제
         if (toktok.getVote() != null) {
             Optional<Vote> vote = voteRepository.findById(toktok.getVote().getId());
             Vote getVote = vote.get();
+            userVoteRepository.deleteByVoteId(getVote.getId());
             List<VoteOption> voteOptionList = voteOptionRepository.findByVote(getVote);
             if (voteOptionList != null) {
                 voteOptionRepository.deleteAll(voteOptionList);
@@ -285,6 +338,12 @@ public class ToktokService {
         }
 
         toktokRepository.deleteById(toktokId);
+    }
+
+    @Transactional(readOnly = true)
+    public ToktokDto.SearchResponse search(String query, Integer isTag, Integer category, Integer sortBy) {
+        List<Toktok> toktoks = toktokRepository.findAllByQuery(query, isTag, category, sortBy);
+        return ToktokDto.SearchResponse.from(toktoks);
     }
 
     public CategoryType viewCategory(int category) {
@@ -344,5 +403,4 @@ public class ToktokService {
                 .orElseThrow(() -> new CustomException(TOKTOKPOST_NOT_FOUND));
         return toktok;
     }
-
 }

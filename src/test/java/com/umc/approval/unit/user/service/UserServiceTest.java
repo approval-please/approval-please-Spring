@@ -1,5 +1,7 @@
 package com.umc.approval.unit.user.service;
 
+import com.umc.approval.domain.cert.entity.Cert;
+import com.umc.approval.domain.cert.entity.CertRepository;
 import com.umc.approval.domain.user.dto.UserDto;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
@@ -32,6 +34,9 @@ public class UserServiceTest {
 
     @Mock
     UserRepository userRepository;
+
+    @Mock
+    CertRepository certRepository;
 
     @Mock
     JwtService jwtService;
@@ -106,6 +111,9 @@ public class UserServiceTest {
         // given
         given(userRepository.findByEmail(any())).willReturn(Optional.empty());
         given(userRepository.findByPhoneNumber(any())).willReturn(Optional.empty());
+        given(certRepository.findByPhoneNumber(any())).willReturn(
+                Optional.of(Cert.builder().phoneNumber("01012345678").isChecked(true).build())
+        );
         UserDto.SnsRequest requestDto = new UserDto.SnsRequest(
                 "test", "test@test.com", "010-1234-5678", SocialType.KAKAO, 12345L);
 
@@ -119,8 +127,11 @@ public class UserServiceTest {
 
         // given
         given(userRepository.findByEmail(any())).willReturn(Optional.of(createUser(1L)));
+        given(certRepository.findByPhoneNumber(any())).willReturn(
+                Optional.of(Cert.builder().phoneNumber("01012345678").isChecked(true).build())
+        );
         UserDto.SnsRequest requestDto = new UserDto.SnsRequest(
-                "test", "test@test.com", "010-1234-5678", SocialType.KAKAO, 12345L);
+                "test", "test@test.com", "01012345678", SocialType.KAKAO, 12345L);
 
         // when & then
         CustomException e = assertThrows(CustomException.class, () -> userService.snsSignup(requestDto));
@@ -134,12 +145,45 @@ public class UserServiceTest {
         // given
         given(userRepository.findByEmail(any())).willReturn(Optional.empty());
         given(userRepository.findByPhoneNumber(any())).willReturn(Optional.of(createUser(1L)));
+        given(certRepository.findByPhoneNumber(any())).willReturn(
+                Optional.of(Cert.builder().phoneNumber("01012345678").isChecked(true).build())
+        );
         UserDto.SnsRequest requestDto = new UserDto.SnsRequest(
-                "test", "test@test.com", "010-1234-5678", SocialType.KAKAO, 12345L);
+                "test", "test@test.com", "01012345678", SocialType.KAKAO, 12345L);
 
         // when & then
         CustomException e = assertThrows(CustomException.class, () -> userService.snsSignup(requestDto));
         assertThat(e.getErrorType()).isEqualTo(PHONE_NUMBER_ALREADY_EXIST);
+    }
+
+    @DisplayName("sns 회원가입 시 휴대폰 미인증 시 실패한다")
+    @Test
+    void sns_signup_phone_not_cert_fail() {
+
+        // given
+        given(certRepository.findByPhoneNumber(any())).willReturn(
+                Optional.of(Cert.builder().phoneNumber("01012345678").isChecked(false).build())
+        );
+        UserDto.SnsRequest requestDto = new UserDto.SnsRequest(
+                "test", "test@test.com", "01012345678", SocialType.KAKAO, 12345L);
+
+        // when & then
+        CustomException e = assertThrows(CustomException.class, () -> userService.snsSignup(requestDto));
+        assertThat(e.getErrorType()).isEqualTo(CERT_FAILED);
+    }
+
+    @DisplayName("sns 회원가입 시 휴대폰 인증요청 내역이 없을 시 실패한다")
+    @Test
+    void sns_signup_phone_not_found_cert_request_fail() {
+
+        // given
+        given(certRepository.findByPhoneNumber(any())).willReturn(Optional.empty());
+        UserDto.SnsRequest requestDto = new UserDto.SnsRequest(
+                "test", "test@test.com", "01012345678", SocialType.KAKAO, 12345L);
+
+        // when & then
+        CustomException e = assertThrows(CustomException.class, () -> userService.snsSignup(requestDto));
+        assertThat(e.getErrorType()).isEqualTo(CERT_NOT_FOUND);
     }
 
     @DisplayName("refresh token을 통해 access token 재발급에 성공한다")

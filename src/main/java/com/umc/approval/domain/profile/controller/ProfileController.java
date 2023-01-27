@@ -1,6 +1,7 @@
 package com.umc.approval.domain.profile.controller;
 
 import com.umc.approval.domain.profile.service.ProfileService;
+import com.umc.approval.domain.report.dto.ReportDto;
 import com.umc.approval.domain.user.dto.UserDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,9 +29,26 @@ public class ProfileController {
     public JSONObject findAllDocuments(@PathVariable(value = "userId", required = false) Long userId,
                                        @RequestParam(value = "state", required = false) Integer state,
                                        @RequestParam(value = "isApproved", required = false) Boolean isApproved) {
-
         return profileService.findDocuments(userId, state, isApproved);
     }
+
+    /*
+    // 커뮤니티 - 결재톡톡 조회
+    @GetMapping({"/my/community/toktoks", "/{userId}/community/toktoks"})
+    public JSONObject findToktoks(@PathVariable(value = "userId", required = false) Long userId) {
+        return profileService.findToktoks(userId);
+    }
+
+    // 커뮤니티 - 결재보고서 조회
+    @GetMapping({"/my/community/reports", "/{userId}/community/reports"})
+    public ResponseEntity<ReportDto.GetReportResponse> findReports(@PathVariable(value = "userId", required = false) Long userId) {
+        return ResponseEntity.ok(profileService.findReports(userId));
+    }
+     */
+
+    // 댓글 조회
+
+    // 스크랩 조회
 
     // 실적 조회
     @GetMapping("/my/performances")
@@ -38,16 +56,16 @@ public class ProfileController {
         return profileService.findPerformances();
     }
 
-    // 팔로우 목록 조회
+    // 팔로우 조회
     @GetMapping("/my/followers")
     public JSONObject findMyFollowers () {
         return profileService.findMyFollowers();
     }
 
-    // 팔로잉 목록 조회
-    @GetMapping("/my/following")
-    public JSONObject findMyFollowing () {
-        return profileService.findMyFollowing();
+    // 팔로잉 조회
+    @GetMapping("/my/followings")
+    public JSONObject findMyFollowings () {
+        return profileService.findMyFollowings();
     }
 
     // 사원증 프로필 수정

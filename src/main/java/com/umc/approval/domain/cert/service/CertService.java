@@ -85,7 +85,7 @@ public class CertService {
             }
         }
 
-        throw new CustomException(CERT_NUMBER_NOT_EQUAL);
+        throw new CustomException(CERT_FAILED);
     }
 
     // 인증번호 생성 메서드
@@ -110,7 +110,7 @@ public class CertService {
     }
 
     // 이메일 마스킹 메서드
-    private static String maskEmail(String email) {
+    public static String maskEmail(String email) {
         /*
          * 요구되는 메일 포맷
          * {userId}@{domain}
@@ -128,13 +128,13 @@ public class CertService {
              */
             int length = id.length();
             if(length == 1){
-                return email.replaceAll("(\\S+)@(\\S)[^@]{3}(\\S+)", "$1@$2***$3");
+                return email.replaceAll("(\\S)@(\\S)[^@]{3}(\\S+)", "$1@$2***$3");
             } else if (length ==2){
-                return email.replaceAll("(\\S+)[^@]@(\\S)[^@]{3}(\\S+)", "$1*@$2***$3");
+                return email.replaceAll("(\\S)[^@]@(\\S)[^@]{3}(\\S+)", "$1*@$2***$3");
             } else if (length == 3) {
                 return email.replaceAll("(\\S)[^@]{2}@(\\S)[^@]{3}(\\S+)","$1**@$2***$3");
             } else {
-                return email.replaceAll("(\\S)[^@]{3}(\\S+)@(\\S)[^@]{3}(\\S+)","$1***$2@$3***$4");
+                return email.replaceAll("(\\S)[^@]{3}(\\S*)@(\\S)[^@]{3}(\\S+)","$1***$2@$3***$4");
             }
         }
         return email;

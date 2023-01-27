@@ -81,13 +81,11 @@ public class LikeControllerTest {
                 );
 
         LikeDto.ListResponse response = LikeDto.ListResponse.builder()
-                .page(1)
-                .totalPage(3)
-                .totalElement(50L)
+                .likeCount(1)
                 .content(content)
                 .build();
 
-        given(likeService.getLikeList(any(), any(), any())).willReturn(response);
+        given(likeService.getLikeList(any(), any())).willReturn(response);
 
         // when & then
         mvc.perform(get("/likes")
@@ -95,9 +93,7 @@ public class LikeControllerTest {
                         .contentType(APPLICATION_JSON)
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.page").value(response.getPage()))
-                .andExpect(jsonPath("$.totalPage").value(response.getTotalPage()))
-                .andExpect(jsonPath("$.totalElement").value(response.getTotalElement()))
+                .andExpect(jsonPath("$.likeCount").value(1))
                 .andExpect(jsonPath("$.content[0].nickname").value(content.get(0).getNickname()))
                 .andDo(print());
     }

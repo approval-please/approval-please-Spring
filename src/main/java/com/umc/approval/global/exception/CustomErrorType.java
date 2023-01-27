@@ -25,7 +25,7 @@ public enum CustomErrorType {
     NO_PERMISSION(FORBIDDEN, 20005, "게시글 수정 및 삭제에 대한 권한이 없습니다."),
     SNS_LOGIN_FAILED(UNAUTHORIZED, 20006, "SNS 로그인에 실패했습니다."),
     CERT_NOT_FOUND(NOT_FOUND, 20007, "전화번호 인증 요청 내역이 존재하지 않습니다."),
-    CERT_NUMBER_NOT_EQUAL(BAD_REQUEST, 20008, "인증번호가 일치하지 않습니다."),
+    CERT_FAILED(UNAUTHORIZED, 20008, "인증번호가 일치하지 않습니다."),
     CERT_TIME_OVER(REQUEST_TIMEOUT, 20009, "인증 시간이 초과되었습니다."),
 
     // Document (3xxxx)
@@ -57,7 +57,11 @@ public enum CustomErrorType {
     // General (9xxxx)
     INVALID_HTTP_METHOD(METHOD_NOT_ALLOWED, 90001, "잘못된 Http Method 요청입니다."),
     INVALID_VALUE(BAD_REQUEST, 90002, "잘못된 입력값입니다."),
-    SERVER_INTERNAL_ERROR(INTERNAL_SERVER_ERROR, 90003, "서버 내부에 오류가 발생했습니다.");
+    SERVER_INTERNAL_ERROR(INTERNAL_SERVER_ERROR, 90003, "서버 내부에 오류가 발생했습니다."),
+
+    // Follow (10xxxx)
+    FOLLOW_NOT_FOUND(NOT_FOUND, 100001,"존재하는 팔로워 사용자가 없습니다."),
+    FOLLOWING_NOT_FOUND(NOT_FOUND, 100002, "존재하는 팔로잉 사용자가 없습니다.");
 
     private final HttpStatus httpStatus;
     private final int code;

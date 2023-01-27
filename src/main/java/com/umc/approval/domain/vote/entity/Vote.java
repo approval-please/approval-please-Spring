@@ -20,6 +20,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import lombok.Setter;
 
+import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
@@ -48,6 +49,12 @@ public class Vote extends BaseTimeEntity {
 
     @Column(nullable = false)
     private Boolean isEnd;
+
+    @OneToMany(fetch = LAZY, mappedBy = "vote")
+    private List<VoteOption> voteOptions;
+
+    @OneToMany(fetch = LAZY, mappedBy = "vote")
+    private List<UserVote> userVotes;
 
     public void update(PostToktokRequest request) {
         this.title = request.getVoteTitle();

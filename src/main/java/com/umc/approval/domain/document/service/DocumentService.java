@@ -7,7 +7,10 @@ import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.entity.DocumentRepository;
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
+import com.umc.approval.domain.like.entity.Like;
 import com.umc.approval.domain.like.entity.LikeRepository;
+import com.umc.approval.domain.like_category.entity.LikeCategory;
+import com.umc.approval.domain.like_category.entity.LikeCategoryRepository;
 import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.entity.LinkRepository;
 import com.umc.approval.domain.tag.entity.Tag;
@@ -48,6 +51,7 @@ public class DocumentService {
     private final LinkRepository linkRepository;
     private final CommentRepository commentRepository;
     private final ApprovalRepository approvalRepository;
+    private final LikeCategoryRepository likeCategoryRepository;
 
     public void createDocument(DocumentDto.DocumentRequest request) {
         User user = certifyUser();
@@ -177,6 +181,40 @@ public class DocumentService {
         return new DocumentDto.GetDocumentListResponse(documents, response);
     }
 
+    public DocumentDto.GetDocumentListResponse getLikedDocumentList(Integer page, Integer category){
+        User user = certifyUser();
+
+        // 사용자의 관심부서
+        List<CategoryType> likedCategoryList = likeCategoryRepository.findCategoryListByUserId(user.getId());
+
+        // 게시글 목록 조회 페이징 처리
+        Pageable pageable = PageRequest.of(page, 20, Sort.by("createdAt").descending()); // 최신순
+        Page<Document> documents = null;
+
+        if(category != null){ // 관심부서 중 특정 부서 게시글
+            if (category < 0 || category > 17) {
+                throw new CustomException(INVALID_VALUE, "카테고리는 0부터 17까지의 정수 값입니다.");
+            }
+            CategoryType categoryType = findCategory(category);
+            if (likedCategoryList.contains(categoryType)){
+                documents = documentRepository.findAllByCategory(categoryType, pageable);
+            }
+        }else{ // 관심부서 전체 게시글
+            documents = documentRepository.findAllByLikedCategory(likedCategoryList, pageable);
+        }
+
+        List<DocumentDto.DocumentListResponse> response = documents.getContent().stream()
+                .map(document ->
+                        new DocumentDto.DocumentListResponse(
+                                document,
+                                document.getTags(),
+                                document.getImages(),
+                                document.getApprovals()))
+                .collect(Collectors.toList());
+
+        return new DocumentDto.GetDocumentListResponse(documents, response);
+    }
+
 
     private User certifyUser() {
         User user = userRepository.findById(jwtService.getId())
@@ -232,8 +270,9 @@ public class DocumentService {
         }
     }
 
-    public DocumentDto.SearchResponse search(String query, Integer isTag, Integer category, Integer state, Integer sortBy, Pageable pageable) {
-        Page<Document> documents = documentRepository.findAllByQuery(query, isTag, category, state, sortBy, pageable);
+    @Transactional(readOnly = true)
+    public DocumentDto.SearchResponse search(String query, Integer isTag, Integer category, Integer state, Integer sortBy) {
+        List<Document> documents = documentRepository.findAllByQuery(query, isTag, category, state, sortBy);
         return DocumentDto.SearchResponse.from(documents);
     }
 }

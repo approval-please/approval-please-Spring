@@ -1,25 +1,26 @@
-package com.umc.approval.integration.document;
+package com.umc.approval.integration.toktok;
 
-import com.umc.approval.domain.approval.entity.ApprovalRepository;
 import com.umc.approval.domain.comment.entity.CommentRepository;
-import com.umc.approval.domain.document.dto.DocumentDto;
-import com.umc.approval.domain.document.entity.Document;
-import com.umc.approval.domain.document.entity.DocumentRepository;
-import com.umc.approval.domain.document.service.DocumentService;
 import com.umc.approval.domain.image.entity.ImageRepository;
 import com.umc.approval.domain.like.entity.LikeRepository;
 import com.umc.approval.domain.link.entity.LinkRepository;
-import com.umc.approval.domain.tag.entity.Tag;
+import com.umc.approval.domain.scrap.entity.ScrapRepository;
 import com.umc.approval.domain.tag.entity.TagRepository;
+import com.umc.approval.domain.toktok.dto.ToktokDto;
+import com.umc.approval.domain.toktok.entity.Toktok;
+import com.umc.approval.domain.toktok.entity.ToktokRepository;
+import com.umc.approval.domain.toktok.service.ToktokService;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
+import com.umc.approval.domain.vote.entity.UserVoteRepository;
+import com.umc.approval.domain.vote.entity.VoteOptionRepository;
+import com.umc.approval.domain.vote.entity.VoteRepository;
 import com.umc.approval.global.security.service.JwtService;
 import com.umc.approval.global.type.RoleType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -36,10 +37,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Transactional
 @SpringBootTest
-public class DocumentServiceIntegrationTest {
+public class ToktokServiceIntegrationTest {
 
     @Autowired
-    DocumentService documentService;
+    ToktokService toktokService;
 
     @Autowired
     EntityManager em;
@@ -48,10 +49,19 @@ public class DocumentServiceIntegrationTest {
     JwtService jwtService;
 
     @Autowired
-    DocumentRepository documentRepository;
+    ToktokRepository toktokRepository;
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    VoteRepository voteRepository;
+
+    @Autowired
+    VoteOptionRepository voteOptionRepository;
+
+    @Autowired
+    LinkRepository linkRepository;
 
     @Autowired
     TagRepository tagRepository;
@@ -60,16 +70,20 @@ public class DocumentServiceIntegrationTest {
     ImageRepository imageRepository;
 
     @Autowired
-    LikeRepository likeRepository;
+    EntityManager entityManager;
 
     @Autowired
-    LinkRepository linkRepository;
+    UserVoteRepository userVoteRepository;
+
+    @Autowired
+    LikeRepository likeRepository;
 
     @Autowired
     CommentRepository commentRepository;
 
     @Autowired
-    ApprovalRepository approvalRepository;
+    ScrapRepository scrapRepository;
+
 
     private User createUser(Long id) {
         return User.builder()
@@ -90,76 +104,45 @@ public class DocumentServiceIntegrationTest {
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }
 
-    private Document createDocument(User user) {
-        Document document = Document.builder()
-                .user(user)
-                .title("title")
-                .content("content")
-                .view(0L)
-                .category(ANIMAL_PLANT)
-                .state(2)
-                .notification(true)
-                .build();
-        return documentRepository.save(document);
-    }
-
-    private void createTag(String tag, Document document) {
-        Tag build = Tag.builder()
-                .document(document)
-                .tag(tag)
-                .build();
-        tagRepository.save(build);
-    }
-
-    @DisplayName("결재서류 검색에 성공한다 - 카테고리 / 상태 검색")
+    @DisplayName("결재톡톡 검색에 성공한다 - 카테고리 검색")
     @Test
-    void search_document_success() {
+    void search_toktok_success() {
 
         // given
         User user = createUser(1L);
         userRepository.save(user);
 
-        Document document1 = Document.builder()
+        Toktok toktok1 = Toktok.builder()
                 .user(user)
-                .title("아이폰 테스트")
-                .content("테스트")
-                .view(0L)
-                .category(ANIMAL_PLANT)
-                .state(2)
-                .notification(true)
-                .build();
-
-        Document document2 = Document.builder()
-                .user(user)
-                .title("에어폰 테스트")
-                .content("테아이폰테스트")
-                .view(0L)
-                .category(ANIMAL_PLANT)
-                .state(1)
-                .notification(true)
-                .build();
-
-        Document document3 = Document.builder()
-                .user(user)
-                .title("에어폰 테스트")
-                .content("테에어폰테스트")
-                .view(0L)
                 .category(DIGITAL)
-                .state(2)
-                .notification(true)
+                .content("안녕하세요")
+                .view(0L)
                 .build();
+        toktokRepository.save(toktok1);
 
-        documentRepository.save(document1);
-        documentRepository.save(document2);
-        documentRepository.save(document3);
+        Toktok toktok2 = Toktok.builder()
+                .user(user)
+                .category(DIGITAL)
+                .content("안녕하소")
+                .view(0L)
+                .build();
+        toktokRepository.save(toktok2);
+
+        Toktok toktok3 = Toktok.builder()
+                .user(user)
+                .category(ANIMAL_PLANT)
+                .content("안녕하세요")
+                .view(0L)
+                .build();
+        toktokRepository.save(toktok3);
 
         // when
-        DocumentDto.SearchResponse response =
-                documentService.search("아이", 0, ANIMAL_PLANT.getValue(), 1, 0);
-        DocumentDto.SearchListResponse findResponse = response.getContent().get(0);
+        ToktokDto.SearchResponse response = toktokService.search("하세", 0, DIGITAL.getValue(), 0);
+        ToktokDto.SearchListResponse findResponse = response.getContent().get(0);
 
         // then
         assertThat(response.getContent().size()).isEqualTo(1);
-        assertThat(findResponse.getTitle()).isEqualTo(document2.getTitle());
+        assertThat(findResponse.getCategory()).isEqualTo(DIGITAL.getValue());
+        assertThat(findResponse.getContent()).isEqualTo(toktok1.getContent());
     }
 }
