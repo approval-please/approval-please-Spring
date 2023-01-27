@@ -131,7 +131,6 @@ public class ToktokDto {
             this.toktokId = toktok.getId();
             this.isModified = isModified;
         }
-
     }
 
     @Getter

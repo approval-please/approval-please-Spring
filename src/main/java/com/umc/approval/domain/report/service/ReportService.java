@@ -255,7 +255,6 @@ public class ReportService {
 
     }
 
-
     private User certifyUser() {
         User user = userRepository.findById(jwtService.getId())
             .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
