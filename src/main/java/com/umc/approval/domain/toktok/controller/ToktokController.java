@@ -69,8 +69,8 @@ public class ToktokController {
         return ResponseEntity.ok(toktokService.getVotePeople(request, id));
     }
 
-    @PostMapping("/endVote/{toktokId}")
-    public ResponseEntity<Void> endVote(@PathVariable("toktokId") Long id) {
+    @PostMapping("/endVote/{voteId}")
+    public ResponseEntity<Void> endVote(@PathVariable("voteId") Long id) {
         toktokService.endVote(id);
         return ResponseEntity.ok().build();
     }

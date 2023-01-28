@@ -382,11 +382,10 @@ public class ToktokService {
         toktokRepository.deleteById(toktokId);
     }
 
-    public void endVote(Long toktokId) {
+    public void endVote(Long voteId) {
         User user = certifyUser();
-        Toktok toktok = toktokRepository.findById(toktokId).get();
+        Toktok toktok = toktokRepository.findByVoteId(voteId).get();
         Long writerUserId = toktok.getUser().getId();
-        Long voteId = toktok.getVote().getId();
 
         // 게시글 작성자만 투표 종료 가능
         if (user.getId() != writerUserId) {
