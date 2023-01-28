@@ -53,35 +53,35 @@ public class AccuseService {
             accuseUser = userRepository.findById(accuseRequest.getAccuseUserId())
                     .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
             // 본인 신고 불가
-            if(accuseUser.getId().equals(accuseRequest.getAccuseUserId())) {
+            if(accuseUser.getId().equals(user.getId())) {
                 throw new CustomException(SELF_ACCUSE_NOT_ALLOWED);
             }
         } else if(accuseRequest.getDocumentId() != null) {
             document = documentRepository.findById(accuseRequest.getDocumentId())
                     .orElseThrow(() -> new CustomException(DOCUMENT_NOT_FOUND));
             // 본인 서류 신고 불가
-            if(document.getId().equals(accuseRequest.getDocumentId())) {
+            if(document.getUser().getId().equals(user.getId())) {
                 throw new CustomException(SELF_DOCUMENT_ACCUSE_NOT_ALLOWED);
             }
         } else if(accuseRequest.getToktokId() != null) {
             toktok = toktokRepository.findById(accuseRequest.getToktokId())
                     .orElseThrow(() -> new CustomException(TOKTOKPOST_NOT_FOUND));
             // 본인 톡톡 신고 불가
-            if(toktok.getId().equals(accuseRequest.getToktokId())) {
+            if(toktok.getUser().getId().equals(user.getId())) {
                 throw new CustomException(SELF_TOKTOK_ACCUSE_NOT_ALLOWED);
             }
         } else if (accuseRequest.getReportId() != null) {
             report = reportRepository.findById(accuseRequest.getReportId())
                     .orElseThrow(() -> new CustomException(REPORT_NOT_FOUND));
             // 본인 보고서 신고 불가
-            if(report.getId().equals(accuseRequest.getReportId())) {
+            if(report.getUser().getId().equals(user.getId())) {
                 throw new CustomException(SELF_REPORT_ACCUSE_NOT_ALLOWED);
             }
         } else {
             comment = commentRepository.findById(accuseRequest.getCommentId())
                     .orElseThrow(() -> new CustomException(COMMENT_NOT_FOUND));
             // 본인 댓글 신고 불가
-            if(comment.getId().equals(accuseRequest.getCommentId())) {
+            if(comment.getUser().getId().equals(user.getId())) {
                 throw new CustomException(SELF_COMMENT_ACCUSE_NOT_ALLOWED);
             }
         }
