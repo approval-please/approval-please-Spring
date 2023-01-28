@@ -66,7 +66,10 @@ public enum CustomErrorType {
     FOLLOWING_NOT_FOUND(NOT_FOUND, 100002, "존재하는 팔로잉 사용자가 없습니다."),
 
     // Scrap (11xxxx)
-    POST_WITH_SCRAP_NOT_FOUND(NOT_FOUND, 110001, "스크랩한 게시글이 존재하지 않습니다.");
+    POST_WITH_SCRAP_NOT_FOUND(NOT_FOUND, 110001, "스크랩한 게시글이 존재하지 않습니다."),
+
+    // Vote(12xxxx)
+    NOT_MATCH_WITH_VOTE(BAD_REQUEST, 120001, "투표에 해당하는 옵션이 아닙니다.");
 
     private final HttpStatus httpStatus;
     private final int code;
