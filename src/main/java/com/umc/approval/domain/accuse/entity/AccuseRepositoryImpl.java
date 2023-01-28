@@ -40,7 +40,7 @@ public class AccuseRepositoryImpl implements AccuseRepositoryCustom{
     }
 
     private BooleanExpression accuseUserEq(Long accuseUserId) {
-        return accuseUserId == null ? null : accuse.user.id.eq(accuseUserId);
+        return accuseUserId == null ? null : accuse.accuseUser.id.eq(accuseUserId);
     }
 
     private BooleanExpression documentEq(Long documentId) {
