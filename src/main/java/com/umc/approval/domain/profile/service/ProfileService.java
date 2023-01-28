@@ -11,7 +11,6 @@ import com.umc.approval.domain.image.entity.ImageRepository;
 import com.umc.approval.domain.performance.dto.PerformanceDto;
 import com.umc.approval.domain.performance.entity.Performance;
 import com.umc.approval.domain.performance.entity.PerformanceRepository;
-import com.umc.approval.domain.profile.dto.ProfileDto;
 import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.tag.entity.TagRepository;
 import com.umc.approval.domain.toktok.entity.Toktok;
@@ -25,6 +24,7 @@ import org.json.simple.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,9 +38,6 @@ public class ProfileService {
     private final JwtService jwtService;
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
-    private final TagRepository tagRepository;
-    private final ImageRepository imageRepository;
-    private final ApprovalRepository approvalRepository;
     private final FollowRepository followRepository;
     private final PerformanceRepository performanceRepository;
 
@@ -60,8 +57,9 @@ public class ProfileService {
     }
 
     // 사원증 프로필 조회
-    public JSONObject getUserProfile (Long userId) {
+    public JSONObject getUserProfile (HttpServletRequest request, Long userId) {
         User user = certifyUser(userId);
+        Long loginUserId = jwtService.getIdDirectHeader(request);
 
         JSONObject result = new JSONObject();
         JSONObject profile = new JSONObject();
@@ -73,6 +71,13 @@ public class ProfileService {
         profile.put("promotionPoint", user.getPromotionPoint());
         profile.put("follows", followRepository.countByToUser(user.getId()));
         profile.put("followings", followRepository.countByFromUser(user.getId()));
+        if (!(userId.equals(loginUserId))) { // 타 사원증 조회일 경우,
+            if (loginUserId != null) { // 로그인 되어 있을 때
+                profile.put("isFollow", isFollow(loginUserId, user.getId()));
+            } else { // 로그인 되어있지 않을 때
+                profile.put("isFollow", false);
+            }
+        }
 
         result.put("content", profile);
 
@@ -93,161 +98,204 @@ public class ProfileService {
                 documents = documentRepository.findAllByStateApproval(user.getId(), state, isApproved);
             }
         }
-            if (state != null) { // 작성한 서류 상태별 조회
-                documents = documentRepository.findAllByState(user.getId(), state);
-            }
-            if (state == null && isApproved == null) { // 전체 조회
-                documents = documentRepository.findAllByUserId(user.getId());
-            }
-
-            if (documents.isEmpty()) {
-                throw new CustomException(DOCUMENT_NOT_FOUND);
-            }
-
-            JSONObject result = new JSONObject();
-
-            List<DocumentDto.DocumentListResponse> response = documents.stream()
-                    .map(document ->
-                            new DocumentDto.DocumentListResponse(
-                                    document,
-                                    document.getTags(),
-                                    document.getImages(),
-                                    document.getApprovals()))
-                    .collect(Collectors.toList());
-
-            result.put("totalElement", documents.size());
-            result.put("content", response);
-
-            return result;
+        if (state != null) { // 작성한 서류 상태별 조회
+            documents = documentRepository.findAllByState(user.getId(), state);
+        }
+        if (state == null && isApproved == null) { // 전체 조회
+            documents = documentRepository.findAllByUserId(user.getId());
         }
 
-        /*
-        // 커뮤니티 - 결재톡톡 조회
-        public JSONObject findToktoks (Long userId){
-            User user = certifyUser(userId);
-            List<Toktok> toktoks;
+        if (documents.isEmpty()) {
+            throw new CustomException(DOCUMENT_NOT_FOUND);
         }
 
-        // 커뮤니티 - 결재보고서 조회
-        public JSONObject findReports (Long userId){
-            User user = certifyUser(userId);
-            List<Report> reports;
-        }
-         */
+        JSONObject result = new JSONObject();
 
-        // 실적 조회
-        public JSONObject findPerformances () {
-            User user = certifyUser(null);
-            List<Performance> performances;
+        List<DocumentDto.DocumentListResponse> response = documents.stream()
+                .map(document ->
+                        new DocumentDto.DocumentListResponse(
+                                document,
+                                document.getTags(),
+                                document.getImages(),
+                                document.getApprovals()))
+                .collect(Collectors.toList());
 
-            performances = performanceRepository.findByUserId(user.getId());
+        result.put("totalElement", documents.size());
+        result.put("content", response);
 
-            if (performances.isEmpty()) {
-                throw new CustomException(PERFORMANCE_NOT_FOUND);
-            }
+        return result;
+    }
 
-            JSONObject result = new JSONObject();
+    // 커뮤니티 - 결재톡톡 조회
+    public JSONObject findToktoks (Long userId){
+        User user = certifyUser(userId);
+        List<Toktok> toktoks;
+        JSONObject obj = new JSONObject();
+        return obj;
+    }
 
-            List<PerformanceDto.PerformanceListResponse> response = performances.stream()
-                    .map(performance ->
-                            new PerformanceDto.PerformanceListResponse(
-                                    performance,
-                                    performance.getContent(),
-                                    performance.getPoint()))
-                    .collect(Collectors.toList());
+    // 커뮤니티 - 결재보고서 조회
+    public JSONObject findReports (Long userId){
+        User user = certifyUser(userId);
+        List<Report> reports;
+        JSONObject obj = new JSONObject();
+        return obj;
+    }
 
-            result.put("totalElement", performances.size());
-            result.put("content", response);
+    // 댓글 작성한 게시글 조회
+    public JSONObject findAllByComments (Integer postType, Integer state) {
+        User user = certifyUser(null);
 
-            return result;
-        }
-
-        // 팔로우 목록 조회
-        public JSONObject findMyFollowers () {
-            User user = certifyUser(null);
-            List<Follow> follows;
-
-            follows = followRepository.findMyFollowers(user.getId());
-
-            if (follows.isEmpty()) {
-                throw new CustomException(FOLLOW_NOT_FOUND);
-            }
-
-            JSONObject result = new JSONObject();
-
-            List<FollowDto.FollowListResponse> response = follows.stream()
-                    .map(follow ->
-                            new FollowDto.FollowListResponse(
-                                    follow.getFromUser().getLevel(),
-                                    follow.getFromUser().getNickname(),
-                                    follow.getFromUser().getProfileImage()))
-                    .collect(Collectors.toList());
-
-            result.put("myNickname", user.getNickname());
-            result.put("totalElement", follows.size());
-            result.put("followerCount", followRepository.countByToUser(user.getId()));
-            result.put("followingCount", followRepository.countByFromUser(user.getId()));
-            result.put("content", response);
-
-            return result;
-        }
-
-        // 팔로잉 목록 조회
-        public JSONObject findMyFollowings () {
-            User user = certifyUser(null);
-            List<Follow> followings;
-            Boolean isFollow;
-
-            followings = followRepository.findMyFollowings(user.getId());
-
-            if (followings.isEmpty()) {
-                throw new CustomException(FOLLOWING_NOT_FOUND);
-            }
-
-            JSONObject result = new JSONObject();
-
-            List<FollowDto.FollowingListResponse> response = followings.stream()
-                    .map(following ->
-                            new FollowDto.FollowingListResponse(
-                                    following.getToUser().getLevel(),
-                                    following.getToUser().getNickname(),
-                                    following.getToUser().getProfileImage(),
-                                    isFollow(following.getToUser().getId(), user.getId())))
-                    .collect(Collectors.toList());
-
-            result.put("nickname", user.getNickname());
-            result.put("totalElement", followings.size());
-            result.put("followerCount", followRepository.countByToUser(user.getId()));
-            result.put("followingCount", followRepository.countByFromUser(user.getId()));
-            result.put("content", response);
-
-            return result;
-        }
-
-        // 사원증 프로필 수정
-        public void updateProfile (UserDto.ProfileRequest request){
-            User user = certifyUser(null);
-
-            String nickname = request.getNickname();
-            String introduction = request.getIntroduction();
-            String image = request.getImage();
-
-            user.update(nickname, introduction, image);
-        }
-
-        // 내 팔로잉 사용자가 나를 팔로우 하는지
-        public Boolean isFollow (Long fromUserId, Long toUserId) {
-            Integer isfollow = followRepository.countFollowOrNot(fromUserId, toUserId);
-
-            if(isfollow == 0) {
-                return false;
+        if (postType == null || postType == 1) { // 결재서류 (기본값)
+            if (state != null) {
+                return findDocuments(user.getId(), state, null);  // 작성한 서류 상태별 조회
             } else {
-                return true;
+                return findDocuments(user.getId(), null, null); // 전체 조회
             }
+
+        } else if (postType == 1) { // 결재톡톡
+            return findToktoks(user.getId());
+
+        } else if (postType == 2) { // 결재보고서
+            return findReports(user.getId());
+
+        } else {
+            throw new CustomException(POST_WITH_COMMENT_NOT_FOUND);
+        }
+    }
+
+    // 스크랩한 게시글 조회
+    public JSONObject findAllByScraps (Integer postType, Integer state) {
+        User user = certifyUser(null);
+
+        if (postType == null || postType == 1) { // 결재서류 (기본값)
+            if (state != null) {
+                return findDocuments(user.getId(), state, null);  // 작성한 서류 상태별 조회
+            } else {
+                return findDocuments(user.getId(), null, null); // 전체 조회
+            }
+
+        } else if (postType == 1) { // 결재톡톡
+            return findToktoks(user.getId());
+
+        } else if (postType == 2) { // 결재보고서
+            return findReports(user.getId());
+
+        } else {
+            throw new CustomException(POST_WITH_SCRAP_NOT_FOUND);
+        }
+    }
+
+    // 실적 조회
+    public JSONObject findPerformances () {
+        User user = certifyUser(null);
+        List<Performance> performances;
+
+        performances = performanceRepository.findByUserId(user.getId());
+
+        if (performances.isEmpty()) {
+            throw new CustomException(PERFORMANCE_NOT_FOUND);
         }
 
-    public ProfileDto.SearchResponse search(String query) {
-        List<User> users = userRepository.findByNicknameContains(query);
-        return ProfileDto.SearchResponse.from(users);
+        JSONObject result = new JSONObject();
+
+        List<PerformanceDto.PerformanceListResponse> response = performances.stream()
+                .map(performance ->
+                        new PerformanceDto.PerformanceListResponse(
+                                performance,
+                                performance.getContent(),
+                                performance.getPoint()))
+                .collect(Collectors.toList());
+
+        result.put("totalElement", performances.size());
+        result.put("content", response);
+
+        return result;
+    }
+
+    // 팔로우 목록 조회
+    public JSONObject findMyFollowers () {
+        User user = certifyUser(null);
+        List<Follow> follows;
+
+        follows = followRepository.findMyFollowers(user.getId());
+
+        if (follows.isEmpty()) {
+            throw new CustomException(FOLLOW_NOT_FOUND);
+        }
+
+        JSONObject result = new JSONObject();
+
+        List<FollowDto.FollowListResponse> response = follows.stream()
+                .map(follow ->
+                        new FollowDto.FollowListResponse(
+                                follow.getFromUser().getId(),
+                                follow.getFromUser().getLevel(),
+                                follow.getFromUser().getNickname(),
+                                follow.getFromUser().getProfileImage()))
+                .collect(Collectors.toList());
+
+        result.put("myNickname", user.getNickname());
+        result.put("totalElement", follows.size());
+        result.put("followerCount", followRepository.countByToUser(user.getId()));
+        result.put("followingCount", followRepository.countByFromUser(user.getId()));
+        result.put("content", response);
+
+        return result;
+    }
+
+    // 팔로잉 목록 조회
+    public JSONObject findMyFollowings () {
+        User user = certifyUser(null);
+        List<Follow> followings;
+        Boolean isFollow;
+
+        followings = followRepository.findMyFollowings(user.getId());
+
+        if (followings.isEmpty()) {
+            throw new CustomException(FOLLOWING_NOT_FOUND);
+        }
+
+        JSONObject result = new JSONObject();
+
+        List<FollowDto.FollowingListResponse> response = followings.stream()
+                .map(following ->
+                        new FollowDto.FollowingListResponse(
+                                following.getToUser().getId(),
+                                following.getToUser().getLevel(),
+                                following.getToUser().getNickname(),
+                                following.getToUser().getProfileImage(),
+                                isFollow(following.getToUser().getId(), user.getId())))
+                .collect(Collectors.toList());
+
+        result.put("nickname", user.getNickname());
+        result.put("totalElement", followings.size());
+        result.put("followerCount", followRepository.countByToUser(user.getId()));
+        result.put("followingCount", followRepository.countByFromUser(user.getId()));
+        result.put("content", response);
+
+        return result;
+    }
+
+    // 사원증 프로필 수정
+    public void updateProfile (UserDto.ProfileRequest request){
+        User user = certifyUser(null);
+
+        String nickname = request.getNickname();
+        String introduction = request.getIntroduction();
+        String image = request.getImage();
+
+        user.update(nickname, introduction, image);
+    }
+
+    // 내 팔로잉 사용자가 나를 팔로우 하는지
+    public Boolean isFollow (Long fromUserId, Long toUserId) {
+        Integer isfollow = followRepository.countFollowOrNot(fromUserId, toUserId);
+
+        if(isfollow == 0) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }

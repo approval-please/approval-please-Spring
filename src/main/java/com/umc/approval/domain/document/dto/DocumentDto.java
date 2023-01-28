@@ -121,6 +121,7 @@ public class DocumentDto {
     @Data
     public static class DocumentListResponse {
         // document
+        private Long documentId;
         private Integer category;
         private String title;
         private String content;
@@ -139,6 +140,7 @@ public class DocumentDto {
 
         // Entity -> DTO
         public DocumentListResponse(Document document, List<Tag> tagNameList, List<Image> imageList, List<Approval> approvalList) {
+            this.documentId = document.getId();
             this.category = document.getCategory().getValue();
             this.title = document.getTitle();
             this.content = document.getContent();
