@@ -1,12 +1,11 @@
 package com.umc.approval.domain.follow.entity;
 
-import com.umc.approval.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import org.springframework.data.repository.query.Param;
+import java.util.Optional;
 
 public interface FollowRepository extends JpaRepository<Follow, Long> {
 
@@ -34,4 +33,5 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     @Query("select count(*) from Follow where from_user_id = :from_userId and to_user_id = :to_userId")
     Integer countFollowOrNot(@Param("from_userId") Long from_userId, @Param("to_userId") Long to_userId);
 
+    Optional<Follow> findByFromUserIdAndToUserId(Long fromUserId, Long toUserId);
 }
