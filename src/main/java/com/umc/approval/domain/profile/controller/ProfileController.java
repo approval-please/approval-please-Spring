@@ -1,5 +1,6 @@
 package com.umc.approval.domain.profile.controller;
 
+import com.umc.approval.domain.profile.dto.ProfileDto;
 import com.umc.approval.domain.profile.service.ProfileService;
 import com.umc.approval.domain.report.dto.ReportDto;
 import com.umc.approval.domain.user.dto.UserDto;
@@ -86,5 +87,11 @@ public class ProfileController {
     public ResponseEntity<Void> updateProfile(@Valid @RequestBody UserDto.ProfileRequest request) {
         profileService.updateProfile(request);
         return ResponseEntity.ok().build();
+    }
+
+    // 사원 검색
+    @GetMapping("/search")
+    public ResponseEntity<ProfileDto.SearchResponse> search(@RequestParam("query") String query) {
+        return ResponseEntity.ok(profileService.search(query));
     }
 }

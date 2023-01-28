@@ -1,15 +1,33 @@
 package com.umc.approval.domain.profile.dto;
 
 import com.umc.approval.domain.user.entity.User;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ProfileDto {
+    @Data
+    public static class ProfileResponse {
+        private String profileImage;
+        private String introduction;
+        private String nickname;
+        private Integer level;
+        private Long promotionPoint;
+        private Integer follows;
+        private Integer followings;
+
+        // Entity -> DTO
+        public ProfileResponse (String profileImage, String introduction, String nickname, Integer level, Long promotionPoint, Integer follows, Integer followings) {
+            this.profileImage = profileImage;
+            this.introduction = introduction;
+            this.nickname = nickname;
+            this.level = level;
+            this.promotionPoint = promotionPoint;
+            this.follows = follows;
+            this.followings = followings;
+        }
+    }
 
     @Getter
     @Builder

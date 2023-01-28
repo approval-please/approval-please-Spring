@@ -69,22 +69,25 @@ public class ProfileService {
         JSONObject result = new JSONObject();
         JSONObject profile = new JSONObject();
 
-        profile.put("profileImage", user.getProfileImage());
-        profile.put("introduction", user.getIntroduction());
-        profile.put("nickname", user.getNickname());
-        profile.put("level", user.getLevel());
-        profile.put("promotionPoint", user.getPromotionPoint());
-        profile.put("follows", followRepository.countByToUser(user.getId()));
-        profile.put("followings", followRepository.countByFromUser(user.getId()));
+        ProfileDto.ProfileResponse response = new ProfileDto.ProfileResponse(
+                            user.getProfileImage(),
+                            user.getIntroduction(),
+                            user.getNickname(),
+                            user.getLevel(),
+                            user.getPromotionPoint(),
+                            followRepository.countByToUser(user.getId()),
+                            followRepository.countByFromUser(user.getId())
+                            );
+
+        result.put("content", response);
+
         if (!(userId.equals(loginUserId))) { // 타 사원증 조회일 경우,
             if (loginUserId != null) { // 로그인 되어 있을 때
-                profile.put("isFollow", isFollow(loginUserId, user.getId()));
+                result.put("isFollow", isFollow(loginUserId, user.getId()));
             } else { // 로그인 되어있지 않을 때
-                profile.put("isFollow", false);
+                result.put("isFollow", false);
             }
         }
-
-        result.put("content", profile);
 
         return result;
     }
