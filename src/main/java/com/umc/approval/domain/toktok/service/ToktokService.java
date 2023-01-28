@@ -382,6 +382,21 @@ public class ToktokService {
         toktokRepository.deleteById(toktokId);
     }
 
+    public void endVote(Long toktokId) {
+        User user = certifyUser();
+        Toktok toktok = toktokRepository.findById(toktokId).get();
+        Long writerUserId = toktok.getUser().getId();
+        Long voteId = toktok.getVote().getId();
+
+        // 게시글 작성자만 투표 종료 가능
+        if (user.getId() != writerUserId) {
+            throw new CustomException(CANNOT_END_VOTE);
+        }
+
+        voteRepository.updateState(voteId);
+    }
+
+
     @Transactional(readOnly = true)
     public ToktokDto.SearchResponse search(String query, Integer isTag, Integer category, Integer sortBy) {
         List<Toktok> toktoks = toktokRepository.findAllByQuery(query, isTag, category, sortBy);

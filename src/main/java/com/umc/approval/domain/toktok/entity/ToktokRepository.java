@@ -17,4 +17,7 @@ public interface ToktokRepository extends JpaRepository<Toktok, Long>, ToktokRep
     @Modifying
     @Query(value = "update toktok set view = view + 1 where toktok_id = :toktok_id", nativeQuery = true)
     void updateView(@Param("toktok_id") Long toktokId);
+
+//    @Query("select t fron Toktok t where t.vote_id = :vote_id")
+//    Optional<Toktok> findByVoteId(@Param("vote_id") Long voteId);
 }
