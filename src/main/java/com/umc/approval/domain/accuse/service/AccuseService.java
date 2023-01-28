@@ -74,7 +74,7 @@ public class AccuseService {
             report = reportRepository.findById(accuseRequest.getReportId())
                     .orElseThrow(() -> new CustomException(REPORT_NOT_FOUND));
             // 본인 보고서 신고 불가
-            if(report.getUser().getId().equals(user.getId())) {
+            if(report.getDocument().getUser().getId().equals(user.getId())) {
                 throw new CustomException(SELF_REPORT_ACCUSE_NOT_ALLOWED);
             }
         } else {
