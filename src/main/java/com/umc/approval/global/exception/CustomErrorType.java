@@ -66,7 +66,11 @@ public enum CustomErrorType {
     FOLLOWING_NOT_FOUND(NOT_FOUND, 100002, "존재하는 팔로잉 사용자가 없습니다."),
 
     // Scrap (11xxxx)
-    POST_WITH_SCRAP_NOT_FOUND(NOT_FOUND, 110001, "스크랩한 게시글이 존재하지 않습니다.");
+    POST_WITH_SCRAP_NOT_FOUND(NOT_FOUND, 110001, "스크랩한 게시글이 존재하지 않습니다."),
+
+    // Accuse (12xxxx)
+    ACCUSE_ALREADY_EXISTS(FORBIDDEN, 120001, "이미 신고하셨습니다."),
+    SELF_ACCUSE_NOT_ALLOWED(FORBIDDEN, 120002, "본인 신고는 불가능합니다.");
 
     private final HttpStatus httpStatus;
     private final int code;
