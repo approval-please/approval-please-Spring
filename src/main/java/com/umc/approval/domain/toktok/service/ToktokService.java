@@ -285,6 +285,7 @@ public class ToktokService {
         }
     }
 
+    // 투표하기
     public ToktokDto.VotePeopleEachOptionResponse getVotePeople(ToktokDto.VoteRequest request, Long voteId) {
         User user = certifyUser();
         List<Long> voteOptionIds = request.getVoteOptionIds();

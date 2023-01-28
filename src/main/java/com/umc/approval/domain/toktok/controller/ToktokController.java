@@ -74,5 +74,4 @@ public class ToktokController {
         toktokService.endVote(id);
         return ResponseEntity.ok().build();
     }
-
 }
