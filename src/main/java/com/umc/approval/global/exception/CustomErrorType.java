@@ -22,7 +22,7 @@ public enum CustomErrorType {
     PHONE_NUMBER_ALREADY_EXIST(BAD_REQUEST, 20002, "이미 존재하는 전화번호입니다."),
     LOGIN_FAILED(UNAUTHORIZED, 20003, "아이디 또는 비밀번호가 일치하지 않습니다."),
     USER_NOT_FOUND(NOT_FOUND, 20004, "사용자를 찾을 수 없습니다."),
-    NO_PERMISSION(FORBIDDEN, 20005, "게시글 수정 및 삭제에 대한 권한이 없습니다."),
+    NO_PERMISSION(FORBIDDEN, 20005, "수정 및 삭제에 대한 권한이 없습니다."),
     SNS_LOGIN_FAILED(UNAUTHORIZED, 20006, "SNS 로그인에 실패했습니다."),
     CERT_NOT_FOUND(NOT_FOUND, 20007, "전화번호 인증 요청 내역이 존재하지 않습니다."),
     CERT_FAILED(UNAUTHORIZED, 20008, "인증번호가 일치하지 않습니다."),
@@ -50,6 +50,7 @@ public enum CustomErrorType {
     // Comment (7xxxx)
     COMMENT_NOT_FOUND(NOT_FOUND, 70001, "존재하지 않는 댓글입니다."),
     PARENT_COMMENT_NOT_FOUND(NOT_FOUND, 70002, "존재하지 않는 상위 댓글입니다."),
+    POST_WITH_COMMENT_NOT_FOUND(NOT_FOUND, 70003, "댓글을 작성한 게시글이 존재하지 않습니다."),
 
     // Image (8xxxx)
     IMAGE_UPLOAD_FAILED(BAD_REQUEST, 80001, "이미지 업로드에 실패했습니다."),
@@ -62,7 +63,10 @@ public enum CustomErrorType {
 
     // Follow (10xxxx)
     FOLLOW_NOT_FOUND(NOT_FOUND, 100001,"존재하는 팔로워 사용자가 없습니다."),
-    FOLLOWING_NOT_FOUND(NOT_FOUND, 100002, "존재하는 팔로잉 사용자가 없습니다.");
+    FOLLOWING_NOT_FOUND(NOT_FOUND, 100002, "존재하는 팔로잉 사용자가 없습니다."),
+
+    // Scrap (11xxxx)
+    POST_WITH_SCRAP_NOT_FOUND(NOT_FOUND, 110001, "스크랩한 게시글이 존재하지 않습니다.");
 
     private final HttpStatus httpStatus;
     private final int code;
