@@ -233,4 +233,20 @@ public class ToktokDto {
                     .build();
         }
     }
+
+    @Data
+    @NoArgsConstructor
+    public static class VoteRequest {
+        @Size(min = 1, max = 4, message = "투표는 1~4개까지 선택 가능합니다")
+        private List<Long> voteOptionIds;
+    }
+
+    @Data
+    public static class VotePeopleEachOptionResponse {
+        private List<Long> votePeoepleEachOption;
+
+        public VotePeopleEachOptionResponse(List<Long> votePeoepleEachOption) {
+            this.votePeoepleEachOption = votePeoepleEachOption;
+        }
+    }
 }

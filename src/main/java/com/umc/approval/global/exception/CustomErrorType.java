@@ -18,8 +18,8 @@ public enum CustomErrorType {
     REFRESH_TOKEN_EXPIRED(BAD_REQUEST, 10004, "만료된 Refresh Token 입니다."),
 
     // User (2xxxx)
-    EMAIL_ALREADY_EXIST(BAD_REQUEST, 20001, "이미 존재하는 이메일입니다."),
-    PHONE_NUMBER_ALREADY_EXIST(BAD_REQUEST, 20002, "이미 존재하는 전화번호입니다."),
+    EMAIL_ALREADY_EXIST(UNAUTHORIZED, 20001, "이미 존재하는 이메일입니다."),
+    PHONE_NUMBER_ALREADY_EXIST(UNAUTHORIZED, 20002, "이미 존재하는 전화번호입니다."),
     LOGIN_FAILED(UNAUTHORIZED, 20003, "아이디 또는 비밀번호가 일치하지 않습니다."),
     USER_NOT_FOUND(NOT_FOUND, 20004, "사용자를 찾을 수 없습니다."),
     NO_PERMISSION(FORBIDDEN, 20005, "수정 및 삭제에 대한 권한이 없습니다."),
@@ -64,13 +64,21 @@ public enum CustomErrorType {
     // Follow (10xxxx)
     FOLLOW_NOT_FOUND(NOT_FOUND, 100001,"존재하는 팔로워 사용자가 없습니다."),
     FOLLOWING_NOT_FOUND(NOT_FOUND, 100002, "존재하는 팔로잉 사용자가 없습니다."),
+    SELF_FOLLOW_NOT_ALLOWED(FORBIDDEN, 100003, "본인은 팔로우할 수 없습니다."),
 
     // Scrap (11xxxx)
     POST_WITH_SCRAP_NOT_FOUND(NOT_FOUND, 110001, "스크랩한 게시글이 존재하지 않습니다."),
 
-    // Accuse (12xxxx)
+    // Vote (12xxxx)
+    NOT_MATCH_WITH_VOTE(BAD_REQUEST, 120001, "투표에 해당하는 옵션이 아닙니다."),
+
+    // Accuse (13xxxx)
     ACCUSE_ALREADY_EXISTS(FORBIDDEN, 120001, "이미 신고하셨습니다."),
-    SELF_ACCUSE_NOT_ALLOWED(FORBIDDEN, 120002, "본인 신고는 불가능합니다.");
+    SELF_ACCUSE_NOT_ALLOWED(FORBIDDEN, 120002, "본인 신고는 불가능합니다."),
+    SELF_DOCUMENT_ACCUSE_NOT_ALLOWED(FORBIDDEN, 120003, "본인 결재서류 신고는 불가능합니다."),
+    SELF_TOKTOK_ACCUSE_NOT_ALLOWED(FORBIDDEN, 120004, "본인 결재톡톡 신고는 불가능합니다."),
+    SELF_REPORT_ACCUSE_NOT_ALLOWED(FORBIDDEN, 120005, "본인 결재보고서 신고는 불가능합니다."),
+    SELF_COMMENT_ACCUSE_NOT_ALLOWED(FORBIDDEN, 120006, "본인 댓글 신고는 불가능합니다.");
 
     private final HttpStatus httpStatus;
     private final int code;

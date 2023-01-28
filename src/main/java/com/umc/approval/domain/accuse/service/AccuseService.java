@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.Optional;
 
 import static com.umc.approval.global.exception.CustomErrorType.*;
 
@@ -43,30 +42,48 @@ public class AccuseService {
         // 같은 건에 대한 신고 중복 체크
         accuseDuplicateValidation(user.getId(), accuseRequest);
 
-        // TODO: 본인, 본인 게시글 신고 불가
-
         // 신고
+        User accuseUser = null;
         Document document = null;
         Toktok toktok = null;
         Report report = null;
         Comment comment = null;
-        User accuseUser = null;
 
-        if(accuseRequest.getDocumentId() != null) {
+        if (accuseRequest.getAccuseUserId() != null) {
+            accuseUser = userRepository.findById(accuseRequest.getAccuseUserId())
+                    .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+            // 본인 신고 불가
+            if(accuseUser.getId().equals(accuseRequest.getAccuseUserId())) {
+                throw new CustomException(SELF_ACCUSE_NOT_ALLOWED);
+            }
+        } else if(accuseRequest.getDocumentId() != null) {
             document = documentRepository.findById(accuseRequest.getDocumentId())
                     .orElseThrow(() -> new CustomException(DOCUMENT_NOT_FOUND));
+            // 본인 서류 신고 불가
+            if(document.getId().equals(accuseRequest.getDocumentId())) {
+                throw new CustomException(SELF_DOCUMENT_ACCUSE_NOT_ALLOWED);
+            }
         } else if(accuseRequest.getToktokId() != null) {
             toktok = toktokRepository.findById(accuseRequest.getToktokId())
                     .orElseThrow(() -> new CustomException(TOKTOKPOST_NOT_FOUND));
+            // 본인 톡톡 신고 불가
+            if(toktok.getId().equals(accuseRequest.getToktokId())) {
+                throw new CustomException(SELF_TOKTOK_ACCUSE_NOT_ALLOWED);
+            }
         } else if (accuseRequest.getReportId() != null) {
             report = reportRepository.findById(accuseRequest.getReportId())
                     .orElseThrow(() -> new CustomException(REPORT_NOT_FOUND));
-        } else if (accuseRequest.getCommentId() != null) {
+            // 본인 보고서 신고 불가
+            if(report.getId().equals(accuseRequest.getReportId())) {
+                throw new CustomException(SELF_REPORT_ACCUSE_NOT_ALLOWED);
+            }
+        } else {
             comment = commentRepository.findById(accuseRequest.getCommentId())
                     .orElseThrow(() -> new CustomException(COMMENT_NOT_FOUND));
-        } else {
-            accuseUser = userRepository.findById(accuseRequest.getAccuseUserId())
-                    .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+            // 본인 댓글 신고 불가
+            if(comment.getId().equals(accuseRequest.getCommentId())) {
+                throw new CustomException(SELF_COMMENT_ACCUSE_NOT_ALLOWED);
+            }
         }
 
         Accuse accuse = accuseRequest.toEntity(user, accuseUser, document, toktok, report, comment);

@@ -1,9 +1,32 @@
 package com.umc.approval.domain.follow.dto;
 
 import com.umc.approval.domain.follow.entity.Follow;
-import lombok.Data;
+import com.umc.approval.domain.user.entity.User;
+import lombok.*;
 
 public class FollowDto {
+
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @NoArgsConstructor
+    public static class Request {
+        private Long toUserId;
+
+        public Follow toEntity(User fromUser, User toUser) {
+            return Follow.builder()
+                    .fromUser(fromUser)
+                    .toUser(toUser)
+                    .build();
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class UpdateResponse {
+        Boolean isFollow;
+    }
+
     @Data
     public static class FollowListResponse {
         // follow
