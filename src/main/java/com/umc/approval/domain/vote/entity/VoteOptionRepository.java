@@ -13,6 +13,5 @@ public interface VoteOptionRepository extends JpaRepository<VoteOption, Long> {
     List<String> findOptionListByVote(@Param("vote_id") Long voteId);
 
     Optional<VoteOption> findById(Long id);
-
-
+    
 }

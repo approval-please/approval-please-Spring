@@ -285,6 +285,42 @@ public class ToktokService {
         }
     }
 
+    public ToktokDto.VotePeopleEachOptionResponse getVotePeople(ToktokDto.VoteRequest request, Long voteId) {
+        User user = certifyUser();
+        List<Long> voteOptionIds = request.getVoteOptionIds();
+        Vote vote = voteRepository.findById(voteId).get();
+        List<Long> findOptions = vote.getVoteOptions().stream()
+            .map(VoteOption::getId).collect(Collectors.toList());
+
+        // 다시 투표할 수도 있으므로 우선 투표내역 삭제
+        userVoteRepository.deleteByVoteIdAndUserId(user.getId(), vote.getId());
+
+        if (!findOptions.containsAll(voteOptionIds)) {
+            throw new CustomException(NOT_MATCH_WITH_VOTE);
+        }
+
+        for(int i=0; i<voteOptionIds.size(); i++) {
+            VoteOption voteOption = voteOptionRepository.findById(voteOptionIds.get(i)).get();
+            UserVote userVote = UserVote.builder()
+                .user(user)
+                .vote(vote)
+                .voteOption(voteOption)
+                .build();
+            userVoteRepository.save(userVote);
+        }
+
+        // 각 선택지마다 투표한 사람 수
+        List<Long> votePeopleEachOption = findOptions.stream().map(id ->
+            vote.getUserVotes().stream()
+                .filter(uv ->
+                    uv.getVoteOption().getId() == id)
+                .count())
+            .collect(Collectors.toList());
+
+        return new ToktokDto.VotePeopleEachOptionResponse(votePeopleEachOption);
+
+    }
+
     public void deletePost(Long toktokId) {
         User user = certifyUser();
         Toktok toktok = findToktok(toktokId);
@@ -378,6 +414,7 @@ public class ToktokService {
             voteOptionRepository.save(voteOption);
         }
     }
+
 
     public void createLink(List<LinkDto.Request> linkList, Toktok toktok) {
         for (LinkDto.Request l : linkList) {

@@ -67,7 +67,10 @@ public enum CustomErrorType {
     SELF_FOLLOW_NOT_ALLOWED(BAD_REQUEST, 100003, "본인은 팔로우할 수 없습니다."),
 
     // Scrap (11xxxx)
-    POST_WITH_SCRAP_NOT_FOUND(NOT_FOUND, 110001, "스크랩한 게시글이 존재하지 않습니다.");
+    POST_WITH_SCRAP_NOT_FOUND(NOT_FOUND, 110001, "스크랩한 게시글이 존재하지 않습니다."),
+
+    // Vote(12xxxx)
+    NOT_MATCH_WITH_VOTE(BAD_REQUEST, 120001, "투표에 해당하는 옵션이 아닙니다.");
 
     private final HttpStatus httpStatus;
     private final int code;
