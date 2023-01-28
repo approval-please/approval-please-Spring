@@ -64,6 +64,7 @@ public enum CustomErrorType {
     // Follow (10xxxx)
     FOLLOW_NOT_FOUND(NOT_FOUND, 100001,"존재하는 팔로워 사용자가 없습니다."),
     FOLLOWING_NOT_FOUND(NOT_FOUND, 100002, "존재하는 팔로잉 사용자가 없습니다."),
+    SELF_FOLLOW_NOT_ALLOWED(BAD_REQUEST, 100003, "본인은 팔로우할 수 없습니다."),
 
     // Scrap (11xxxx)
     POST_WITH_SCRAP_NOT_FOUND(NOT_FOUND, 110001, "스크랩한 게시글이 존재하지 않습니다.");
