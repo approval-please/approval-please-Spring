@@ -285,6 +285,7 @@ public class ToktokService {
         }
     }
 
+    // 투표하기
     public ToktokDto.VotePeopleEachOptionResponse getVotePeople(ToktokDto.VoteRequest request, Long voteId) {
         User user = certifyUser();
         List<Long> voteOptionIds = request.getVoteOptionIds();
@@ -381,6 +382,20 @@ public class ToktokService {
 
         toktokRepository.deleteById(toktokId);
     }
+
+    public void endVote(Long voteId) {
+        User user = certifyUser();
+        Toktok toktok = toktokRepository.findByVoteId(voteId).get();
+        Long writerUserId = toktok.getUser().getId();
+
+        // 게시글 작성자만 투표 종료 가능
+        if (user.getId() != writerUserId) {
+            throw new CustomException(CANNOT_END_VOTE);
+        }
+
+        voteRepository.updateState(voteId);
+    }
+
 
     @Transactional(readOnly = true)
     public ToktokDto.SearchResponse search(String query, Integer isTag, Integer category, Integer sortBy) {

@@ -69,16 +69,19 @@ public enum CustomErrorType {
     // Scrap (11xxxx)
     POST_WITH_SCRAP_NOT_FOUND(NOT_FOUND, 110001, "스크랩한 게시글이 존재하지 않습니다."),
 
-    // Vote (12xxxx)
+
+    // Vote(12xxxx)
     NOT_MATCH_WITH_VOTE(BAD_REQUEST, 120001, "투표에 해당하는 옵션이 아닙니다."),
+    CANNOT_END_VOTE(BAD_REQUEST, 120002, "게시글 작성자만 투표를 종료할 수 있습니다"),
 
     // Accuse (13xxxx)
-    ACCUSE_ALREADY_EXISTS(FORBIDDEN, 120001, "이미 신고하셨습니다."),
-    SELF_ACCUSE_NOT_ALLOWED(FORBIDDEN, 120002, "본인 신고는 불가능합니다."),
-    SELF_DOCUMENT_ACCUSE_NOT_ALLOWED(FORBIDDEN, 120003, "본인 결재서류 신고는 불가능합니다."),
-    SELF_TOKTOK_ACCUSE_NOT_ALLOWED(FORBIDDEN, 120004, "본인 결재톡톡 신고는 불가능합니다."),
-    SELF_REPORT_ACCUSE_NOT_ALLOWED(FORBIDDEN, 120005, "본인 결재보고서 신고는 불가능합니다."),
-    SELF_COMMENT_ACCUSE_NOT_ALLOWED(FORBIDDEN, 120006, "본인 댓글 신고는 불가능합니다.");
+    ACCUSE_ALREADY_EXISTS(FORBIDDEN, 130001, "이미 신고하셨습니다."),
+    SELF_ACCUSE_NOT_ALLOWED(FORBIDDEN, 130002, "본인 신고는 불가능합니다."),
+    SELF_DOCUMENT_ACCUSE_NOT_ALLOWED(FORBIDDEN, 130003, "본인 결재서류 신고는 불가능합니다."),
+    SELF_TOKTOK_ACCUSE_NOT_ALLOWED(FORBIDDEN, 130004, "본인 결재톡톡 신고는 불가능합니다."),
+    SELF_REPORT_ACCUSE_NOT_ALLOWED(FORBIDDEN, 130005, "본인 결재보고서 신고는 불가능합니다."),
+    SELF_COMMENT_ACCUSE_NOT_ALLOWED(FORBIDDEN, 130006, "본인 댓글 신고는 불가능합니다.");
+
 
     private final HttpStatus httpStatus;
     private final int code;
