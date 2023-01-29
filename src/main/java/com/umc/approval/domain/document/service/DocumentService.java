@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.print.Doc;
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -84,7 +85,7 @@ public class DocumentService {
         userRepository.updatePoint(user.getId(),100L);
     }
 
-    public DocumentDto.GetDocumentResponse getDocument(Long documentId) {
+    public DocumentDto.GetDocumentResponse getDocument(HttpServletRequest request, Long documentId) {
 
         // 조회 수 업데이트
         documentRepository.updateView(documentId);
@@ -107,8 +108,17 @@ public class DocumentService {
         // 게시글 수정 유무
         boolean isModified = document.getCreatedAt().isEqual(document.getModifiedAt()) ? false : true;
 
+        // 게시글 좋아요, 스크랩 유무
+        boolean isLiked = false;
+        boolean isScrap = false;
+        Long userId = jwtService.getIdDirectHeader(request);
+        if(userId != null){
+            isLiked = likeRepository.countByUserAndDocument(user, document) == 0 ? false : true;
+            isScrap = scrapRepository.countByUserAndDocument(user, document) == 0 ? false : true;
+        }
+
         return new DocumentDto.GetDocumentResponse(document, user, tagNameList, imageUrlList, link,
-                approveCount, rejectCount, likedCount, commentCount, isModified);
+                approveCount, rejectCount, likedCount, commentCount, isModified, isLiked, isScrap);
     }
 
     public void updateDocument(Long documentId, DocumentDto.DocumentRequest request) {

@@ -82,15 +82,20 @@ public class DocumentDto {
         private Integer likedCount;
         private Integer commentCount;
         private String datetime;
-        private boolean isModified;
+        private Boolean isModified;
         private Long view;
+
+        private Boolean isLiked;
+        private Boolean isScrap;
 
 
         // Entity -> DTO
         public GetDocumentResponse(Document document, User user,
                                    List<String> tagNameList, List<String> imageUrlList,
                                    Link link, int approveCount, int rejectCount,
-                                   int likedCount, int commentCount, boolean isModified) {
+                                   int likedCount, int commentCount,
+                                   boolean isModified, boolean isLiked, boolean isScrap) {
+
             this.profileImage = user.getProfileImage();
             this.nickname = user.getNickname();
             this.level = user.getLevel();
@@ -112,6 +117,9 @@ public class DocumentDto {
             this.datetime = DateUtil.convert(document.getCreatedAt());
             this.isModified = isModified;
             this.view = document.getView();
+
+            this.isLiked = isLiked;
+            this.isScrap = isScrap;
         }
     }
 
