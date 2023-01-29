@@ -1,16 +1,22 @@
 package com.umc.approval.domain.report.dto;
 
+import com.umc.approval.domain.document.dto.DocumentDto;
 import com.umc.approval.domain.document.entity.Document;
+import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.like.dto.LikeDto;
 import com.umc.approval.domain.like.dto.LikeDto.Response;
 import com.umc.approval.domain.like.entity.Like;
 import com.umc.approval.domain.link.dto.LinkDto;
 import com.umc.approval.domain.report.entity.Report;
 
+import com.umc.approval.domain.tag.entity.Tag;
+import com.umc.approval.domain.toktok.dto.ToktokDto;
+import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.global.util.DateUtil;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -144,4 +150,83 @@ public class ReportDto {
 
     }
 
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class SearchResponse {
+        private Integer reportCount;
+        private List<SearchListResponse> content;
+
+        public static SearchResponse from(List<Report> reports) {
+            return SearchResponse.builder()
+                    .reportCount(reports.size())
+                    .content(reports.stream().map(SearchListResponse::fromEntity).collect(Collectors.toList()))
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class SearchListResponse {
+        private Long reportId;
+        private Long userId;
+        private String nickname;
+        private Integer userLevel;
+        private String content;
+        private List<String> tag;
+        private List<String> images;
+        private LinkDto.Response link;
+        private Integer likeCount;
+        private Integer commentCount;
+        private Long view;
+        private String datetime;
+        private DocumentResponse document;
+
+        public static SearchListResponse fromEntity(Report report) {
+            return SearchListResponse.builder()
+                    .reportId(report.getId())
+                    .userId(report.getDocument().getUser().getId())
+                    .nickname(report.getDocument().getUser().getNickname())
+                    .userLevel(report.getDocument().getUser().getLevel())
+                    .content(report.getContent())
+                    .tag(report.getTags() == null ? null :
+                            report.getTags().stream().map(Tag::getTag).collect(Collectors.toList()))
+                    .images(report.getImages() == null ? null :
+                            report.getImages().stream().map(Image::getImageUrl).collect(Collectors.toList()))
+                    .link((report.getLinks() == null || report.getLinks().isEmpty()) ?
+                            null : LinkDto.Response.fromEntity(report.getLinks().get(0)))
+                    .likeCount(report.getLikes() == null ? 0 : report.getLikes().size())
+                    .commentCount(report.getComments() == null ? 0 : report.getComments().size())
+                    .view(report.getView())
+                    .datetime(DateUtil.convert(report.getCreatedAt()))
+                    .document(DocumentResponse.fromEntity(report.getDocument()))
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class DocumentResponse {
+        private Long documentId;
+        private String title;
+        private String content;
+        private List<String> tag;
+        private String thumbnailImage;
+        private Integer imageCount;
+
+        public static DocumentResponse fromEntity(Document document) {
+            return DocumentResponse.builder()
+                    .documentId(document.getId())
+                    .title(document.getTitle())
+                    .content(document.getContent())
+                    .tag(document.getTags() == null ? null :
+                            document.getTags().stream().map(Tag::getTag).collect(Collectors.toList()))
+                    .thumbnailImage((document.getImages() == null || document.getImages().isEmpty()) ?
+                            null : document.getImages().get(0).getImageUrl())
+                    .imageCount(document.getImages() == null ? 0 : document.getImages().size())
+                    .build();
+        }
+    }
 }
