@@ -2,6 +2,7 @@ package com.umc.approval.domain.document.entity;
 
 import com.umc.approval.domain.BaseTimeEntity;
 import com.umc.approval.domain.approval.entity.Approval;
+import com.umc.approval.domain.comment.entity.Comment;
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.like.entity.Like;
 import com.umc.approval.domain.link.entity.Link;
@@ -76,6 +77,9 @@ public class Document extends BaseTimeEntity {
 
     @OneToMany(fetch = LAZY, mappedBy = "document")
     private List<Scrap> scraps;
+
+    @OneToMany(fetch = LAZY, mappedBy = "document")
+    private List<Comment> comments;
 
     public void update(CategoryType category, String title, String content) {
         this.category = category;
