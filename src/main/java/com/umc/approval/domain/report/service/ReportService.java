@@ -118,9 +118,6 @@ public class ReportService {
         List<ReportDto.DocumentListResponse> response;
 
         response = documents.stream()
-                .map(ReportDto.DocumentListResponse::fromEntity)
-                .collect(Collectors.toList());
-        response = documents.stream()
             .map(ReportDto.DocumentListResponse::fromEntity)
             .collect(Collectors.toList());
 
