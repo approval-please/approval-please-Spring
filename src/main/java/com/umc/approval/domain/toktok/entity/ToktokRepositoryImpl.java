@@ -35,9 +35,9 @@ public class ToktokRepositoryImpl implements ToktokRepositoryCustom {
                     .leftJoin(toktok.tags)
                     .leftJoin(toktok.links)
                     .leftJoin(toktok.images)
+                    .leftJoin(toktok.comments)
                     .leftJoin(toktok.vote, vote)
                     .leftJoin(vote.userVotes)
-                    .leftJoin(vote.voteOptions)
                     .where(
                             tagEq(query),
                             categoryEq(category)
@@ -53,9 +53,9 @@ public class ToktokRepositoryImpl implements ToktokRepositoryCustom {
                     .leftJoin(toktok.tags)
                     .leftJoin(toktok.links)
                     .leftJoin(toktok.images)
+                    .leftJoin(toktok.comments)
                     .leftJoin(toktok.vote, vote)
                     .leftJoin(vote.userVotes)
-                    .leftJoin(vote.voteOptions)
                     .where(
                             contentLike(query),
                             categoryEq(category)

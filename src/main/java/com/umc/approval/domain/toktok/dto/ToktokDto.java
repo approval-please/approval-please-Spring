@@ -159,7 +159,7 @@ public class ToktokDto {
         private Integer userLevel;
         private String profileImage;
         private Integer likeCount;
-        private Integer scrapCount;
+        private Integer commentCount;
         private Long view;
         private String content;
         private List<String> tag;
@@ -177,7 +177,7 @@ public class ToktokDto {
                     .userLevel(toktok.getUser().getLevel())
                     .profileImage(toktok.getUser().getProfileImage())
                     .likeCount(toktok.getLikes() == null ? 0 : toktok.getLikes().size())
-                    .scrapCount(toktok.getScraps() == null ? 0 : toktok.getScraps().size())
+                    .commentCount(toktok.getComments() == null ? 0 : toktok.getComments().size())
                     .view(toktok.getView())
                     .content(toktok.getContent())
                     .tag(toktok.getTags() == null ? null :
@@ -202,7 +202,6 @@ public class ToktokDto {
         private Boolean isSingle;
         private Boolean isAnonymous;
         private Integer voteUserCount;
-        private List<VoteOptionResponse> voteOptions;
 
         public static VoteResponse fromEntity(Vote vote) {
             return VoteResponse.builder()
@@ -212,9 +211,6 @@ public class ToktokDto {
                     .isSingle(vote.getIsSingle())
                     .isAnonymous(vote.getIsAnonymous())
                     .voteUserCount(vote.getUserVotes() == null ? 0 : vote.getUserVotes().size())
-                    .voteOptions(vote.getVoteOptions().stream()
-                            .map(VoteOptionResponse::fromEntity).collect(Collectors.toList())
-                    )
                     .build();
         }
     }
