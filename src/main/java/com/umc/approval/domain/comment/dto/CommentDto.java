@@ -19,16 +19,6 @@ public class CommentDto {
     @Builder
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @NoArgsConstructor
-    public static class Request {
-        private Long documentId;
-        private Long toktokId;
-        private Long reportId;
-    }
-
-    @Getter
-    @Builder
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    @NoArgsConstructor
     public static class CreateRequest {
         private Long documentId;
         private Long reportId;
