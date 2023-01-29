@@ -43,7 +43,8 @@ public class UserSuccessHandler implements AuthenticationSuccessHandler {
         // SNS 유저 로그인 response
         if (user.getSocialType() != null) {
             new ObjectMapper().writeValue(response.getWriter(),
-                    new UserDto.SnsTokenResponse(false, user.getSocialId(), user.getSocialType(), accessToken, refreshToken));
+                    new UserDto.SnsTokenResponse(
+                            1, user.getEmail(), user.getSocialId(), user.getSocialType(), accessToken, refreshToken));
         } else {
             // 일반 유저 로그인 response
             new ObjectMapper().writeValue(response.getWriter(),

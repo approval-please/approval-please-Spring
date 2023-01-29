@@ -106,7 +106,8 @@ public class UserDto {
     @Getter
     @AllArgsConstructor
     public static class SnsTokenResponse {
-        private Boolean isFirst;
+        private Integer status;
+        private String email;
         private Long socialId;
         private SocialType socialType;
         private String accessToken;
