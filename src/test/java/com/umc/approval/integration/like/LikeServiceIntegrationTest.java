@@ -138,13 +138,9 @@ public class LikeServiceIntegrationTest {
         follow(user1, user2);
         follow(user1, user3);
 
-        LikeDto.Request requestDto = LikeDto.Request.builder()
-                .documentId(document.getId())
-                .build();
-
         // when
         LikeDto.ListResponse response = likeService.getLikeList(
-                new MockHttpServletRequest(), requestDto);
+                new MockHttpServletRequest(), document.getId(), null, null);
 
         // then
         assertThat(response.getContent().size()).isEqualTo(3);
@@ -174,18 +170,13 @@ public class LikeServiceIntegrationTest {
         follow(user1, user2);
         follow(user1, user3);
 
-        LikeDto.Request requestDto = LikeDto.Request.builder()
-                .documentId(document.getId())
-                .build();
-
         // 로그인 처리
         String accessToken = jwtService.createAccessToken(user1.getEmail(), user1.getId());
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(AUTHORIZATION, "Bearer " + accessToken);
 
         // when
-        LikeDto.ListResponse response = likeService.getLikeList(
-                request, requestDto);
+        LikeDto.ListResponse response = likeService.getLikeList(request, document.getId(), null, null);
 
         // then
         assertThat(response.getContent().size()).isEqualTo(3);
