@@ -124,7 +124,10 @@ public class ToktokService {
 
         // 유저정보(글쓴이, 조회한 사람)
         Long userId = jwtService.getIdDirectHeader(request);
-//        User user = null;
+        User visitUser = null;
+        if (userId != null) {
+            visitUser = userRepository.findById(userId).get();
+        }
         User writer = toktok.getUser();
 
         // 투표 정보
@@ -144,9 +147,16 @@ public class ToktokService {
         Long likedCount = likeRepository.countByToktok(toktok);
         Long commentCount = commentRepository.countByToktokId(toktok.getId());
         Long scrapCount = scrapRepository.countByToktok(toktok);
-        Long likeToktokOrNot = likeRepository.countByUserAndToktok(writer, toktok);
+        Long likeToktokOrNot = likeRepository.countByUserAndToktok(visitUser, toktok);
+        Long scrapToktokOrNot = scrapRepository.countByUserAndToktok(visitUser, toktok);
         Boolean likeOrNot = true;
         Boolean followOrNot = true;
+        Boolean scrapOrNot = true;
+
+        // 해당 유저가 스크랩 했는지 여부
+        if(scrapToktokOrNot == 0) {
+            scrapOrNot = false;
+        }
 
         if (userId != null) {
             //로그인 한 사용자
@@ -170,7 +180,7 @@ public class ToktokService {
                     images, linkResponse, likedCount,
                     commentCount, scrapCount, null,
                     null, voteOption, null,
-                    votePeople, null, null, isModified);
+                    votePeople, null, null, isModified, null);
         }
 
         // 게시글 조회한 유저가 게시글 작성자인지 여부
@@ -201,7 +211,7 @@ public class ToktokService {
                 images, linkResponse, likedCount,
                 commentCount, scrapCount, likeOrNot,
                 followOrNot, voteOption, voteSelect,
-                votePeople, votePeopleEachOption, writerOrNot, isModified);
+                votePeople, votePeopleEachOption, writerOrNot, isModified, scrapOrNot);
     }
 
     public void updatePost(Long id, ToktokDto.PostToktokRequest request) {
