@@ -138,6 +138,21 @@ public class ReportDto {
 
     }
 
+    // 게시글 목록 조회
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class GetReportListResponse {
+        private List<SearchListResponse> content;
+
+        public static GetReportListResponse from(List<Report> reports) {
+            return GetReportListResponse.builder()
+                    .content(reports.stream().map(SearchListResponse::fromEntity).collect(Collectors.toList()))
+                    .build();
+        }
+    }
+
+
     @Getter
     @Builder
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
