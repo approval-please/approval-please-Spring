@@ -3,7 +3,6 @@ package com.umc.approval.domain.comment.entity;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.umc.approval.domain.comment.dto.CommentDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -25,7 +24,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
     }
 
     @Override
-    public List<Comment> findAllByPost(CommentDto.Request requestDto) {
+    public List<Comment> findAllByPost(Long documentId, Long toktokId, Long reportId) {
         QComment cc = new QComment("cc");
 
         return queryFactory
@@ -36,9 +35,9 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 .innerJoin(comment.user).fetchJoin() // 댓글 유저 함께 조회
                 .leftJoin(comment.likes) // 댓글 좋아요 함께 조회
                 .where(
-                        documentEq(requestDto.getDocumentId()),
-                        toktokEq(requestDto.getToktokId()),
-                        reportEq(requestDto.getReportId()),
+                        documentEq(documentId),
+                        toktokEq(toktokId),
+                        reportEq(reportId),
                         comment.parentComment.id.isNull() // 대댓글이 아닌 것만
                 )
                 .distinct()
@@ -46,7 +45,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
     }
 
     @Override
-    public Page<Comment> findAllByPostPaging(Pageable pageable, CommentDto.Request requestDto) {
+    public Page<Comment> findAllByPostPaging(Pageable pageable, Long documentId, Long toktokId, Long reportId) {
 
         QComment cc = new QComment("cc");
 
@@ -58,9 +57,9 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 .innerJoin(comment.user) // 댓글 유저 함께 조회
                 .leftJoin(comment.likes) // 댓글 좋아요 함께 조회
                 .where(
-                        documentEq(requestDto.getDocumentId()),
-                        toktokEq(requestDto.getToktokId()),
-                        reportEq(requestDto.getReportId()),
+                        documentEq(documentId),
+                        toktokEq(toktokId),
+                        reportEq(reportId),
                         comment.parentComment.id.isNull() // 대댓글이 아닌 것만
                 )
                 .distinct()
@@ -72,9 +71,9 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 .select(comment.count())
                 .from(comment)
                 .where(
-                        documentEq(requestDto.getDocumentId()),
-                        toktokEq(requestDto.getToktokId()),
-                        reportEq(requestDto.getReportId()),
+                        documentEq(documentId),
+                        toktokEq(toktokId),
+                        reportEq(reportId),
                         comment.parentComment.id.isNull()
                 );
 
@@ -82,13 +81,13 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
     }
 
     @Override
-    public Integer countByPost(CommentDto.Request requestDto) {
+    public Integer countByPost(Long documentId, Long toktokId, Long reportId) {
         return Math.toIntExact(queryFactory
                 .select(comment.count())
                 .where(
-                        documentEq(requestDto.getDocumentId()),
-                        toktokEq(requestDto.getToktokId()),
-                        reportEq(requestDto.getReportId())
+                        documentEq(documentId),
+                        toktokEq(toktokId),
+                        reportEq(reportId)
                 )
                 .from(comment)
                 .fetchFirst());

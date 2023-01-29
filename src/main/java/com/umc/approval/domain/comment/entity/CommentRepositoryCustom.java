@@ -8,9 +8,9 @@ import java.util.List;
 
 public interface CommentRepositoryCustom {
 
-    List<Comment> findAllByPost(CommentDto.Request requestDto);
+    List<Comment> findAllByPost(Long documentId, Long toktokId, Long reportId);
 
-    Page<Comment> findAllByPostPaging(Pageable pageable, CommentDto.Request requestDto);
+    Page<Comment> findAllByPostPaging(Pageable pageable, Long documentId, Long toktokId, Long reportId);
 
-    Integer countByPost(CommentDto.Request requestDto);
+    Integer countByPost(Long documentId, Long toktokId, Long reportId);
 }
