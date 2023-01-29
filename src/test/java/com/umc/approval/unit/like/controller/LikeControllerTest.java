@@ -85,7 +85,7 @@ public class LikeControllerTest {
                 .content(content)
                 .build();
 
-        given(likeService.getLikeList(any(), any())).willReturn(response);
+        given(likeService.getLikeList(any(), any(), any(), any())).willReturn(response);
 
         // when & then
         mvc.perform(get("/likes")
@@ -95,18 +95,6 @@ public class LikeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.likeCount").value(1))
                 .andExpect(jsonPath("$.content[0].nickname").value(content.get(0).getNickname()))
-                .andDo(print());
-    }
-
-    @DisplayName("좋아요 목록 조회 시 body가 없으면 실패한다")
-    @WithMockUser
-    @Test
-    void get_like_list_no_body_fail() throws Exception {
-
-        // given & when & then
-        mvc.perform(get("/likes")
-                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
-                .andExpect(status().isInternalServerError())
                 .andDo(print());
     }
 
