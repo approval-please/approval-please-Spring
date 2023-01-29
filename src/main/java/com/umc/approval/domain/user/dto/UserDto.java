@@ -134,4 +134,12 @@ public class UserDto {
         private String introduction;
         private String image;
     }
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Response {
+        private String accessToken;
+        private String refreshToken;
+    }
 }
