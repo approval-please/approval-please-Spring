@@ -20,7 +20,7 @@ public class KakaoOAuth2Service {
     public static final String GET_PROFILE_URL = "https://kapi.kakao.com/v2/user/me";
     public static final String KAKAO_SECRET_PASSWORD = "approval_kakao!";
 
-    public Long getKakaoIdWithAccessToken(String accessToken) {
+    public KakaoProfile getKakaoProfileWithAccessToken(String accessToken) {
         try {
 
             // Header 추가
@@ -43,9 +43,7 @@ public class KakaoOAuth2Service {
 
             // response 객체에 매핑
             ObjectMapper mapper = new ObjectMapper();
-            KakaoProfile profile = mapper.readValue(response.getBody(), KakaoProfile.class);
-
-            return profile.getId();
+            return mapper.readValue(response.getBody(), KakaoProfile.class);
 
         } catch (Exception e) {
             throw new AuthenticationCredentialsNotFoundException("SNS 로그인에 실패했습니다.");

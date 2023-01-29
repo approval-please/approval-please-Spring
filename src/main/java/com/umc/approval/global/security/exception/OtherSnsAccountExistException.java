@@ -5,13 +5,13 @@ import lombok.Getter;
 import org.springframework.security.core.AuthenticationException;
 
 @Getter
-public class FirstSnsLoginException extends AuthenticationException {
+public class OtherSnsAccountExistException extends AuthenticationException {
 
     private final Long socialId;
     private final String email;
     private final SocialType socialType;
 
-    public FirstSnsLoginException(Long socialId, String email, SocialType socialType) {
+    public OtherSnsAccountExistException(Long socialId, String email, SocialType socialType) {
         super("");
         this.socialId = socialId;
         this.email = email;
