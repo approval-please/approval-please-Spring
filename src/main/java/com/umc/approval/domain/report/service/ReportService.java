@@ -23,6 +23,7 @@ import com.umc.approval.domain.scrap.entity.Scrap;
 import com.umc.approval.domain.scrap.entity.ScrapRepository;
 import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.tag.entity.TagRepository;
+import com.umc.approval.domain.toktok.dto.ToktokDto;
 import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
@@ -290,6 +291,12 @@ public class ReportService {
         reportRepository.deleteById(reportId);
 
 
+    }
+
+    @Transactional(readOnly = true)
+    public ReportDto.SearchResponse search(String query, Integer isTag, Integer category, Integer sortBy) {
+        List<Report> reports = reportRepository.findAllByQuery(query, isTag, category, sortBy);
+        return ReportDto.SearchResponse.from(reports);
     }
 
     private User certifyUser() {

@@ -50,4 +50,14 @@ public class ReportController {
         reportService.deletePost(id);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<ReportDto.SearchResponse> search(
+            @RequestParam("query") String query,
+            @RequestParam("isTag") Integer isTag,
+            @RequestParam(value = "category", required = false) Integer category,
+            @RequestParam("sortBy") Integer sortBy
+    ) {
+        return ResponseEntity.ok(reportService.search(query, isTag, category, sortBy));
+    }
 }
