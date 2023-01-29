@@ -20,9 +20,11 @@ public class LikeController {
     @GetMapping
     public ResponseEntity<LikeDto.ListResponse> getLikeList(
             HttpServletRequest request,
-            @RequestBody LikeDto.Request requestDto
+            @RequestParam(value = "documentId", required = false) Long documentId,
+            @RequestParam(value = "toktokId", required = false) Long toktokId,
+            @RequestParam(value = "reportId", required = false) Long reportId
     ) {
-        return ResponseEntity.ok(likeService.getLikeList(request, requestDto));
+        return ResponseEntity.ok(likeService.getLikeList(request, documentId, toktokId, reportId));
     }
 
     @PostMapping
