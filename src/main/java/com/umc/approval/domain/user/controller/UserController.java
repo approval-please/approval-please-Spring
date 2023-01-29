@@ -24,17 +24,15 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<Void> signup(
+    public ResponseEntity<UserDto.Response> signup(
             @RequestBody final UserDto.NormalRequest userCreateNormalRequest
     ) {
-        userService.signup(userCreateNormalRequest);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(userService.signup(userCreateNormalRequest));
     }
 
     @PostMapping("/signup/sns")
-    public ResponseEntity<Void> snsSignup(@RequestBody UserDto.SnsRequest requestDto) {
-        userService.snsSignup(requestDto);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<UserDto.Response> snsSignup(@RequestBody UserDto.SnsRequest requestDto) {
+        return ResponseEntity.ok(userService.snsSignup(requestDto));
     }
 
     @PostMapping("/logout")
