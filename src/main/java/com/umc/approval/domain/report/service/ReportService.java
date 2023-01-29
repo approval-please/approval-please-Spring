@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -101,7 +102,7 @@ public class ReportService {
         createImages(request.getImages(), report);
 
         // 작성자 포인트 적립
-        userRepository.updatePoint(document.getUser().getId(),500L);
+        userRepository.updatePoint(document.getUser().getId(), 500L);
         // 결재 참여자 포인트 적립
         List<Long> userIdList = approvalRepository.findByDocumentId(document.getId());
         userRepository.updatePoint(userIdList, 200L);
@@ -117,8 +118,8 @@ public class ReportService {
         List<ReportDto.DocumentListResponse> response;
 
         response = documents.stream()
-                .map(ReportDto.DocumentListResponse::fromEntity)
-                .collect(Collectors.toList());
+            .map(ReportDto.DocumentListResponse::fromEntity)
+            .collect(Collectors.toList());
         response = documents.stream()
             .map(ReportDto.DocumentListResponse::fromEntity)
             .collect(Collectors.toList());
@@ -135,7 +136,8 @@ public class ReportService {
         // 변경된 결재서류
         Document updateDocument = findDocument(request.getDocumentId());
 
-        if (user.getId() != document.getUser().getId() || user.getId() != updateDocument.getUser().getId()) {
+        if (user.getId() != document.getUser().getId() || user.getId() != updateDocument.getUser()
+            .getId()) {
             throw new CustomException(NO_PERMISSION);
         }
 
@@ -169,32 +171,47 @@ public class ReportService {
     }
 
     // 게시글 상세 조회
-    public ReportDto.GetReportResponse getReport(Long reportId) {
+    public ReportDto.GetReportResponse getReport(Long reportId, HttpServletRequest request) {
         reportRepository.updateView(reportId);
 
         Report report = findReport(reportId);
         Document document = report.getDocument();
-        User user = document.getUser();
+        Long userId = jwtService.getIdDirectHeader(request);
+        User visitUser = null;
+        if (userId != null) {
+            visitUser = userRepository.findById(userId).get();
+        }
+        User writer = document.getUser();
 
         // 결재서류 정보
         List<String> documentTagList = tagRepository.findTagNameList(document.getId());
         List<String> documentImageUrlList = imageRepository.findImageUrlList(document.getId());
+        String documentImageUrl = documentImageUrlList.get(0);
+        Integer documentImageCount = documentImageUrlList.size();
 
         // 결재보고서 정보
         List<String> reportTagList = tagRepository.findTagNameListByReportId(reportId);
         List<String> reportImageUrlList = imageRepository.findImageUrlListByReportId(reportId);
         List<Link> reportLinkList = linkRepository.findByReportId(reportId);
         List<LinkDto.Response> linkResponse;
-        linkResponse = reportLinkList.stream().map(LinkDto.Response::fromEntity).collect(Collectors.toList());
-
+        linkResponse = reportLinkList.stream().map(LinkDto.Response::fromEntity)
+            .collect(Collectors.toList());
 
         // 좋아요, 스크랩, 댓글 수
         Long likedCount = likeRepository.countByReport(report);
         Long commentCount = commentRepository.countByReportId(report.getId());
         Long scrapCount = scrapRepository.countByReport(report);
-        Long likeReportOrNot = likeRepository.countByUserAndReport(user, report);
+        Long scrapReportOrNot = scrapRepository.countByUserAndReport(visitUser, report);
+        Long likeReportOrNot = likeRepository.countByUserAndReport(visitUser, report);
         Boolean likeOrNot = true;
         Boolean followOrNot = true;
+        Boolean writerOrNot = false;
+        Boolean scrapOrNot = true;
+
+        // 해당 유저가 스크랩 했는지 여부
+        if(scrapReportOrNot == 0) {
+            scrapOrNot = false;
+        }
 
         Boolean isModified = true;
         // 게시글이 수정된 적이 있는 확인
@@ -203,23 +220,35 @@ public class ReportService {
         }
 
         // 해당 유저가 게시글을 눌렀는지 여부
-        if(likeReportOrNot == 0) {
+        if (likeReportOrNot == 0) {
             likeOrNot = false;
         }
 
-        // 게시글 상세 조회를 한 유저가 글을 쓴 유저를 팔로우 했는지 여부
-        Long from_userId = user.getId();
-        Long to_userId = document.getUser().getId();
-        Integer follow = followRepository.countFollowOrNot(from_userId, to_userId);
-        if (from_userId == to_userId) {
-            followOrNot = null;
-        } else if(follow == 0) {
-            followOrNot = false;
+        // 게시글 상세 조회를 한 유저가 글 작성자인지 여부
+        if (userId == writer.getId()) {
+            writerOrNot = true;
         }
-        return new GetReportResponse(user, document, report,
-            documentTagList, documentImageUrlList,
+
+        // 게시글 상세 조회를 한 유저가 글을 쓴 유저를 팔로우 했는지 여부
+        if (userId != null) {
+            Long from_userId = visitUser.getId();
+            Long to_userId = document.getUser().getId();
+            Integer follow = followRepository.countFollowOrNot(from_userId, to_userId);
+            if (from_userId == to_userId) {
+                followOrNot = null;
+            } else if (follow == 0) {
+                followOrNot = false;
+            }
+        } else {
+            return new GetReportResponse(writer, document, report, documentTagList,
+                documentImageUrl, documentImageCount, reportTagList, reportImageUrlList, linkResponse, likedCount,
+                scrapCount, commentCount, null, null, isModified, null, null);
+        }
+        return new GetReportResponse(writer, document, report,
+            documentTagList, documentImageUrl, documentImageCount,
             reportTagList, reportImageUrlList,
-            linkResponse, likedCount, scrapCount, commentCount, likeOrNot, followOrNot, isModified);
+            linkResponse, likedCount, scrapCount, commentCount, likeOrNot, followOrNot, isModified,
+            writerOrNot, scrapOrNot);
     }
 
     public void deletePost(Long reportId) {
@@ -227,7 +256,7 @@ public class ReportService {
         Report report = findReport(reportId);
         Document document = report.getDocument();
 
-        if(user.getId() != document.getUser().getId()) {
+        if (user.getId() != document.getUser().getId()) {
             throw new CustomException(NO_PERMISSION);
         }
 
@@ -242,19 +271,19 @@ public class ReportService {
 
         //좋아요 삭제
         List<Like> likes = likeRepository.findByReportId(reportId);
-        if(likes != null) {
+        if (likes != null) {
             likeRepository.deleteAll(likes);
         }
 
         // 스크랩 삭제
         List<Scrap> scraps = scrapRepository.findByReportId(reportId);
-        if(scraps != null) {
+        if (scraps != null) {
             scrapRepository.deleteAll(scraps);
         }
 
         // 댓글 삭제
         List<Comment> comments = commentRepository.findByReportId(reportId);
-        if(comments != null) {
+        if (comments != null) {
             commentRepository.deleteAll(comments);
         }
 

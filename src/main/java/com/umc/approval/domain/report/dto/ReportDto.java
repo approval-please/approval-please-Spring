@@ -11,6 +11,7 @@ import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.global.util.DateUtil;
 import java.time.LocalDateTime;
 import java.util.List;
+import javax.persistence.criteria.CriteriaBuilder.In;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -87,7 +88,8 @@ public class ReportDto {
 
         // document
         private Long documentId;
-        private List<String> documentImageUrl;
+        private String documentImageUrl;
+        private Integer documentImageCount;
         private Integer documentCategory;
         private String documentTitle;
         private String documentContent;
@@ -103,6 +105,8 @@ public class ReportDto {
         private Long likedCount;
         private Boolean likeOrNot;
         private Boolean followOrNot;
+        private Boolean writerOrNot;
+        private Boolean scrapOrNot;
         private Long scrapCount;
         private Long commentCount;
         private String datetime;
@@ -110,16 +114,17 @@ public class ReportDto {
         private Long view;
 
         public GetReportResponse(User user, Document document, Report report,
-            List<String> documentTagList, List<String> documentImageUrlList,
+            List<String> documentTagList, String documentImageUrlList, Integer documentImageCount,
             List<String> reportTagList, List<String> reportImageUrlList,
             List<LinkDto.Response> reportLink, Long likedCount, Long scrapCount, Long commentCount,
-            Boolean likeOrNot, Boolean followOrNot, Boolean isModified) {
+            Boolean likeOrNot, Boolean followOrNot, Boolean isModified, Boolean writerOrNot, Boolean scrapOrNot) {
             this.profileImage = user.getProfileImage();
             this.nickname = user.getNickname();
             this.level = user.getLevel();
 
             this.documentId = document.getId();
             this.documentImageUrl = documentImageUrlList;
+            this.documentImageCount = documentImageCount;
             this.documentContent = document.getContent();
             this.documentCategory = document.getCategory().getValue();
             this.documentTitle = document.getTitle();
@@ -139,6 +144,8 @@ public class ReportDto {
             this.followOrNot = followOrNot;
             this.isModified = isModified;
             this.reportId = report.getId();
+            this.writerOrNot = writerOrNot;
+            this.scrapOrNot = scrapOrNot;
         }
 
 
