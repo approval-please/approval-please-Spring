@@ -2,6 +2,7 @@ package com.umc.approval.domain.report.controller;
 
 import com.umc.approval.domain.report.dto.ReportDto;
 import com.umc.approval.domain.report.service.ReportService;
+import com.umc.approval.domain.toktok.dto.ToktokDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -47,5 +48,15 @@ public class ReportController {
     public ResponseEntity<Void> deletePost(@PathVariable("reportId") Long id) {
         reportService.deletePost(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ReportDto.SearchResponse> search(
+            @RequestParam("query") String query,
+            @RequestParam("isTag") Integer isTag,
+            @RequestParam(value = "category", required = false) Integer category,
+            @RequestParam("sortBy") Integer sortBy
+    ) {
+        return ResponseEntity.ok(reportService.search(query, isTag, category, sortBy));
     }
 }
