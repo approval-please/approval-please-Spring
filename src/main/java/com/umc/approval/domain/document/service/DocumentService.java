@@ -14,6 +14,8 @@ import com.umc.approval.domain.like_category.entity.LikeCategory;
 import com.umc.approval.domain.like_category.entity.LikeCategoryRepository;
 import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.entity.LinkRepository;
+import com.umc.approval.domain.report.entity.Report;
+import com.umc.approval.domain.report.entity.ReportRepository;
 import com.umc.approval.domain.scrap.entity.Scrap;
 import com.umc.approval.domain.scrap.entity.ScrapRepository;
 import com.umc.approval.domain.tag.entity.Tag;
@@ -59,6 +61,7 @@ public class DocumentService {
     private final ApprovalRepository approvalRepository;
     private final LikeCategoryRepository likeCategoryRepository;
     private final ScrapRepository scrapRepository;
+    private final ReportRepository reportRepository;
 
     public void createDocument(DocumentDto.DocumentRequest request) {
         User user = certifyUser();
@@ -108,17 +111,36 @@ public class DocumentService {
         // 게시글 수정 유무
         boolean isModified = document.getCreatedAt().isEqual(document.getModifiedAt()) ? false : true;
 
-        // 게시글 좋아요, 스크랩 유무
+        // 게시글 작성자, 좋아요/스크랩 유무
+        Boolean writerOrNot = null;
         boolean likeOrNot = false;
         boolean scrapOrNot = false;
         Long userId = jwtService.getIdDirectHeader(request);
+
+        // 로그인 o
         if(userId != null){
+            // 게시글 작성자인지
+            if(userId == document.getUser().getId()){
+                writerOrNot = true;
+            }else{
+                writerOrNot = false;
+            }
+
+            // 게시글 좋아요/스크랩 유무
             likeOrNot = likeRepository.countByUserAndDocument(user, document) == 0 ? false : true;
             scrapOrNot = scrapRepository.countByUserAndDocument(user, document) == 0 ? false : true;
         }
 
+        // 게시글의 결재보고서가 작성되었는지
+        boolean reportMade = false;
+        Optional<Report> report = reportRepository.findByDocumentId(documentId);
+        if(report != null && !report.isEmpty()){
+            reportMade = true;
+        }
+
         return new DocumentDto.GetDocumentResponse(document, user, tagNameList, imageUrlList, link,
-                approveCount, rejectCount, likedCount, commentCount, isModified, likeOrNot, scrapOrNot);
+                approveCount, rejectCount, likedCount, commentCount, isModified, likeOrNot, scrapOrNot,
+                writerOrNot, reportMade);
     }
 
     public void updateDocument(Long documentId, DocumentDto.DocumentRequest request) {
