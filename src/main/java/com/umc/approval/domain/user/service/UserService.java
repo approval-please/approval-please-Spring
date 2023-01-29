@@ -143,4 +143,9 @@ public class UserService {
                     throw new CustomException(EMAIL_ALREADY_EXIST);
                 });
     }
+
+    public void checkToken() {
+        userRepository.findById(jwtService.getId())
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+    }
 }
