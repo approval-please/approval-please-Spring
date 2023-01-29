@@ -85,8 +85,8 @@ public class DocumentDto {
         private Boolean isModified;
         private Long view;
 
-        private Boolean isLiked;
-        private Boolean isScrap;
+        private Boolean likeOrNot;
+        private Boolean scrapOrNot;
 
 
         // Entity -> DTO
@@ -94,7 +94,7 @@ public class DocumentDto {
                                    List<String> tagNameList, List<String> imageUrlList,
                                    Link link, int approveCount, int rejectCount,
                                    int likedCount, int commentCount,
-                                   boolean isModified, boolean isLiked, boolean isScrap) {
+                                   boolean isModified, boolean likeOrNot, boolean scrapOrNot) {
 
             this.profileImage = user.getProfileImage();
             this.nickname = user.getNickname();
@@ -118,8 +118,8 @@ public class DocumentDto {
             this.isModified = isModified;
             this.view = document.getView();
 
-            this.isLiked = isLiked;
-            this.isScrap = isScrap;
+            this.likeOrNot = likeOrNot;
+            this.scrapOrNot = scrapOrNot;
         }
     }
 

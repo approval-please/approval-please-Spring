@@ -109,16 +109,16 @@ public class DocumentService {
         boolean isModified = document.getCreatedAt().isEqual(document.getModifiedAt()) ? false : true;
 
         // 게시글 좋아요, 스크랩 유무
-        boolean isLiked = false;
-        boolean isScrap = false;
+        boolean likeOrNot = false;
+        boolean scrapOrNot = false;
         Long userId = jwtService.getIdDirectHeader(request);
         if(userId != null){
-            isLiked = likeRepository.countByUserAndDocument(user, document) == 0 ? false : true;
-            isScrap = scrapRepository.countByUserAndDocument(user, document) == 0 ? false : true;
+            likeOrNot = likeRepository.countByUserAndDocument(user, document) == 0 ? false : true;
+            scrapOrNot = scrapRepository.countByUserAndDocument(user, document) == 0 ? false : true;
         }
 
         return new DocumentDto.GetDocumentResponse(document, user, tagNameList, imageUrlList, link,
-                approveCount, rejectCount, likedCount, commentCount, isModified, isLiked, isScrap);
+                approveCount, rejectCount, likedCount, commentCount, isModified, likeOrNot, scrapOrNot);
     }
 
     public void updateDocument(Long documentId, DocumentDto.DocumentRequest request) {
