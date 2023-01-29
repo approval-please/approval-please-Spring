@@ -1,6 +1,7 @@
 package com.umc.approval.domain.toktok.entity;
 
 import com.umc.approval.domain.BaseTimeEntity;
+import com.umc.approval.domain.comment.entity.Comment;
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.like.entity.Like;
 import com.umc.approval.domain.link.entity.Link;
@@ -69,7 +70,7 @@ public class Toktok extends BaseTimeEntity {
     private List<Like> likes;
 
     @OneToMany(fetch = LAZY, mappedBy = "toktok")
-    private List<Scrap> scraps;
+    private List<Comment> comments;
 
     @OneToMany(fetch = LAZY, mappedBy = "toktok")
     private List<Image> images;
