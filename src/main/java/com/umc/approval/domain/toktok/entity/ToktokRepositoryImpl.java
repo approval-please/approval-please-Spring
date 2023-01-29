@@ -12,6 +12,7 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.umc.approval.domain.document.entity.QDocument.document;
 import static com.umc.approval.domain.tag.entity.QTag.tag1;
 import static com.umc.approval.domain.toktok.entity.QToktok.toktok;
 import static com.umc.approval.domain.vote.entity.QVote.vote;
@@ -50,8 +51,7 @@ public class ToktokRepositoryImpl implements ToktokRepositoryCustom {
                             categoryEq(category)
                     )
                     .distinct()
-                    .orderBy(sortBy == 0 ? toktok.createdAt.desc() :
-                                    date.desc(),
+                    .orderBy(sortBy == 0 ? toktok.createdAt.desc() : date.desc(),
                             toktok.likes.size().add(toktok.comments.size()).add(toktok.view).desc())
                     .fetch();
         } else {
@@ -70,8 +70,7 @@ public class ToktokRepositoryImpl implements ToktokRepositoryCustom {
                             categoryEq(category)
                     )
                     .distinct()
-                    .orderBy(sortBy == 0 ? toktok.createdAt.desc() :
-                                    date.desc(),
+                    .orderBy(sortBy == 0 ? toktok.createdAt.desc() : date.desc(),
                             toktok.likes.size().add(toktok.comments.size()).add(toktok.view).desc())
                     .fetch();
         }

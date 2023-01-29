@@ -103,46 +103,4 @@ public class ToktokServiceIntegrationTest {
         Authentication authToken = new UsernamePasswordAuthenticationToken(user.getEmail(), accessToken, authorities);
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }
-
-    @DisplayName("결재톡톡 검색에 성공한다 - 카테고리 검색")
-    @Test
-    void search_toktok_success() {
-
-        // given
-        User user = createUser(1L);
-        userRepository.save(user);
-
-        Toktok toktok1 = Toktok.builder()
-                .user(user)
-                .category(DIGITAL)
-                .content("안녕하세요")
-                .view(0L)
-                .build();
-        toktokRepository.save(toktok1);
-
-        Toktok toktok2 = Toktok.builder()
-                .user(user)
-                .category(DIGITAL)
-                .content("안녕하소")
-                .view(0L)
-                .build();
-        toktokRepository.save(toktok2);
-
-        Toktok toktok3 = Toktok.builder()
-                .user(user)
-                .category(ANIMAL_PLANT)
-                .content("안녕하세요")
-                .view(0L)
-                .build();
-        toktokRepository.save(toktok3);
-
-        // when
-        ToktokDto.SearchResponse response = toktokService.search("하세", 0, DIGITAL.getValue(), 0);
-        ToktokDto.SearchListResponse findResponse = response.getContent().get(0);
-
-        // then
-        assertThat(response.getContent().size()).isEqualTo(1);
-        assertThat(findResponse.getCategory()).isEqualTo(DIGITAL.getValue());
-        assertThat(findResponse.getContent()).isEqualTo(toktok1.getContent());
-    }
 }

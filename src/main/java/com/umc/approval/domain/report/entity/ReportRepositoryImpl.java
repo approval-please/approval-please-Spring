@@ -52,8 +52,7 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
                             categoryEq(category)
                     )
                     .distinct()
-                    .orderBy(sortBy == 0 ? report.createdAt.desc() :
-                                    date.desc(),
+                    .orderBy(sortBy == 0 ? report.createdAt.desc() : date.desc(),
                             report.likes.size().add(report.comments.size()).add(report.view).desc())
                     .fetch();
         } else {
@@ -74,8 +73,7 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
                             categoryEq(category)
                     )
                     .distinct()
-                    .orderBy(sortBy == 0 ? report.createdAt.desc() :
-                                    date.desc(),
+                    .orderBy(sortBy == 0 ? report.createdAt.desc() : date.desc(),
                             report.likes.size().add(report.comments.size()).add(report.view).desc())
                     .fetch();
         }
