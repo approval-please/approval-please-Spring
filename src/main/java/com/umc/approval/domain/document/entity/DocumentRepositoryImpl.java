@@ -1,5 +1,6 @@
 package com.umc.approval.domain.document.entity;
 
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.NumberExpression;
@@ -51,9 +52,8 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
                             stateEq(state)
                     )
                     .distinct()
-                    .orderBy(sortBy == 0 ? document.createdAt.desc() :
-                                    date.desc(),
-                            document.likes.size().add(document.comments.size()).add(document.view).desc())
+                    .orderBy(sortBy == 0 ? document.createdAt.desc() : date.desc(),
+                                    document.likes.size().add(document.comments.size()).add(document.view).desc())
                     .fetch();
         } else {
             return queryFactory
@@ -70,8 +70,7 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
                             stateEq(state)
                     )
                     .distinct()
-                    .orderBy(sortBy == 0 ? document.createdAt.desc() :
-                                    date.desc(),
+                    .orderBy(sortBy == 0 ? document.createdAt.desc() : date.desc(),
                             document.likes.size().add(document.comments.size()).add(document.view).desc())
                     .fetch();
         }
