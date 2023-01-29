@@ -1,31 +1,19 @@
 package com.umc.approval.domain.report.dto;
 
-import com.umc.approval.domain.document.dto.DocumentDto;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.image.entity.Image;
-import com.umc.approval.domain.like.dto.LikeDto;
-import com.umc.approval.domain.like.dto.LikeDto.Response;
-import com.umc.approval.domain.like.entity.Like;
 import com.umc.approval.domain.link.dto.LinkDto;
 import com.umc.approval.domain.report.entity.Report;
-
 import com.umc.approval.domain.tag.entity.Tag;
-import com.umc.approval.domain.toktok.dto.ToktokDto;
-import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.global.util.DateUtil;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.*;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import org.springframework.data.domain.Page;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ReportDto {
 
@@ -56,8 +44,8 @@ public class ReportDto {
 
         public static ReportGetDocumentResponse from(List<DocumentListResponse> content) {
             return ReportGetDocumentResponse.builder()
-                .content(content)
-                .build();
+                    .content(content)
+                    .build();
         }
 
     }
@@ -74,11 +62,11 @@ public class ReportDto {
 
         public static DocumentListResponse fromEntity(Document document) {
             return DocumentListResponse.builder()
-                .documentId(document.getId())
-                .title(document.getTitle())
-                .state(document.getState())
-                .datetime(DateUtil.convert(document.getCreatedAt()))
-                .build();
+                    .documentId(document.getId())
+                    .title(document.getTitle())
+                    .state(document.getState())
+                    .datetime(DateUtil.convert(document.getCreatedAt()))
+                    .build();
         }
     }
 
@@ -116,10 +104,10 @@ public class ReportDto {
         private Long view;
 
         public GetReportResponse(User user, Document document, Report report,
-            List<String> documentTagList, List<String> documentImageUrlList,
-            List<String> reportTagList, List<String> reportImageUrlList,
-            List<LinkDto.Response> reportLink, Long likedCount, Long scrapCount, Long commentCount,
-            Boolean likeOrNot, Boolean followOrNot, Boolean isModified) {
+                                 List<String> documentTagList, List<String> documentImageUrlList,
+                                 List<String> reportTagList, List<String> reportImageUrlList,
+                                 List<LinkDto.Response> reportLink, Long likedCount, Long scrapCount, Long commentCount,
+                                 Boolean likeOrNot, Boolean followOrNot, Boolean isModified) {
             this.profileImage = user.getProfileImage();
             this.nickname = user.getNickname();
             this.level = user.getLevel();
