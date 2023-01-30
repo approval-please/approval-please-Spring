@@ -96,7 +96,7 @@ public class DocumentService {
 
         // 결재서류 정보
         Document document = findDocument(documentId);
-        User user = document.getUser();
+        User user = document.getUser(); // 결재서류 작성자
         List<String> tagNameList = tagRepository.findTagNameList(documentId);
         List<String> imageUrlList = imageRepository.findImageUrlList(documentId);
         Link link = linkRepository.findByDocumentId(documentId).orElse(null);
@@ -128,7 +128,7 @@ public class DocumentService {
             }else{
                 isWriter = false;
 
-                // 타 게시글에 대해 승인/반려 여부
+                // 로그인한 사용자의 타 게시글에 대한 승인/반려 여부
                 Optional<Approval> approval = approvalRepository.findByUserIdAndDocumentId(documentId, userId);
                 if(approval != null && !approval.isEmpty()){ // 승인/반려 선택한 경우
                     if(approval.get().getIsApprove() == true)
