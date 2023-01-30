@@ -84,11 +84,11 @@ public class ReportService {
 
         //결재보고서 등록
         Report report = Report.builder()
-                .content(request.getContent())
-                .document(document)
-                .notification(true)
-                .view(0L)
-                .build();
+            .content(request.getContent())
+            .document(document)
+            .notification(true)
+            .view(0L)
+            .build();
 
         reportRepository.save(report);
 
@@ -117,16 +117,15 @@ public class ReportService {
         User user = certifyUser();
 
         List<Document> documents = documentRepository.findByUserId(user.getId());
-
+        // 아직 보고서를 작성하지 않은 결재서류
+        List<Document> notWriteReportDocuments = documents.stream().filter(document -> !reportRepository.findByDocumentId(document.getId()).isPresent()).collect(
+            Collectors.toList());
         // Dto로 변환
         List<ReportDto.DocumentListResponse> response;
 
-        response = documents.stream()
-                .map(ReportDto.DocumentListResponse::fromEntity)
-                .collect(Collectors.toList());
-        response = documents.stream()
-                .map(ReportDto.DocumentListResponse::fromEntity)
-                .collect(Collectors.toList());
+        response = notWriteReportDocuments.stream()
+            .map(ReportDto.DocumentListResponse::fromEntity)
+            .collect(Collectors.toList());
 
         return ReportDto.ReportGetDocumentResponse.from(response);
     }
@@ -141,7 +140,7 @@ public class ReportService {
         Document updateDocument = findDocument(request.getDocumentId());
 
         if (user.getId() != document.getUser().getId() || user.getId() != updateDocument.getUser()
-                .getId()) {
+            .getId()) {
             throw new CustomException(NO_PERMISSION);
         }
 
@@ -199,7 +198,7 @@ public class ReportService {
         List<Link> reportLinkList = linkRepository.findByReportId(reportId);
         List<LinkDto.Response> linkResponse;
         linkResponse = reportLinkList.stream().map(LinkDto.Response::fromEntity)
-                .collect(Collectors.toList());
+            .collect(Collectors.toList());
 
         // 좋아요, 스크랩, 댓글 수
         Long likedCount = likeRepository.countByReport(report);
@@ -245,14 +244,14 @@ public class ReportService {
             }
         } else {
             return new GetReportResponse(writer, document, report, documentTagList,
-                    documentImageUrl, documentImageCount, reportTagList, reportImageUrlList, linkResponse, likedCount,
-                    scrapCount, commentCount, null, null, isModified, null, null);
+                documentImageUrl, documentImageCount, reportTagList, reportImageUrlList, linkResponse, likedCount,
+                scrapCount, commentCount, null, null, isModified, null, null);
         }
         return new GetReportResponse(writer, document, report,
-                documentTagList, documentImageUrl, documentImageCount,
-                reportTagList, reportImageUrlList,
-                linkResponse, likedCount, scrapCount, commentCount, likeOrNot, followOrNot, isModified,
-                writerOrNot, scrapOrNot);
+            documentTagList, documentImageUrl, documentImageCount,
+            reportTagList, reportImageUrlList,
+            linkResponse, likedCount, scrapCount, commentCount, likeOrNot, followOrNot, isModified,
+            writerOrNot, scrapOrNot);
     }
 
     // 게시글 목록 조회
@@ -335,18 +334,18 @@ public class ReportService {
 
     private User certifyUser() {
         User user = userRepository.findById(jwtService.getId())
-                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+            .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
         return user;
     }
 
     public void createLink(List<LinkDto.Request> linkList, Report report) {
         for (LinkDto.Request l : linkList) {
             Link link = Link.builder()
-                    .report(report)
-                    .url(l.getUrl())
-                    .title(l.getTitle())
-                    .image(l.getImage())
-                    .build();
+                .report(report)
+                .url(l.getUrl())
+                .title(l.getTitle())
+                .image(l.getImage())
+                .build();
             linkRepository.save(link);
         }
     }
@@ -360,14 +359,14 @@ public class ReportService {
 
     private Document findDocument(Long documentId) {
         Document document = documentRepository.findById(documentId)
-                .orElseThrow(() -> new CustomException(DOCUMENT_NOT_FOUND));
+            .orElseThrow(() -> new CustomException(DOCUMENT_NOT_FOUND));
 
         return document;
     }
 
     private Report findReport(Long reportId) {
         Report report = reportRepository.findById(reportId)
-                .orElseThrow(() -> new CustomException(REPORT_NOT_FOUND));
+            .orElseThrow(() -> new CustomException(REPORT_NOT_FOUND));
 
         return report;
     }

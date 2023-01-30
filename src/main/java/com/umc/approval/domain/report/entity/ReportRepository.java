@@ -36,5 +36,4 @@ public interface ReportRepository extends JpaRepository<Report, Long>, ReportRep
             "where u.id in (:user_id_list) " +
             "order by r.createdAt desc")
     List<Report> findAllByUserIdList(@Param("user_id_list") List<Long> userIdList);
-
 }
