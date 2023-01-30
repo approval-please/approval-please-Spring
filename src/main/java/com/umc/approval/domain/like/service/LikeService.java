@@ -45,9 +45,9 @@ public class LikeService {
     private final CommentRepository commentRepository;
 
     @Transactional(readOnly = true)
-    public LikeDto.ListResponse getLikeList(HttpServletRequest request, LikeDto.Request requestDto) {
+    public LikeDto.ListResponse getLikeList(HttpServletRequest request, Long documentId, Long toktokId, Long reportId) {
 
-        List<Like> likes = likeRepository.findAllByPost(requestDto);
+        List<Like> likes = likeRepository.findAllByPost(documentId, toktokId, reportId);
 
         // 팔로우 처리
         Long userId = jwtService.getIdDirectHeader(request);

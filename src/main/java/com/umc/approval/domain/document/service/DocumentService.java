@@ -14,6 +14,8 @@ import com.umc.approval.domain.like_category.entity.LikeCategory;
 import com.umc.approval.domain.like_category.entity.LikeCategoryRepository;
 import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.entity.LinkRepository;
+import com.umc.approval.domain.report.entity.Report;
+import com.umc.approval.domain.report.entity.ReportRepository;
 import com.umc.approval.domain.scrap.entity.Scrap;
 import com.umc.approval.domain.scrap.entity.ScrapRepository;
 import com.umc.approval.domain.tag.entity.Tag;
@@ -33,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.print.Doc;
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -58,6 +61,7 @@ public class DocumentService {
     private final ApprovalRepository approvalRepository;
     private final LikeCategoryRepository likeCategoryRepository;
     private final ScrapRepository scrapRepository;
+    private final ReportRepository reportRepository;
 
     public void createDocument(DocumentDto.DocumentRequest request) {
         User user = certifyUser();
@@ -84,7 +88,7 @@ public class DocumentService {
         userRepository.updatePoint(user.getId(),100L);
     }
 
-    public DocumentDto.GetDocumentResponse getDocument(Long documentId) {
+    public DocumentDto.GetDocumentResponse getDocument(HttpServletRequest request, Long documentId) {
 
         // 조회 수 업데이트
         documentRepository.updateView(documentId);
@@ -107,8 +111,36 @@ public class DocumentService {
         // 게시글 수정 유무
         boolean isModified = document.getCreatedAt().isEqual(document.getModifiedAt()) ? false : true;
 
+        // 게시글 작성자, 좋아요/스크랩 유무
+        Boolean writerOrNot = null;
+        boolean likeOrNot = false;
+        boolean scrapOrNot = false;
+        Long userId = jwtService.getIdDirectHeader(request);
+
+        // 로그인 o
+        if(userId != null){
+            // 게시글 작성자인지
+            if(userId == document.getUser().getId()){
+                writerOrNot = true;
+            }else{
+                writerOrNot = false;
+            }
+
+            // 게시글 좋아요/스크랩 유무
+            likeOrNot = likeRepository.countByUserAndDocument(user, document) == 0 ? false : true;
+            scrapOrNot = scrapRepository.countByUserAndDocument(user, document) == 0 ? false : true;
+        }
+
+        // 게시글의 결재보고서가 작성되었는지
+        boolean reportMade = false;
+        Optional<Report> report = reportRepository.findByDocumentId(documentId);
+        if(report != null && !report.isEmpty()){
+            reportMade = true;
+        }
+
         return new DocumentDto.GetDocumentResponse(document, user, tagNameList, imageUrlList, link,
-                approveCount, rejectCount, likedCount, commentCount, isModified);
+                approveCount, rejectCount, likedCount, commentCount, isModified, likeOrNot, scrapOrNot,
+                writerOrNot, reportMade);
     }
 
     public void updateDocument(Long documentId, DocumentDto.DocumentRequest request) {
@@ -185,7 +217,7 @@ public class DocumentService {
         documentRepository.deleteById(documentId);
     }
 
-    public DocumentDto.GetDocumentListResponse getDocumentList(Integer category) {
+    public DocumentDto.GetDocumentListResponse getDocumentList(Integer category, Integer state, Integer sortBy) {
         // 게시글 목록 조회
         List<Document> documents = new ArrayList<>();
 
@@ -211,7 +243,7 @@ public class DocumentService {
         return new DocumentDto.GetDocumentListResponse(response);
     }
 
-    public DocumentDto.GetDocumentListResponse getLikedDocumentList(Integer category){
+    public DocumentDto.GetDocumentListResponse getLikedDocumentList(Integer category, Integer state, Integer sortBy){
         User user = certifyUser();
 
         // 사용자의 관심부서

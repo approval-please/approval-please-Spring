@@ -45,7 +45,7 @@ public class UserService {
         }
     }
 
-    public void signup(UserDto.NormalRequest userCreateNormalRequest) {
+    public UserDto.Response signup(UserDto.NormalRequest userCreateNormalRequest) {
         // 전화번호 인증 내역 체크
         certValidation(userCreateNormalRequest.getPhoneNumber());
 
@@ -61,9 +61,13 @@ public class UserService {
         // 사용자 등록
         User user = userCreateNormalRequest.toEntity(encodedPassword);
         userRepository.save(user);
+        String accessToken = jwtService.createAccessToken(user.getEmail(), user.getId());
+        String refreshToken = jwtService.createRefreshToken(user.getEmail());
+        user.updateRefreshToken(refreshToken);
+        return new UserDto.Response(accessToken, refreshToken);
     }
 
-    public void snsSignup(UserDto.SnsRequest requestDto) {
+    public UserDto.Response snsSignup(UserDto.SnsRequest requestDto) {
         // 전화번호 인증 내역 체크
         certValidation(requestDto.getPhoneNumber());
 
@@ -80,6 +84,10 @@ public class UserService {
         }
         User user = requestDto.toEntity(encodedPassword);
         userRepository.save(user);
+        String accessToken = jwtService.createAccessToken(user.getEmail(), user.getId());
+        String refreshToken = jwtService.createRefreshToken(user.getEmail());
+        user.updateRefreshToken(refreshToken);
+        return new UserDto.Response(accessToken, refreshToken);
     }
 
     public void logout() {
@@ -142,5 +150,10 @@ public class UserService {
                 .ifPresent(user -> {
                     throw new CustomException(EMAIL_ALREADY_EXIST);
                 });
+    }
+
+    public void checkToken() {
+        userRepository.findById(jwtService.getId())
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
     }
 }
