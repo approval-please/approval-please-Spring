@@ -1,5 +1,6 @@
 package com.umc.approval.domain.document.service;
 
+import com.umc.approval.domain.approval.entity.Approval;
 import com.umc.approval.domain.approval.entity.ApprovalRepository;
 import com.umc.approval.domain.comment.entity.Comment;
 import com.umc.approval.domain.comment.entity.CommentRepository;
@@ -112,18 +113,29 @@ public class DocumentService {
         boolean isModified = document.getCreatedAt().isEqual(document.getModifiedAt()) ? false : true;
 
         // 게시글 작성자, 좋아요/스크랩 유무
-        Boolean writerOrNot = null;
+        Boolean isWriter = null;
         boolean likeOrNot = false;
         boolean scrapOrNot = false;
-        Long userId = jwtService.getIdDirectHeader(request);
+        int isVoted = 0;
+        Long userId = jwtService.getIdDirectHeader(request); // 로그인 한 사용자
 
         // 로그인 o
         if(userId != null){
             // 게시글 작성자인지
             if(userId == document.getUser().getId()){
-                writerOrNot = true;
+                isWriter = true;
+                isVoted = 3;
             }else{
-                writerOrNot = false;
+                isWriter = false;
+
+                // 타 게시글에 대해 승인/반려 여부
+                Optional<Approval> approval = approvalRepository.findByUserIdAndDocumentId(documentId, userId);
+                if(approval != null && !approval.isEmpty()){ // 승인/반려 선택한 경우
+                    if(approval.get().getIsApprove() == true)
+                        isVoted = 1;
+                    else // 반려
+                        isVoted = 2;
+                }
             }
 
             // 게시글 좋아요/스크랩 유무
@@ -140,7 +152,7 @@ public class DocumentService {
 
         return new DocumentDto.GetDocumentResponse(document, user, tagNameList, imageUrlList, link,
                 approveCount, rejectCount, likedCount, commentCount, isModified, likeOrNot, scrapOrNot,
-                writerOrNot, reportMade);
+                isWriter, reportMade, isVoted);
     }
 
     public void updateDocument(Long documentId, DocumentDto.DocumentRequest request) {

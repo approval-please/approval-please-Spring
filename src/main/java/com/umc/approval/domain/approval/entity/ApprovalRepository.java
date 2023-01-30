@@ -1,6 +1,9 @@
 package com.umc.approval.domain.approval.entity;
 
 import com.umc.approval.domain.approval.controller.ApprovalController;
+import com.umc.approval.domain.document.entity.Document;
+import com.umc.approval.domain.toktok.entity.Toktok;
+import com.umc.approval.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,4 +27,7 @@ public interface ApprovalRepository extends JpaRepository<Approval, Long> {
 
     @Query(value = "select user_id from approval where document_id = :document_id", nativeQuery = true)
     List<Long> findByDocumentId(@Param("document_id") Long documentId);
+
+    @Query(value = "select a from Approval a where document_id = :document_id and user_id = :user_id")
+    Optional<Approval> findByUserIdAndDocumentId(@Param("document_id") Long documentId, @Param("user_id") Long userId);
 }

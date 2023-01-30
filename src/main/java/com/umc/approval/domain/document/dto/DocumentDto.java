@@ -61,10 +61,11 @@ public class DocumentDto {
         private Long documentId;
 
         // user
+        private Long userId;
         private String profileImage;
         private String nickname;
         private Integer level;
-        private Boolean writerOrNot;
+        private Boolean isWriter;
         private Boolean reportMade;
 
         // document
@@ -89,6 +90,7 @@ public class DocumentDto {
 
         private Boolean likeOrNot;
         private Boolean scrapOrNot;
+        private Integer isVoted;
 
 
         // Entity -> DTO
@@ -97,12 +99,12 @@ public class DocumentDto {
                                    Link link, int approveCount, int rejectCount,
                                    int likedCount, int commentCount,
                                    boolean isModified, boolean likeOrNot, boolean scrapOrNot,
-                                   Boolean writerOrNot, boolean reportMade) {
-
+                                   Boolean isWriter, boolean reportMade, int isVoted) {
+            this.userId = user.getId();
             this.profileImage = user.getProfileImage();
             this.nickname = user.getNickname();
             this.level = user.getLevel();
-            this.writerOrNot = writerOrNot;
+            this.isWriter = isWriter;
             this.reportMade = reportMade;
 
             this.documentId = document.getId();
@@ -125,6 +127,7 @@ public class DocumentDto {
 
             this.likeOrNot = likeOrNot;
             this.scrapOrNot = scrapOrNot;
+            this.isVoted = isVoted;
         }
     }
 
