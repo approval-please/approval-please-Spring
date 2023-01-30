@@ -3,6 +3,7 @@ package com.umc.approval.domain.scrap.entity;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.toktok.entity.Toktok;
+import com.umc.approval.domain.user.entity.User;
 import java.util.List;
 
 import com.umc.approval.domain.user.entity.User;
@@ -20,6 +21,12 @@ public interface ScrapRepository extends JpaRepository<Scrap, Long>, ScrapReposi
 
     List<Scrap> findByDocumentId(Long documentId);
 
+
     Long countByUserAndDocument(User user, Document document);
+
+    Long countByUserAndToktok(User user, Toktok toktok);
+
+    Long countByUserAndReport(User user, Report report);
+
 
 }

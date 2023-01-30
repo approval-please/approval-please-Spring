@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface LikeRepositoryCustom {
 
-    List<Like> findAllByPost(LikeDto.Request requestDto);
+    List<Like> findAllByPost(Long documentId, Long toktokId, Long reportId);
 
     Page<Like> findAllByPostPaging(Pageable pageable, LikeDto.Request requestDto);
     Optional<Like> findByUserAndPost(Long userId, LikeDto.Request requestDto);

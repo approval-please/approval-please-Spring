@@ -93,6 +93,7 @@ public class ToktokDto {
         private Long likedCount;
         private Boolean likeOrNot;
         private Boolean followOrNot;
+        private Boolean scrapOrNot;
         private Long scrapCount;
         private Long commentCount;
         private Boolean isModified;
@@ -103,7 +104,7 @@ public class ToktokDto {
             List<String> images, List<LinkDto.Response> linkResponse, Long likedCount,
             Long commentCount, Long scrapCount, Boolean likeOrNot,
             Boolean followOrNot, List<VoteOptionResponse> voteOption, List<VoteOptionResponse> voteSelect,
-            Integer votePeople, List<Long> votePeopleEachOption, Boolean writerOrNot, Boolean isModified) {
+            Integer votePeople, List<Long> votePeopleEachOption, Boolean writerOrNot, Boolean isModified, Boolean scrapOrNot) {
             this.profileImage = user.getProfileImage();
             this.level = user.getLevel();
             this.nickname = user.getNickname();
@@ -130,6 +131,7 @@ public class ToktokDto {
             this.voteId = vote == null ? null : toktok.getVote().getId();
             this.toktokId = toktok.getId();
             this.isModified = isModified;
+            this.scrapOrNot = scrapOrNot;
         }
     }
 

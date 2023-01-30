@@ -22,9 +22,11 @@ public class CommentController {
     @GetMapping
     public ResponseEntity<CommentDto.ListResponse> getCommentList(
             HttpServletRequest request,
-            @RequestBody CommentDto.Request requestDto
+            @RequestParam(value = "documentId", required = false) Long documentId,
+            @RequestParam(value = "toktokId", required = false) Long toktokId,
+            @RequestParam(value = "reportId", required = false) Long reportId
     ) {
-        return ResponseEntity.ok(commentService.getCommentList(request, requestDto));
+        return ResponseEntity.ok(commentService.getCommentList(request, documentId, toktokId, reportId));
     }
 
     @PostMapping

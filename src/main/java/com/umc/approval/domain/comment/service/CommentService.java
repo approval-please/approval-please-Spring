@@ -114,22 +114,22 @@ public class CommentService {
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
     }
 
-    public CommentDto.ListResponse getCommentList(HttpServletRequest request, CommentDto.Request requestDto) {
+    public CommentDto.ListResponse getCommentList(HttpServletRequest request, Long documentId, Long toktokId, Long reportId) {
 
-        List<Comment> comments = commentRepository.findAllByPost(requestDto);
+        List<Comment> comments = commentRepository.findAllByPost(documentId, toktokId, reportId);
 
         // 글쓴이 조회
         User writer;
-        if (requestDto.getDocumentId() != null) {
-            Document document = documentRepository.findByIdWithUser(requestDto.getDocumentId())
+        if (documentId != null) {
+            Document document = documentRepository.findByIdWithUser(documentId)
                     .orElseThrow(() -> new CustomException(DOCUMENT_NOT_FOUND));
             writer = document.getUser();
-        } else if (requestDto.getReportId() != null) {
-            Report report = reportRepository.findByIdWithUser(requestDto.getReportId())
+        } else if (reportId != null) {
+            Report report = reportRepository.findByIdWithUser(reportId)
                     .orElseThrow(() -> new CustomException(REPORT_NOT_FOUND));
             writer = report.getDocument().getUser();
         } else {
-            Toktok toktok = toktokRepository.findByIdWithUser(requestDto.getToktokId())
+            Toktok toktok = toktokRepository.findByIdWithUser(toktokId)
                     .orElseThrow(() -> new CustomException(TOKTOKPOST_NOT_FOUND));
             writer = toktok.getUser();
         }

@@ -26,14 +26,14 @@ public class LikeRepositoryImpl implements LikeRepositoryCustom {
     }
 
     @Override
-    public List<Like> findAllByPost(LikeDto.Request requestDto) {
+    public List<Like> findAllByPost(Long documentId, Long toktokId, Long reportId) {
         return queryFactory
                 .selectFrom(like)
                 .innerJoin(like.user, user).fetchJoin()
                 .where(
-                        documentEq(requestDto.getDocumentId()),
-                        toktokEq(requestDto.getToktokId()),
-                        reportEq(requestDto.getReportId())
+                        documentEq(documentId),
+                        toktokEq(toktokId),
+                        reportEq(reportId)
                 )
                 .fetch();
     }
