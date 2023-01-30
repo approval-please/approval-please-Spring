@@ -110,10 +110,10 @@ public class ReportDto {
         private Long view;
 
         public GetReportResponse(User user, Document document, Report report,
-            List<String> documentTagList, String documentImageUrlList, Integer documentImageCount,
-            List<String> reportTagList, List<String> reportImageUrlList,
-            List<LinkDto.Response> reportLink, Long likedCount, Long scrapCount, Long commentCount,
-            Boolean likeOrNot, Boolean followOrNot, Boolean isModified, Boolean writerOrNot, Boolean scrapOrNot) {
+                                 List<String> documentTagList, String documentImageUrlList, Integer documentImageCount,
+                                 List<String> reportTagList, List<String> reportImageUrlList,
+                                 List<LinkDto.Response> reportLink, Long likedCount, Long scrapCount, Long commentCount,
+                                 Boolean likeOrNot, Boolean followOrNot, Boolean isModified, Boolean writerOrNot, Boolean scrapOrNot) {
             this.profileImage = user.getProfileImage();
             this.nickname = user.getNickname();
             this.level = user.getLevel();
@@ -146,6 +146,23 @@ public class ReportDto {
 
 
     }
+
+    // 게시글 목록 조회
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class GetReportListResponse {
+        private Integer reportCount;
+        private List<SearchListResponse> content;
+
+        public static GetReportListResponse from(List<Report> reports) {
+            return GetReportListResponse.builder()
+                    .reportCount(reports.size())
+                    .content(reports.stream().map(SearchListResponse::fromEntity).collect(Collectors.toList()))
+                    .build();
+        }
+    }
+
 
     @Getter
     @Builder

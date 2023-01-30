@@ -7,6 +7,7 @@ import com.umc.approval.domain.comment.entity.Comment;
 import com.umc.approval.domain.comment.entity.CommentRepository;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.entity.DocumentRepository;
+import com.umc.approval.domain.follow.entity.Follow;
 import com.umc.approval.domain.follow.entity.FollowRepository;
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
@@ -29,9 +30,8 @@ import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,10 +40,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.JpaSort;
+import org.springframework.http.HttpRequest;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -81,11 +84,11 @@ public class ReportService {
 
         //결재보고서 등록
         Report report = Report.builder()
-            .content(request.getContent())
-            .document(document)
-            .notification(true)
-            .view(0L)
-            .build();
+                .content(request.getContent())
+                .document(document)
+                .notification(true)
+                .view(0L)
+                .build();
 
         reportRepository.save(report);
 
@@ -119,11 +122,11 @@ public class ReportService {
         List<ReportDto.DocumentListResponse> response;
 
         response = documents.stream()
-            .map(ReportDto.DocumentListResponse::fromEntity)
-            .collect(Collectors.toList());
+                .map(ReportDto.DocumentListResponse::fromEntity)
+                .collect(Collectors.toList());
         response = documents.stream()
-            .map(ReportDto.DocumentListResponse::fromEntity)
-            .collect(Collectors.toList());
+                .map(ReportDto.DocumentListResponse::fromEntity)
+                .collect(Collectors.toList());
 
         return ReportDto.ReportGetDocumentResponse.from(response);
     }
@@ -138,7 +141,7 @@ public class ReportService {
         Document updateDocument = findDocument(request.getDocumentId());
 
         if (user.getId() != document.getUser().getId() || user.getId() != updateDocument.getUser()
-            .getId()) {
+                .getId()) {
             throw new CustomException(NO_PERMISSION);
         }
 
@@ -196,7 +199,7 @@ public class ReportService {
         List<Link> reportLinkList = linkRepository.findByReportId(reportId);
         List<LinkDto.Response> linkResponse;
         linkResponse = reportLinkList.stream().map(LinkDto.Response::fromEntity)
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
 
         // 좋아요, 스크랩, 댓글 수
         Long likedCount = likeRepository.countByReport(report);
@@ -242,14 +245,45 @@ public class ReportService {
             }
         } else {
             return new GetReportResponse(writer, document, report, documentTagList,
-                documentImageUrl, documentImageCount, reportTagList, reportImageUrlList, linkResponse, likedCount,
-                scrapCount, commentCount, null, null, isModified, null, null);
+                    documentImageUrl, documentImageCount, reportTagList, reportImageUrlList, linkResponse, likedCount,
+                    scrapCount, commentCount, null, null, isModified, null, null);
         }
         return new GetReportResponse(writer, document, report,
-            documentTagList, documentImageUrl, documentImageCount,
-            reportTagList, reportImageUrlList,
-            linkResponse, likedCount, scrapCount, commentCount, likeOrNot, followOrNot, isModified,
-            writerOrNot, scrapOrNot);
+                documentTagList, documentImageUrl, documentImageCount,
+                reportTagList, reportImageUrlList,
+                linkResponse, likedCount, scrapCount, commentCount, likeOrNot, followOrNot, isModified,
+                writerOrNot, scrapOrNot);
+    }
+
+    // 게시글 목록 조회
+    public ReportDto.GetReportListResponse getReportList(HttpServletRequest request, Integer sortBy){
+
+        Long userId = jwtService.getIdDirectHeader(request);
+
+        List<Report> reports = new ArrayList<>();
+        if(sortBy == null){ // 최신순
+            reports = reportRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+        }else if(sortBy == 0){ // 인기순
+            //reports = reportRepository.findAllWithJoin();
+        }else if(sortBy == 1){ // 팔로우
+            if(userId == null){
+                throw new CustomException(NO_PERMISSION, "로그인한 사용자만 접근 가능합니다.");
+            }else{
+                List<Follow> followingList = followRepository.findMyFollowings(userId);
+                List<Long> followingUserIdList = followingList.stream()
+                        .map(f -> f.getToUser().getId())
+                        .collect(Collectors.toList());
+                reports = reportRepository.findAllByUserIdList(followingUserIdList);
+            }
+        }else if(sortBy == 2){ // 내 글
+            if(userId == null){
+                throw new CustomException(NO_PERMISSION, "로그인한 사용자만 접근 가능합니다.");
+            }else{
+                reports = reportRepository.findAllByUserId(userId);
+            }
+        }
+
+        return ReportDto.GetReportListResponse.from(reports);
     }
 
     public void deletePost(Long reportId) {
@@ -301,18 +335,18 @@ public class ReportService {
 
     private User certifyUser() {
         User user = userRepository.findById(jwtService.getId())
-            .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
         return user;
     }
 
     public void createLink(List<LinkDto.Request> linkList, Report report) {
         for (LinkDto.Request l : linkList) {
             Link link = Link.builder()
-                .report(report)
-                .url(l.getUrl())
-                .title(l.getTitle())
-                .image(l.getImage())
-                .build();
+                    .report(report)
+                    .url(l.getUrl())
+                    .title(l.getTitle())
+                    .image(l.getImage())
+                    .build();
             linkRepository.save(link);
         }
     }
@@ -326,14 +360,14 @@ public class ReportService {
 
     private Document findDocument(Long documentId) {
         Document document = documentRepository.findById(documentId)
-            .orElseThrow(() -> new CustomException(DOCUMENT_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(DOCUMENT_NOT_FOUND));
 
         return document;
     }
 
     private Report findReport(Long reportId) {
         Report report = reportRepository.findById(reportId)
-            .orElseThrow(() -> new CustomException(REPORT_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(REPORT_NOT_FOUND));
 
         return report;
     }

@@ -1,5 +1,7 @@
 package com.umc.approval.domain.profile.controller;
 
+import com.umc.approval.domain.document.dto.DocumentDto;
+import com.umc.approval.domain.performance.dto.PerformanceDto;
 import com.umc.approval.domain.profile.dto.ProfileDto;
 import com.umc.approval.domain.profile.service.ProfileService;
 import com.umc.approval.domain.report.dto.ReportDto;
@@ -20,7 +22,6 @@ import javax.validation.Valid;
 public class ProfileController {
     private final ProfileService profileService;
 
-
     // 사원증 프로필 조회
     @GetMapping({"/my", "/{userId}"})
     public JSONObject findProfile(HttpServletRequest request,
@@ -30,43 +31,36 @@ public class ProfileController {
 
     // 결재서류 조회
     @GetMapping({"/my/documents", "/{userId}/documents"})
-    public JSONObject findDocuments(@PathVariable(value = "userId", required = false) Long userId,
-                                    @RequestParam(value = "state", required = false) Integer state,
-                                    @RequestParam(value = "isApproved", required = false) Boolean isApproved) {
+    public DocumentDto.SearchResponse findDocuments(@PathVariable(value = "userId", required = false) Long userId,
+                                                    @RequestParam(value = "state", required = false) Integer state,
+                                                    @RequestParam(value = "isApproved", required = false) Boolean isApproved) {
         return profileService.findDocuments(userId, state, isApproved);
     }
 
-    /*
-    // 커뮤니티 - 결재톡톡 조회
-    @GetMapping({"/my/community/toktoks", "/{userId}/community/toktoks"})
-    public JSONObject findToktoks(@PathVariable(value = "userId", required = false) Long userId) {
-        return profileService.findToktoks(userId);
+    // 커뮤니티 - 결재톡톡 / 결재보고서 조회
+    @GetMapping({"/my/community", "/{userId}/community"})
+    public Object findCommunity(@PathVariable(value = "userId", required = false) Long userId,
+                                @RequestParam(value = "postType", defaultValue = "1") Integer postType) {
+        return profileService.findCommunity(userId, postType);
     }
-
-    // 커뮤니티 - 결재보고서 조회
-    @GetMapping({"/my/community/reports", "/{userId}/community/reports"})
-    public ResponseEntity<ReportDto.GetReportResponse> findReports(@PathVariable(value = "userId", required = false) Long userId) {
-        return ResponseEntity.ok(profileService.findReports(userId));
-    }
-     */
 
     // 댓글 작성한 게시글 조회
     @GetMapping("/my/comments")
-    public JSONObject findAllByComments(@RequestParam(value = "postType", required = false) Integer postType,
-                                        @RequestParam(value = "state", required = false) Integer state) {
+    public Object findAllByComments(@RequestParam(value = "postType", defaultValue = "0", required = false) Integer postType,
+                                    @RequestParam(value = "state", required = false) Integer state) {
         return profileService.findAllByComments(postType, state);
     }
 
     // 스크랩한 게시글 조회
     @GetMapping("/my/scraps")
-    public JSONObject findAllByScraps(@RequestParam(value = "postType", required = false) Integer postType,
-                                      @RequestParam(value = "state", required = false) Integer state) {
+    public Object findAllByScraps(@RequestParam(value = "postType", defaultValue = "0", required = false) Integer postType,
+                                  @RequestParam(value = "state", required = false) Integer state) {
         return profileService.findAllByScraps(postType, state);
     }
 
     // 실적 조회
     @GetMapping("/my/performances")
-    public JSONObject findPerformances () {
+    public PerformanceDto.SearchResponse findPerformances () {
         return profileService.findPerformances();
     }
 

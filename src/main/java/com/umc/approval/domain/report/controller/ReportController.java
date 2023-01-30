@@ -5,9 +5,11 @@ import com.umc.approval.domain.report.service.ReportService;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RequiredArgsConstructor
@@ -26,7 +28,7 @@ public class ReportController {
 
     @GetMapping("/{reportId}")
     public ResponseEntity<ReportDto.GetReportResponse> getReport(HttpServletRequest request,
-        @PathVariable("reportId") Long id) {
+                                                                 @PathVariable("reportId") Long id) {
         return ResponseEntity.ok(reportService.getReport(id, request));
     }
 
@@ -49,6 +51,13 @@ public class ReportController {
     public ResponseEntity<Void> deletePost(@PathVariable("reportId") Long id) {
         reportService.deletePost(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<ReportDto.GetReportListResponse> getReportList(
+            HttpServletRequest request,
+            @RequestParam(value = "sortBy", required = false) Integer sortBy){
+        return ResponseEntity.ok().body(reportService.getReportList(request, sortBy));
     }
 
     @GetMapping("/search")
