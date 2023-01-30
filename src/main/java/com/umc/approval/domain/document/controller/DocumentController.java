@@ -35,8 +35,8 @@ public class DocumentController {
 
     @PutMapping("/{documentId}")
     public ResponseEntity<Void> updateDocument(
-        @PathVariable("documentId") Long documentId,
-        @Valid @RequestBody DocumentDto.DocumentRequest request
+            @PathVariable("documentId") Long documentId,
+            @Valid @RequestBody DocumentDto.DocumentRequest request
     ) {
         documentService.updateDocument(documentId, request);
         return ResponseEntity.ok().build();
@@ -66,11 +66,11 @@ public class DocumentController {
 
     @GetMapping("/search")
     public ResponseEntity<DocumentDto.SearchResponse> search(
-        @RequestParam("query") String query,
-        @RequestParam("isTag") Integer isTag,
-        @RequestParam(value = "category", required = false) Integer category,
-        @RequestParam(value = "state", required = false) Integer state,
-        @RequestParam("sortBy") Integer sortBy
+            @RequestParam("query") String query,
+            @RequestParam("isTag") Integer isTag,
+            @RequestParam(value = "category", required = false) Integer category,
+            @RequestParam(value = "state", required = false) Integer state,
+            @RequestParam("sortBy") Integer sortBy
     ) {
         return ResponseEntity.ok(documentService.search(query, isTag, category, state, sortBy));
     }

@@ -7,6 +7,7 @@ import com.umc.approval.domain.comment.entity.Comment;
 import com.umc.approval.domain.comment.entity.CommentRepository;
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.entity.DocumentRepository;
+import com.umc.approval.domain.follow.entity.Follow;
 import com.umc.approval.domain.follow.entity.FollowRepository;
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
@@ -29,9 +30,8 @@ import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,10 +40,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.JpaSort;
+import org.springframework.http.HttpRequest;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -250,6 +253,37 @@ public class ReportService {
             reportTagList, reportImageUrlList,
             linkResponse, likedCount, scrapCount, commentCount, likeOrNot, followOrNot, isModified,
             writerOrNot, scrapOrNot);
+    }
+
+    // 게시글 목록 조회
+    public ReportDto.GetReportListResponse getReportList(HttpServletRequest request, Integer sortBy){
+
+        Long userId = jwtService.getIdDirectHeader(request);
+
+        List<Report> reports = new ArrayList<>();
+        if(sortBy == null){ // 최신순
+            reports = reportRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+        }else if(sortBy == 0){ // 인기순
+            //reports = reportRepository.findAllWithJoin();
+        }else if(sortBy == 1){ // 팔로우
+            if(userId == null){
+                throw new CustomException(NO_PERMISSION, "로그인한 사용자만 접근 가능합니다.");
+            }else{
+                List<Follow> followingList = followRepository.findMyFollowings(userId);
+                List<Long> followingUserIdList = followingList.stream()
+                        .map(f -> f.getToUser().getId())
+                        .collect(Collectors.toList());
+                reports = reportRepository.findAllByUserIdList(followingUserIdList);
+            }
+        }else if(sortBy == 2){ // 내 글
+            if(userId == null){
+                throw new CustomException(NO_PERMISSION, "로그인한 사용자만 접근 가능합니다.");
+            }else{
+                reports = reportRepository.findAllByUserId(userId);
+            }
+        }
+
+        return ReportDto.GetReportListResponse.from(reports);
     }
 
     public void deletePost(Long reportId) {
