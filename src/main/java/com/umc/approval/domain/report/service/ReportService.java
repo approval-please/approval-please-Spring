@@ -117,12 +117,13 @@ public class ReportService {
         User user = certifyUser();
 
         List<Document> documents = documentRepository.findByUserId(user.getId());
-        List<Document> findDocuments = documents.stream().filter(document -> !reportRepository.findByDocumentId(document.getId()).isPresent()).collect(
+        // 아직 보고서를 작성하지 않은 결재서류
+        List<Document> notWriteReportDocuments = documents.stream().filter(document -> !reportRepository.findByDocumentId(document.getId()).isPresent()).collect(
             Collectors.toList());
         // Dto로 변환
         List<ReportDto.DocumentListResponse> response;
 
-        response = findDocuments.stream()
+        response = notWriteReportDocuments.stream()
             .map(ReportDto.DocumentListResponse::fromEntity)
             .collect(Collectors.toList());
 
