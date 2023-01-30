@@ -217,7 +217,7 @@ public class DocumentService {
         documentRepository.deleteById(documentId);
     }
 
-    public DocumentDto.GetDocumentListResponse getDocumentList(Integer category) {
+    public DocumentDto.GetDocumentListResponse getDocumentList(Integer category, Integer state, Integer sortBy) {
         // 게시글 목록 조회
         List<Document> documents = new ArrayList<>();
 
@@ -243,7 +243,7 @@ public class DocumentService {
         return new DocumentDto.GetDocumentListResponse(response);
     }
 
-    public DocumentDto.GetDocumentListResponse getLikedDocumentList(Integer category){
+    public DocumentDto.GetDocumentListResponse getLikedDocumentList(Integer category, Integer state, Integer sortBy){
         User user = certifyUser();
 
         // 사용자의 관심부서
