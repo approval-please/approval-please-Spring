@@ -1,5 +1,6 @@
 package com.umc.approval.domain.like.entity;
 
+import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.user.entity.User;
@@ -33,5 +34,7 @@ public interface LikeRepository extends JpaRepository<Like, Long>, LikeRepositor
     List<Like> findByToktokId(Long toktokId);
 
     List<Like> findByDocumentId(Long documentId);
+
+    Long countByUserAndDocument(User user, Document document);
 
 }

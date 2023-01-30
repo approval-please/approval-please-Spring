@@ -9,6 +9,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
@@ -26,8 +27,10 @@ public class DocumentController {
     }
 
     @GetMapping("/{documentId}")
-    public ResponseEntity<DocumentDto.GetDocumentResponse> getDocument(@PathVariable("documentId") Long documentId) {
-        return ResponseEntity.ok().body(documentService.getDocument(documentId));
+    public ResponseEntity<DocumentDto.GetDocumentResponse> getDocument(
+            HttpServletRequest request,
+            @PathVariable("documentId") Long documentId) {
+        return ResponseEntity.ok().body(documentService.getDocument(request, documentId));
     }
 
     @PutMapping("/{documentId}")
@@ -47,14 +50,18 @@ public class DocumentController {
 
     @GetMapping
     public ResponseEntity<DocumentDto.GetDocumentListResponse> getDocumentList(
-        @RequestParam(required = false) Integer category) {
-        return ResponseEntity.ok().body(documentService.getDocumentList(category));
+            @RequestParam(value = "category", required = false) Integer category,
+            @RequestParam(value = "state", required = false) Integer state,
+            @RequestParam(value = "sortBy", required = false) Integer sortBy) {
+        return ResponseEntity.ok().body(documentService.getDocumentList(category, state, sortBy));
     }
 
     @GetMapping("/likes")
     public ResponseEntity<DocumentDto.GetDocumentListResponse> getLikedLDocumentList(
-            @RequestParam(value = "category", required = false) Integer category){
-        return ResponseEntity.ok().body(documentService.getLikedDocumentList(category));
+            @RequestParam(value = "category", required = false) Integer category,
+            @RequestParam(value = "state", required = false) Integer state,
+            @RequestParam(value = "sortBy", required = false) Integer sortBy){
+        return ResponseEntity.ok().body(documentService.getLikedDocumentList(category, state, sortBy));
     }
 
     @GetMapping("/search")

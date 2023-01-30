@@ -64,6 +64,8 @@ public class DocumentDto {
         private String profileImage;
         private String nickname;
         private Integer level;
+        private Boolean writerOrNot;
+        private Boolean reportMade;
 
         // document
         private Integer category;
@@ -82,18 +84,26 @@ public class DocumentDto {
         private Integer likedCount;
         private Integer commentCount;
         private String datetime;
-        private boolean isModified;
+        private Boolean isModified;
         private Long view;
+
+        private Boolean likeOrNot;
+        private Boolean scrapOrNot;
 
 
         // Entity -> DTO
         public GetDocumentResponse(Document document, User user,
                                    List<String> tagNameList, List<String> imageUrlList,
                                    Link link, int approveCount, int rejectCount,
-                                   int likedCount, int commentCount, boolean isModified) {
+                                   int likedCount, int commentCount,
+                                   boolean isModified, boolean likeOrNot, boolean scrapOrNot,
+                                   Boolean writerOrNot, boolean reportMade) {
+
             this.profileImage = user.getProfileImage();
             this.nickname = user.getNickname();
             this.level = user.getLevel();
+            this.writerOrNot = writerOrNot;
+            this.reportMade = reportMade;
 
             this.documentId = document.getId();
             this.category = document.getCategory().getValue();
@@ -112,6 +122,9 @@ public class DocumentDto {
             this.datetime = DateUtil.convert(document.getCreatedAt());
             this.isModified = isModified;
             this.view = document.getView();
+
+            this.likeOrNot = likeOrNot;
+            this.scrapOrNot = scrapOrNot;
         }
     }
 
