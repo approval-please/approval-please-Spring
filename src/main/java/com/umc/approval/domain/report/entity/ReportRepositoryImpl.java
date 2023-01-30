@@ -1,10 +1,14 @@
 package com.umc.approval.domain.report.entity;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.umc.approval.global.type.CategoryType;
 
 import javax.persistence.EntityManager;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,6 +28,10 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
 
     @Override
     public List<Report> findAllByQuery(String query, Integer isTag, Integer category, Integer sortBy) {
+        NumberExpression<Integer> date = new CaseBuilder()
+                .when(report.createdAt.after(LocalDate.now().minusDays(7).atTime(LocalTime.MIN)))
+                .then(1)
+                .otherwise(0);
         if (isTag == 1) {
             return queryFactory
                     .select(report)
@@ -44,7 +52,8 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
                             categoryEq(category)
                     )
                     .distinct()
-                    .orderBy(sortBy == 0 ? report.createdAt.desc() : report.likes.size().desc())
+                    .orderBy(sortBy == 0 ? report.createdAt.desc() : date.desc(),
+                            report.likes.size().add(report.comments.size()).add(report.view).desc())
                     .fetch();
         } else {
             return queryFactory
@@ -64,7 +73,8 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
                             categoryEq(category)
                     )
                     .distinct()
-                    .orderBy(sortBy == 0 ? report.createdAt.desc() : report.likes.size().desc())
+                    .orderBy(sortBy == 0 ? report.createdAt.desc() : date.desc(),
+                            report.likes.size().add(report.comments.size()).add(report.view).desc())
                     .fetch();
         }
     }

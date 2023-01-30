@@ -19,16 +19,6 @@ public class CommentDto {
     @Builder
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @NoArgsConstructor
-    public static class Request {
-        private Long documentId;
-        private Long toktokId;
-        private Long reportId;
-    }
-
-    @Getter
-    @Builder
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    @NoArgsConstructor
     public static class CreateRequest {
         private Long documentId;
         private Long reportId;
@@ -89,6 +79,7 @@ public class CommentDto {
         private Boolean isMy;
         private Boolean isLike;
         private Boolean isDeleted;
+        private Boolean isModified;
         private Integer likeCount;
         private String datetime;
 
@@ -109,6 +100,7 @@ public class CommentDto {
                     .isMy(userId != null && userId.equals(comment.getUser().getId()))
                     .isLike(likes.stream().anyMatch(l -> l.getComment().getId() == comment.getId()))
                     .isDeleted(comment.getIsDeleted())
+                    .isModified(!comment.getCreatedAt().isEqual(comment.getModifiedAt()))
                     .likeCount(comment.getLikes().size())
                     .datetime(DateUtil.convert(comment.getCreatedAt()))
                     .build();
@@ -129,6 +121,7 @@ public class CommentDto {
         private Boolean isWriter;
         private Boolean isMy;
         private Boolean isLike;
+        private Boolean isModified;
         private Integer likeCount;
         private String datetime;
 
@@ -144,6 +137,7 @@ public class CommentDto {
                     .isWriter(writerId.equals(comment.getUser().getId()))
                     .isMy(userId != null && userId.equals(comment.getUser().getId()))
                     .isLike(likes.stream().anyMatch(l -> l.getComment().getId() == comment.getId()))
+                    .isModified(!comment.getCreatedAt().isEqual(comment.getModifiedAt()))
                     .likeCount(comment.getLikes().size())
                     .datetime(DateUtil.convert(comment.getCreatedAt()))
                     .build();

@@ -2,6 +2,7 @@ package com.umc.approval.domain.report.controller;
 
 import com.umc.approval.domain.report.dto.ReportDto;
 import com.umc.approval.domain.report.service.ReportService;
+import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpRequest;
@@ -26,8 +27,9 @@ public class ReportController {
     }
 
     @GetMapping("/{reportId}")
-    public ResponseEntity<ReportDto.GetReportResponse> getReport(@PathVariable("reportId") Long id) {
-        return ResponseEntity.ok(reportService.getReport(id));
+    public ResponseEntity<ReportDto.GetReportResponse> getReport(HttpServletRequest request,
+        @PathVariable("reportId") Long id) {
+        return ResponseEntity.ok(reportService.getReport(id, request));
     }
 
     // 결재서류 글 작성시 결재서류 선택 리스트

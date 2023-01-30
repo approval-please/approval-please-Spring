@@ -1,19 +1,22 @@
 package com.umc.approval.domain.document.entity;
 
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.global.type.CategoryType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import javax.persistence.EntityManager;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.umc.approval.domain.comment.entity.QComment.comment;
 import static com.umc.approval.domain.document.entity.QDocument.document;
 import static com.umc.approval.domain.tag.entity.QTag.tag1;
 
@@ -29,6 +32,10 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
 
     @Override
     public List<Document> findAllByQuery(String query, Integer isTag, Integer category, Integer state, Integer sortBy) {
+        NumberExpression<Integer> date = new CaseBuilder()
+                .when(document.createdAt.after(LocalDate.now().minusDays(7).atTime(LocalTime.MIN)))
+                .then(1)
+                .otherwise(0);
         if (isTag == 1) {
             return queryFactory
                     .select(document)
@@ -45,13 +52,15 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
                             stateEq(state)
                     )
                     .distinct()
-                    .orderBy(sortBy == 0 ? document.createdAt.desc() : document.likes.size().desc())
+                    .orderBy(sortBy == 0 ? document.createdAt.desc() : date.desc(),
+                                    document.likes.size().add(document.comments.size()).add(document.view).desc())
                     .fetch();
         } else {
             return queryFactory
                     .selectFrom(document)
                     .leftJoin(document.likes)
                     .leftJoin(document.tags)
+                    .leftJoin(document.comments)
                     .leftJoin(document.link).fetchJoin()
                     .leftJoin(document.approvals)
                     .leftJoin(document.images)
@@ -61,7 +70,8 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
                             stateEq(state)
                     )
                     .distinct()
-                    .orderBy(sortBy == 0 ? document.createdAt.desc() : document.likes.size().desc())
+                    .orderBy(sortBy == 0 ? document.createdAt.desc() : date.desc(),
+                            document.likes.size().add(document.comments.size()).add(document.view).desc())
                     .fetch();
         }
     }
