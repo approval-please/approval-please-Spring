@@ -104,19 +104,19 @@ public class ProfileService {
         User user = certifyUser(userId);
         List<Document> documents = null;
 
-        // 전체 조회
-        documents = documentRepository.findAllByUserId(user.getId());
+        if (state == null && isApproved == null) { // 전체 조회
+            documents = documentRepository.findAllByUserId(user.getId());
+        }
 
         if (state != null) { // 작성한 서류 상태별 조회
             documents = documentRepository.findAllByState(user.getId(), state);
         }
 
-        // 내 사원증만 조회 가능
-        if (userId == null && isApproved != null) { // 결재한 서류 승인별 조회
+        if (userId == null && isApproved != null) { // 결재한 서류 승인별 조회 (내 사원증만 가능)
             documents = documentRepository.findAllByApproval(user.getId(), isApproved);
         }
 
-        if (userId == null && state != null && isApproved != null) { // 결재한 결재서류 상태별 & 승인별 조회 (타 사원증 조회 x)
+        if (userId == null && state != null && isApproved != null) { // 결재한 결재서류 상태별 & 승인별 조회 (내 사원증만 가능)
             documents = documentRepository.findAllByStateApproval(user.getId(), state, isApproved);
         }
 
@@ -161,12 +161,14 @@ public class ProfileService {
         if (postType == 0) { // 결재서류 (기본값)
             List<Document> documents;
 
-            if (state != null) {  // 상태별 조회
-                documents = commentRepository.findDocumentsByState(user.getId(), state);
-            } else { // 전체 조회
-                if (state > 2 || state < 0 ) {
+            if (state != null) { // 상태별 조회
+                if (state < 0 || state > 2) {
                     throw new CustomException(PARAM_INVALID_VALUE);
+                } else {
+                    documents = commentRepository.findDocumentsByState(user.getId(), state);
                 }
+
+            } else { // 전체 조회
                 documents = commentRepository.findDocuments(user.getId());
             }
 
@@ -179,6 +181,10 @@ public class ProfileService {
         } else if (postType == 1) { // 결재톡톡
             List<Toktok> toktoks = commentRepository.findToktoks(user.getId());
 
+            if (state != null) {
+                throw new CustomException(PARAM_INVALID_VALUE);
+                }
+
             if (toktoks.isEmpty()) {
                 throw new CustomException(POST_WITH_COMMENT_NOT_FOUND);
             }
@@ -187,6 +193,10 @@ public class ProfileService {
 
         } else if (postType == 2) { // 결재보고서
             List<Report> reports = commentRepository.findReports(user.getId());
+
+            if (state != null) {
+                throw new CustomException(PARAM_INVALID_VALUE);
+            }
 
             if (reports.isEmpty()) {
                 throw new CustomException(POST_WITH_COMMENT_NOT_FOUND);
@@ -206,11 +216,13 @@ public class ProfileService {
         if (postType == 0) { // 결재서류 (기본값)
             List<Document> documents;
 
-            if (state != null) {  // 상태별 조회
-                if (state > 3 || state < 0 ) {
+            if (state != null) { // 상태별 조회
+                if (state < 0 || state > 2) {
                     throw new CustomException(PARAM_INVALID_VALUE);
+                } else {
+                    documents = scrapRepository.findDocumentsByState(user.getId(), state);
                 }
-                documents = scrapRepository.findDocumentsByState(user.getId(), state);
+
             } else { // 전체 조회
                 documents = scrapRepository.findDocuments(user.getId());
             }
@@ -224,6 +236,10 @@ public class ProfileService {
         } else if (postType == 1) { // 결재톡톡
             List<Toktok> toktoks = scrapRepository.findToktoks(user.getId());
 
+            if (state != null) {
+                throw new CustomException(PARAM_INVALID_VALUE);
+            }
+
             if (toktoks.isEmpty()) {
                 throw new CustomException(POST_WITH_SCRAP_NOT_FOUND);
             }
@@ -232,6 +248,10 @@ public class ProfileService {
 
         } else if (postType == 2) { // 결재보고서
             List<Report> reports = scrapRepository.findReports(user.getId());
+
+            if (state != null) {
+                throw new CustomException(PARAM_INVALID_VALUE);
+            }
 
             if (reports.isEmpty()) {
                 throw new CustomException(POST_WITH_SCRAP_NOT_FOUND);

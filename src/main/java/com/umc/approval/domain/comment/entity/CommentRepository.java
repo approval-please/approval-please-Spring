@@ -41,7 +41,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
 
     List<Comment> findByDocumentId(Long documentId);
 
-    @Query("select d from Document d where d.id = (select c.document.id from Comment c where c.user.id = :userId)")
+    @Query("select d from Document d where d.id IN (select c.document.id from Comment c where c.user.id = :userId)")
     List<Document> findDocuments(Long userId);
 
     @Query("select d from Document d where d.id IN (select c.document.id from Comment c where c.user.id = :userId) AND d.state = :state")

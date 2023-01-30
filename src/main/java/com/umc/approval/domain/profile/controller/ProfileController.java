@@ -46,14 +46,14 @@ public class ProfileController {
 
     // 댓글 작성한 게시글 조회
     @GetMapping("/my/comments")
-    public Object findAllByComments(@RequestParam(value = "postType", defaultValue = "0", required = false) Integer postType,
+    public Object findAllByComments(@RequestParam(value = "postType", defaultValue = "0") Integer postType,
                                     @RequestParam(value = "state", required = false) Integer state) {
         return profileService.findAllByComments(postType, state);
     }
 
     // 스크랩한 게시글 조회
     @GetMapping("/my/scraps")
-    public Object findAllByScraps(@RequestParam(value = "postType", defaultValue = "0", required = false) Integer postType,
+    public Object findAllByScraps(@RequestParam(value = "postType", defaultValue = "0") Integer postType,
                                   @RequestParam(value = "state", required = false) Integer state) {
         return profileService.findAllByScraps(postType, state);
     }
