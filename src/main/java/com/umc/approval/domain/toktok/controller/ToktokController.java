@@ -76,8 +76,8 @@ public class ToktokController {
     }
 
     //투표한 사람 목록
-    @GetMapping("/votes/{voteId}")
-    public ResponseEntity<ToktokDto.GetVotePeopleListResponse> getVotePeopleList(@PathVariable("voteId") Long voteId) {
-        return ResponseEntity.ok(toktokService.getVotePeopleList(voteId));
+    @GetMapping("/votes/{voteOptionId}")
+    public ResponseEntity<ToktokDto.GetVotePeopleListResponse> getVotePeopleList(@PathVariable("voteOptionId") Long voteOptionId) {
+        return ResponseEntity.ok(toktokService.getVotePeopleList(voteOptionId));
     }
 }

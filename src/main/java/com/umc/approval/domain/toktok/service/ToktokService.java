@@ -16,6 +16,7 @@ import com.umc.approval.domain.scrap.entity.ScrapRepository;
 import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.tag.entity.TagRepository;
 import com.umc.approval.domain.toktok.dto.ToktokDto;
+import com.umc.approval.domain.toktok.dto.ToktokDto.GetVotePeopleListResponse;
 import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.toktok.entity.ToktokRepository;
 import com.umc.approval.domain.user.entity.User;
@@ -25,6 +26,7 @@ import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import com.umc.approval.global.type.CategoryType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +38,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.umc.approval.global.exception.CustomErrorType.*;
+import static com.umc.approval.global.exception.CustomErrorType.VOTE_NOT_FOUND;
 
 @Transactional
 @RequiredArgsConstructor
@@ -125,7 +128,6 @@ public class ToktokService {
 
         // 유저정보(글쓴이, 조회한 사람)
         Long userId = jwtService.getIdDirectHeader(request);
-//        User user = null;
         User writer = toktok.getUser();
 
         // 투표 정보
@@ -214,10 +216,7 @@ public class ToktokService {
         }
 
         // 태그 수정
-        List<Tag> tags = tagRepository.findByToktokId(toktok.getId());
-        if (tags != null && !tags.isEmpty()) {
-            tagRepository.deleteAll(tags);
-        }
+        deleteTag(id);
         if (request.getTag() != null) {
             List<String> tagList = request.getTag();
             if (tagList != null && !tagList.isEmpty()) {
@@ -226,10 +225,7 @@ public class ToktokService {
         }
 
         // 링크 수정
-        List<Link> links = linkRepository.findByToktokId(toktok.getId());
-        if (links != null && !links.isEmpty()) {
-            linkRepository.deleteAll(links);
-        }
+        deleteLink(id);
         if (request.getLink() != null && !request.getLink().isEmpty()) {
             List<LinkDto.Request> linkList = request.getLink();
             createLink(linkList, toktok);
@@ -275,10 +271,7 @@ public class ToktokService {
         }
 
         // 이미지 수정
-        List<Image> images = imageRepository.findByToktokId(toktok.getId());
-        if (images != null && !images.isEmpty()) {
-            imageRepository.deleteAll(images);
-        }
+        deleteImage(id);
         if (request.getImages() != null) {
             for (String imgUrl : request.getImages()) {
                 Image uploadImg = Image.builder().toktok(toktok).imageUrl(imgUrl).build();
@@ -324,17 +317,32 @@ public class ToktokService {
 
     }
 
-    public ToktokDto.GetVotePeopleListResponse getVotePeopleList(Long voteId) {
+    public ToktokDto.GetVotePeopleListResponse getVotePeopleList(Long voteOptionId) {
         User visitUser = certifyUser();
-        Vote vote = voteRepository.findById(voteId).get();
 
-        // 투표 참여 내역
-        List<Long> userVote = userVoteRepository.findA(voteId);
-        List<Optional<User>> users = userVote.stream().map(id -> userRepository.findById(id)).collect(Collectors.toList());
+        VoteOption voteOption = voteOptionRepository.findById(voteOptionId)
+            .orElseThrow(() -> new CustomException(VOTE_OPTION_NOT_FOUND));
+
+        List<UserVote> uservote = userVoteRepository.findByOptionId(voteOptionId);
+        if (uservote.size() == 0) {
+            return new GetVotePeopleListResponse(null);
+        }
+
+        Vote vote = uservote.get(0).getVote();
+        // 익명투표일 경우 목록 조회 불가
+        if (vote.getIsAnonymous() == true) {
+            throw new CustomException(CANNOT_INQUIRE_VOTE);
+        }
+
+        // 투표 참여자 내역(옵션별)
+        List<Long> userVoteByOptionId = userVoteRepository.findVotePeopleByOptionId(voteOptionId);
+
+        List<Optional<User>> users = userVoteByOptionId.stream()
+            .map(id -> userRepository.findById(id)).collect(Collectors.toList());
 
         List<ToktokDto.VotePeopleListResponse> response = users.stream()
             .map(uv -> new ToktokDto.VotePeopleListResponse(uv.get(),
-                followRepository.countFollowOrNot(visitUser.getId(), uv.get().getId())) )
+                followRepository.countFollowOrNot(visitUser.getId(), uv.get().getId())))
             .collect(Collectors.toList());
 
         return new ToktokDto.GetVotePeopleListResponse(response);
@@ -349,22 +357,13 @@ public class ToktokService {
         }
 
         // tag 삭제
-        List<Tag> tagList = tagRepository.findByToktokId(toktokId);
-        if (tagList != null) {
-            tagRepository.deleteAll(tagList);
-        }
+        deleteTag(toktokId);
 
         //link 삭제
-        List<Link> linkList = linkRepository.findByToktokId(toktokId);
-        if (linkList != null) {
-            linkRepository.deleteAll(linkList);
-        }
+        deleteLink(toktokId);
 
         //image 삭제
-        List<Image> imageList = imageRepository.findByToktokId(toktokId);
-        if (imageList != null) {
-            imageRepository.deleteAll(imageList);
-        }
+        deleteImage(toktokId);
 
         //좋아요 삭제
         List<Like> likes = likeRepository.findByToktokId(toktokId);
@@ -423,14 +422,14 @@ public class ToktokService {
         return ToktokDto.SearchResponse.from(toktoks);
     }
 
-    public CategoryType viewCategory(int category) {
+    private CategoryType viewCategory(int category) {
         CategoryType categoryType = Arrays.stream(CategoryType.values())
             .filter(c -> c.getValue() == category)
             .findAny().get();
         return categoryType;
     }
 
-    public Vote createVote(ToktokDto.PostToktokRequest request) {
+    private Vote createVote(ToktokDto.PostToktokRequest request) {
         Vote vote = Vote.builder()
             .title(request.getVoteTitle())
             .isSingle(request.getVoteIsSingle())
@@ -440,7 +439,7 @@ public class ToktokService {
         return voteRepository.save(vote);
     }
 
-    public void createVoteOption(List<String> voteOptionList, Vote vote) {
+    private void createVoteOption(List<String> voteOptionList, Vote vote) {
         for (String option : voteOptionList) {
             VoteOption voteOption = VoteOption.builder()
                 .vote(vote)
@@ -451,7 +450,7 @@ public class ToktokService {
     }
 
 
-    public void createLink(List<LinkDto.Request> linkList, Toktok toktok) {
+    private void createLink(List<LinkDto.Request> linkList, Toktok toktok) {
         for (LinkDto.Request l : linkList) {
             Link link = Link.builder()
                 .toktok(toktok)
@@ -463,10 +462,31 @@ public class ToktokService {
         }
     }
 
-    public void createTag(List<String> tagList, Toktok toktok) {
+    private void createTag(List<String> tagList, Toktok toktok) {
         for (String tag : tagList) {
             Tag newTag = Tag.builder().toktok(toktok).tag(tag).build();
             tagRepository.save(newTag);
+        }
+    }
+
+    private void deleteTag(Long toktokId) {
+        List<Tag> tags = tagRepository.findByToktokId(toktokId);
+        if (tags != null && !tags.isEmpty()) {
+            tagRepository.deleteAll(tags);
+        }
+    }
+
+    private void deleteLink(Long toktokId) {
+        List<Link> linkList = linkRepository.findByToktokId(toktokId);
+        if (linkList != null) {
+            linkRepository.deleteAll(linkList);
+        }
+    }
+
+    private void deleteImage(Long toktokId) {
+        List<Image> imageList = imageRepository.findByToktokId(toktokId);
+        if (imageList != null) {
+            imageRepository.deleteAll(imageList);
         }
     }
 

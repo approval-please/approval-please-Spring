@@ -14,4 +14,5 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
     @Modifying
     @Query(value = "update Vote set isEnd = true where vote_id = :vote_id")
     void updateState(@Param("vote_id") Long voteId);
+
 }
