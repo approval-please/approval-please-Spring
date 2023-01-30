@@ -10,7 +10,7 @@ import org.springframework.security.core.parameters.P;
 public interface UserVoteRepository extends JpaRepository<UserVote, Long> {
 
     @Query("select count(distinct user_id) from UserVote where vote_id = :vote_id")
-    Integer findVotePeople(@Param("vote_id") Long voteId);
+    Integer findVotePeopleCount(@Param("vote_id") Long voteId);
 
 //    @Query(value = "select count(*) from user_vote where user_vote.vote_id = :vote_id group by user_vote.vote_option_id", nativeQuery = true)
 //    List<Integer> findPeopleEachOption(@Param("vote_id") Long voteId);
@@ -41,4 +41,16 @@ public interface UserVoteRepository extends JpaRepository<UserVote, Long> {
     @Modifying
     @Query("delete from UserVote uv where user_id = :user_id and vote_id = :vote_id")
     void deleteByVoteIdAndUserId(@Param("user_id") Long userId, @Param("vote_id") Long voteId);
+
+    // 투표 참여자 목록 조회(옵션별x)
+    @Query(value = "select distinct user_id from user_vote where vote_id = :vote_id", nativeQuery = true)
+    List<Long> findA(@Param("vote_id") Long voteId);
+
+    @Query(value = "select distinct user_id from user_vote where vote_option_id = :vote_option_id", nativeQuery = true)
+    List<Long> findVotePeopleByOptionId(@Param("vote_option_id") Long option_id);
+
+    @Query(value = "select uv from UserVote uv where vote_option_id = :vote_option_id")
+    List<UserVote> findByOptionId(@Param("vote_option_id") Long option_id);
+
+
 }

@@ -73,6 +73,9 @@ public enum CustomErrorType {
     // Vote(12xxxx)
     NOT_MATCH_WITH_VOTE(BAD_REQUEST, 120001, "투표에 해당하는 옵션이 아닙니다."),
     CANNOT_END_VOTE(BAD_REQUEST, 120002, "게시글 작성자만 투표를 종료할 수 있습니다"),
+    VOTE_OPTION_NOT_FOUND(NOT_FOUND, 120003, "없는 투표옵션입니다."),
+    VOTE_NOT_FOUND(NOT_FOUND, 120004, "없는 투표입니다."),
+    CANNOT_INQUIRE_VOTE(BAD_REQUEST, 120005, "익명투표는 투표자 목록 조회가 불가능합니다."),
 
     // Accuse (13xxxx)
     ACCUSE_ALREADY_EXISTS(FORBIDDEN, 130001, "이미 신고하셨습니다."),
