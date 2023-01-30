@@ -88,7 +88,7 @@ public class ProfileService {
 
         result.put("content", response);
 
-        if (!(userId.equals(loginUserId))) { // 타 사원증 조회일 경우,
+        if (!((user.getId()).equals(loginUserId))) { // 타 사원증 조회일 경우,
             if (loginUserId != null) { // 로그인 되어 있을 때
                 result.put("isFollow", isFollow(loginUserId, user.getId()));
             } else { // 로그인 되어있지 않을 때
@@ -104,20 +104,20 @@ public class ProfileService {
         User user = certifyUser(userId);
         List<Document> documents = null;
 
-        if (userId == null) { // 타 사원증 조회 x
-            if (isApproved != null) { // 결재한 서류 승인별 조회
-                documents = documentRepository.findAllByApproval(user.getId(), isApproved);
-            }
+        // 전체 조회
+        documents = documentRepository.findAllByUserId(user.getId());
 
-            if (state != null && isApproved != null) { // 결재한 결재서류 상태별 & 승인별 조회 (타 사원증 조회 x)
-                documents = documentRepository.findAllByStateApproval(user.getId(), state, isApproved);
-            }
-        }
         if (state != null) { // 작성한 서류 상태별 조회
             documents = documentRepository.findAllByState(user.getId(), state);
         }
-        if (state == null && isApproved == null) { // 전체 조회
-            documents = documentRepository.findAllByUserId(user.getId());
+
+        // 내 사원증만 조회 가능
+        if (userId == null && isApproved != null) { // 결재한 서류 승인별 조회
+            documents = documentRepository.findAllByApproval(user.getId(), isApproved);
+        }
+
+        if (userId == null && state != null && isApproved != null) { // 결재한 결재서류 상태별 & 승인별 조회 (타 사원증 조회 x)
+            documents = documentRepository.findAllByStateApproval(user.getId(), state, isApproved);
         }
 
         if (documents.isEmpty()) {
