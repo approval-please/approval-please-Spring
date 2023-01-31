@@ -262,7 +262,7 @@ public class ToktokService {
             Optional<Vote> vote = voteRepository.findById(toktok.getVote().getId());
             Vote getVote = vote.get();
             List<VoteOption> voteOption = voteOptionRepository.findByVote(getVote);
-            List<UserVote> userVotes = getVote.getUserVotes();
+            List<UserVote> userVotes = userVoteRepository.findByVote(getVote);
             userVoteRepository.deleteAll(userVotes);
             voteOptionRepository.deleteAll(voteOption);
             // 있었던 투표를 없애는 경우

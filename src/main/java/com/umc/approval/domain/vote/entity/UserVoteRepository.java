@@ -41,4 +41,6 @@ public interface UserVoteRepository extends JpaRepository<UserVote, Long> {
     @Modifying
     @Query("delete from UserVote uv where user_id = :user_id and vote_id = :vote_id")
     void deleteByVoteIdAndUserId(@Param("user_id") Long userId, @Param("vote_id") Long voteId);
+
+    List<UserVote> findByVote(Vote vote);
 }
