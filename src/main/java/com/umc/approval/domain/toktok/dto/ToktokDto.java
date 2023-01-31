@@ -66,6 +66,7 @@ public class ToktokDto {
     public static class GetToktokResponse {
 
         // user
+        private Long userId;
         private String profileImage;
         private String nickname;
         private Integer level;
@@ -84,6 +85,7 @@ public class ToktokDto {
         private Boolean voteIsEnd;
         private Integer votePeople;  // 투표 총 참여자 수
         private Boolean voteIsSingle;
+        private Boolean voteIsAnonymous;
         private List<VoteOptionResponse> voteOption;
         private List<VoteOptionResponse> voteSelect;
         private List<Long> votePeopleEachOption;
@@ -105,21 +107,28 @@ public class ToktokDto {
             Long commentCount, Long scrapCount, Boolean likeOrNot,
             Boolean followOrNot, List<VoteOptionResponse> voteOption, List<VoteOptionResponse> voteSelect,
             Integer votePeople, List<Long> votePeopleEachOption, Boolean writerOrNot, Boolean isModified, Boolean scrapOrNot) {
+            this.userId = user.getId();
             this.profileImage = user.getProfileImage();
             this.level = user.getLevel();
             this.nickname = user.getNickname();
+
+            this.toktokId = toktok.getId();
             this.category = toktok.getCategory().getValue();
             this.content = toktok.getContent();
             this.link = linkResponse;
             this.tag = tags;
             this.images = images;
+
+            this.voteId = vote == null ? null : toktok.getVote().getId();
             this.voteTitle = vote == null ? null : vote.getTitle();
             this.voteIsEnd = vote == null ? null : vote.getIsEnd();
             this.votePeople = votePeople;
             this.voteIsSingle = vote == null ? null : vote.getIsSingle();
+            this.voteIsAnonymous = vote == null ? null : vote.getIsAnonymous();
             this.voteOption = voteOption;
             this.voteSelect = voteSelect;
             this.votePeopleEachOption = votePeopleEachOption;
+
             this.writerOrNot = writerOrNot;
             this.likedCount = likedCount;
             this.likeOrNot = likeOrNot;
@@ -128,8 +137,6 @@ public class ToktokDto {
             this.commentCount = commentCount;
             this.datetime = DateUtil.convert(toktok.getCreatedAt());
             this.view = toktok.getView();
-            this.voteId = vote == null ? null : toktok.getVote().getId();
-            this.toktokId = toktok.getId();
             this.isModified = isModified;
             this.scrapOrNot = scrapOrNot;
         }
