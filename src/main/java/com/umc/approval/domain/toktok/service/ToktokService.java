@@ -509,4 +509,8 @@ public class ToktokService {
             .orElseThrow(() -> new CustomException(TOKTOKPOST_NOT_FOUND));
         return toktok;
     }
+
+    public ToktokDto.SearchResponse getDocumentList(Integer sortBy) {
+
+    }
 }

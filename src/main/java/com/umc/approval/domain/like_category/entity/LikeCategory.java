@@ -36,4 +36,7 @@ public class LikeCategory extends BaseTimeEntity {
     @Enumerated(STRING)
     @Column(nullable = false)
     private CategoryType category;
+
+    @Column(nullable = false)
+    private Integer seq;
 }
