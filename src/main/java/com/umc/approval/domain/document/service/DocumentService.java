@@ -217,30 +217,9 @@ public class DocumentService {
         documentRepository.deleteById(documentId);
     }
 
-    public DocumentDto.GetDocumentListResponse getDocumentList(Integer category, Integer state, Integer sortBy) {
-        // 게시글 목록 조회
-        List<Document> documents = new ArrayList<>();
-
-        if (category == null) { // 전체 게시글
-            documents = documentRepository.findAllWithJoin();
-        } else { // 특정 부서에 대한 게시글
-            if (category < 0 || category > 17) {
-                throw new CustomException(INVALID_VALUE, "카테고리는 0부터 17까지의 정수 값입니다.");
-            }
-            CategoryType categoryType = findCategory(category);
-            documents = documentRepository.findAllByCategory(categoryType);
-        }
-
-        List<DocumentDto.DocumentListResponse> response = documents.stream()
-                .map(document ->
-                        new DocumentDto.DocumentListResponse(
-                                document,
-                                document.getTags(),
-                                document.getImages(),
-                                document.getApprovals()))
-                .collect(Collectors.toList());
-
-        return new DocumentDto.GetDocumentListResponse(response);
+    public DocumentDto.SearchResponse getDocumentList(Integer category, Integer state, Integer sortBy) {
+        List<Document> documents = documentRepository.findAllByTotal(category, state, sortBy);
+        return DocumentDto.SearchResponse.from(documents);
     }
 
     public DocumentDto.GetDocumentListResponse getLikedDocumentList(Integer category, Integer state, Integer sortBy){

@@ -1,6 +1,5 @@
 package com.umc.approval.domain.document.entity;
 
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.NumberExpression;
@@ -53,7 +52,7 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
                     )
                     .distinct()
                     .orderBy(sortBy == 0 ? document.createdAt.desc() : date.desc(),
-                                    document.likes.size().add(document.comments.size()).add(document.view).desc())
+                            document.likes.size().add(document.comments.size()).add(document.view).desc())
                     .fetch();
         } else {
             return queryFactory
@@ -141,6 +140,34 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
                     .distinct();
         }
         return PageableExecutionUtils.getPage(documents, pageable, countQuery::fetchOne);
+    }
+
+    @Override
+    public List<Document> findAllByTotal(Integer category, Integer state, Integer sortBy) {
+        NumberExpression<Integer> date = new CaseBuilder()
+                .when(document.createdAt.after(LocalDate.now().minusDays(7).atTime(LocalTime.MIN)))
+                .then(1)
+                .otherwise(0);
+        return queryFactory
+                .selectFrom(document)
+                .leftJoin(document.likes)
+                .leftJoin(document.tags)
+                .leftJoin(document.comments)
+                .leftJoin(document.link).fetchJoin()
+                .leftJoin(document.approvals)
+                .leftJoin(document.images)
+                .where(
+                        categoryEq(category),
+                        stateEq(state)
+                )
+                .distinct()
+                .orderBy(sortBy == null ? document.createdAt.desc() :
+                                date.desc(),
+                        (sortBy == null || sortBy == 0) ?
+                                document.likes.size().add(document.comments.size()).add(document.view).desc() :
+                                document.approvals.size().asc()
+                )
+                .fetch();
     }
 
     private BooleanExpression tagEq(String tag) {
