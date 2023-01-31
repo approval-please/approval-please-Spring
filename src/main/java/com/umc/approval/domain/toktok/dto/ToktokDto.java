@@ -142,6 +142,31 @@ public class ToktokDto {
         }
     }
 
+    @Data
+    public static class GetVotePeopleListResponse {
+        private List<ToktokDto.VotePeopleListResponse> content;
+
+        public GetVotePeopleListResponse(List<ToktokDto.VotePeopleListResponse> content) {
+            this.content = content;
+        }
+    }
+
+    @Data
+    public static class VotePeopleListResponse {
+        private String profileImage;
+        private String nickname;
+        private Integer level;
+        private Boolean followOrNot;
+
+        public VotePeopleListResponse(User user, Integer followOrNot) {
+            this.profileImage = user.getProfileImage();
+            this.nickname = user.getNickname();
+            this.level = user.getLevel();
+            this.followOrNot = followOrNot == 0? false : true;
+            System.out.println(followOrNot);
+        }
+    }
+
     @Getter
     @Builder
     @AllArgsConstructor(access = AccessLevel.PRIVATE)

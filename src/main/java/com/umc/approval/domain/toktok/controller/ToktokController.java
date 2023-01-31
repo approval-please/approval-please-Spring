@@ -63,15 +63,21 @@ public class ToktokController {
     }
 
     //투표하기
-    @PostMapping("/vote/{voteId}")
-    public ResponseEntity<ToktokDto.VotePeopleEachOptionResponse> getVotePeople(
+    @PostMapping("/votes/{voteId}")
+    public ResponseEntity<ToktokDto.VotePeopleEachOptionResponse> vote(
         @Valid @RequestBody ToktokDto.VoteRequest request, @PathVariable("voteId") Long id) {
-        return ResponseEntity.ok(toktokService.getVotePeople(request, id));
+        return ResponseEntity.ok(toktokService.vote(request, id));
     }
 
     @PostMapping("/endVote/{voteId}")
     public ResponseEntity<Void> endVote(@PathVariable("voteId") Long id) {
         toktokService.endVote(id);
         return ResponseEntity.ok().build();
+    }
+
+    //투표한 사람 목록
+    @GetMapping("/votes/{voteOptionId}")
+    public ResponseEntity<ToktokDto.GetVotePeopleListResponse> getVotePeopleList(@PathVariable("voteOptionId") Long voteOptionId) {
+        return ResponseEntity.ok(toktokService.getVotePeopleList(voteOptionId));
     }
 }
