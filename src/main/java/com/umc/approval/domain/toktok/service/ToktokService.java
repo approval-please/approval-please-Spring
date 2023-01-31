@@ -107,6 +107,17 @@ public class ToktokService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public ToktokDto.SearchResponse getToktokList(HttpServletRequest request, Integer sortBy) {
+        Long userId = jwtService.getIdDirectHeader(request);
+        List<Follow> follows = List.of();
+        if (userId != null && sortBy != null && sortBy == 1) {
+            follows = followRepository.findMyFollowers(userId);
+        }
+        List<Toktok> toktoks = toktokRepository.findAllByOption(userId, follows, sortBy);
+        return ToktokDto.SearchResponse.from(toktoks);
+    }
+
     public ToktokDto.GetToktokResponse getToktok(Long toktokId, HttpServletRequest request) {
         toktokRepository.updateView(toktokId);
 
@@ -509,15 +520,5 @@ public class ToktokService {
         Toktok toktok = toktokRepository.findById(id)
             .orElseThrow(() -> new CustomException(TOKTOKPOST_NOT_FOUND));
         return toktok;
-    }
-
-    public ToktokDto.SearchResponse getToktokList(HttpServletRequest request, Integer sortBy) {
-        Long userId = jwtService.getIdDirectHeader(request);
-        List<Follow> follows = List.of();
-        if (userId != null && sortBy != null && sortBy == 1) {
-            follows = followRepository.findMyFollowers(userId);
-        }
-        List<Toktok> toktoks = toktokRepository.findAllByOption(userId, follows, sortBy);
-        return ToktokDto.SearchResponse.from(toktoks);
     }
 }
