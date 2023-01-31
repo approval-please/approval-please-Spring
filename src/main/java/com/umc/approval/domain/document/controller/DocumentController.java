@@ -57,7 +57,7 @@ public class DocumentController {
     }
 
     @GetMapping("/likes")
-    public ResponseEntity<DocumentDto.GetDocumentListResponse> getLikedLDocumentList(
+    public ResponseEntity<DocumentDto.SearchResponse> getLikedLDocumentList(
             @RequestParam(value = "category", required = false) Integer category,
             @RequestParam(value = "state", required = false) Integer state,
             @RequestParam(value = "sortBy", required = false) Integer sortBy){

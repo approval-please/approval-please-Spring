@@ -143,7 +143,7 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
     }
 
     @Override
-    public List<Document> findAllByTotal(Integer category, Integer state, Integer sortBy) {
+    public List<Document> findAllByOption(Integer category, Integer state, Integer sortBy) {
         NumberExpression<Integer> date = new CaseBuilder()
                 .when(document.createdAt.after(LocalDate.now().minusDays(7).atTime(LocalTime.MIN)))
                 .then(1)
@@ -158,6 +158,34 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
                 .leftJoin(document.images)
                 .where(
                         categoryEq(category),
+                        stateEq(state)
+                )
+                .distinct()
+                .orderBy(sortBy == null ? document.createdAt.desc() :
+                                date.desc(),
+                        (sortBy == null || sortBy == 0) ?
+                                document.likes.size().add(document.comments.size()).add(document.view).desc() :
+                                document.approvals.size().asc()
+                )
+                .fetch();
+    }
+
+    @Override
+    public List<Document> findAllByLikedCategories(List<CategoryType> categories, Integer state, Integer sortBy) {
+        NumberExpression<Integer> date = new CaseBuilder()
+                .when(document.createdAt.after(LocalDate.now().minusDays(7).atTime(LocalTime.MIN)))
+                .then(1)
+                .otherwise(0);
+        return queryFactory
+                .selectFrom(document)
+                .leftJoin(document.likes)
+                .leftJoin(document.tags)
+                .leftJoin(document.comments)
+                .leftJoin(document.link).fetchJoin()
+                .leftJoin(document.approvals)
+                .leftJoin(document.images)
+                .where(
+                        document.category.in(categories),
                         stateEq(state)
                 )
                 .distinct()
