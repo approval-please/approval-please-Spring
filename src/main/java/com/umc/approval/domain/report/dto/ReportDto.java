@@ -78,6 +78,7 @@ public class ReportDto {
     public static class GetReportResponse {
 
         // user
+        private Long userId;
         private String profileImage;
         private String nickname;
         private Integer level;

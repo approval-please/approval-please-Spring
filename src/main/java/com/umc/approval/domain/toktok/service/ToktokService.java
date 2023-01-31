@@ -26,7 +26,6 @@ import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import com.umc.approval.global.type.CategoryType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +37,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.umc.approval.global.exception.CustomErrorType.*;
-import static com.umc.approval.global.exception.CustomErrorType.VOTE_NOT_FOUND;
 
 @Transactional
 @RequiredArgsConstructor
@@ -118,8 +116,7 @@ public class ToktokService {
         List<String> images = imageRepository.findImageUrlListBytoktokId(toktokId);
         List<Link> reportLinkList = linkRepository.findByToktokId(toktokId);
         List<LinkDto.Response> linkResponse;
-        linkResponse = reportLinkList.stream().map(LinkDto.Response::fromEntity)
-            .collect(Collectors.toList());
+        linkResponse = reportLinkList.stream().map(LinkDto.Response::fromEntity).collect(Collectors.toList());
         Boolean isModified = true;
         // 게시글이 수정된 적이 있는 확인
         if (toktok.getCreatedAt() == toktok.getModifiedAt()) {
@@ -181,10 +178,10 @@ public class ToktokService {
             }
         } else {
             return new ToktokDto.GetToktokResponse(writer, toktok, vote, tags,
-                    images, linkResponse, likedCount,
-                    commentCount, scrapCount, null,
-                    null, voteOption, null,
-                    votePeople, null, null, isModified, null);
+                images, linkResponse, likedCount,
+                commentCount, scrapCount, null,
+                null, voteOption, null,
+                votePeople, null, null, isModified, null);
         }
 
         // 게시글 조회한 유저가 게시글 작성자인지 여부
@@ -211,10 +208,11 @@ public class ToktokService {
         if (userId == toktok.getUser().getId()) {
             voteSelect = null;
         }
-        return new ToktokDto.GetToktokResponse(writer, toktok, vote, tags, images, linkResponse, likedCount,
-                commentCount, scrapCount, likeOrNot,
-                followOrNot, voteOption, voteSelect,
-                votePeople, votePeopleEachOption, writerOrNot, isModified, scrapOrNot);
+        return new ToktokDto.GetToktokResponse(writer, toktok, vote, tags,
+            images, linkResponse, likedCount,
+            commentCount, scrapCount, likeOrNot,
+            followOrNot, voteOption, voteSelect,
+            votePeople, votePeopleEachOption, writerOrNot, isModified, scrapOrNot);
     }
 
     public void updatePost(Long id, ToktokDto.PostToktokRequest request) {
@@ -226,7 +224,10 @@ public class ToktokService {
         }
 
         // 태그 수정
-        deleteTag(id);
+        List<Tag> tags = tagRepository.findByToktokId(toktok.getId());
+        if (tags != null && !tags.isEmpty()) {
+            tagRepository.deleteAll(tags);
+        }
         if (request.getTag() != null) {
             List<String> tagList = request.getTag();
             if (tagList != null && !tagList.isEmpty()) {
@@ -235,7 +236,10 @@ public class ToktokService {
         }
 
         // 링크 수정
-        deleteLink(id);
+        List<Link> links = linkRepository.findByToktokId(toktok.getId());
+        if (links != null && !links.isEmpty()) {
+            linkRepository.deleteAll(links);
+        }
         if (request.getLink() != null && !request.getLink().isEmpty()) {
             List<LinkDto.Request> linkList = request.getLink();
             createLink(linkList, toktok);
@@ -244,10 +248,9 @@ public class ToktokService {
         CategoryType categoryType = viewCategory(request.getCategory());
 
         // 투표가 종료된 글의 투표 관련 사항을 수정하려는 경우
-        if (toktok.getVote() != null && toktok.getVote().getIsEnd().equals(true) && (
-            request.getVoteTitle() != null
-                || request.getVoteOption() != null ||
-                request.getVoteIsSingle() != null || request.getVoteIsAnonymous() != null)) {
+        if (toktok.getVote() != null && toktok.getVote().getIsEnd().equals(true) && (request.getVoteTitle() != null
+            || request.getVoteOption() != null ||
+            request.getVoteIsSingle() != null || request.getVoteIsAnonymous() != null)) {
             throw new CustomException(VOTE_IS_END);
         }
 
@@ -257,12 +260,9 @@ public class ToktokService {
             createVoteOption(request.getVoteOption(), vote);
             toktok.update(request, categoryType, vote);
         } else if (toktok.getVote() != null) {
-            Optional<Vote> vote = voteRepository.findById(toktok.getVote().getId());
-            Vote getVote = vote.get();
-            List<VoteOption> voteOption = voteOptionRepository.findByVote(getVote);
-            List<UserVote> userVotes = getVote.getUserVotes();
-            userVoteRepository.deleteAll(userVotes);
-            voteOptionRepository.deleteAll(voteOption);
+            Vote getVote = toktok.getVote();
+            userVoteRepository.deleteByVoteId(getVote.getId());
+            voteOptionRepository.deleteByVoteId(getVote.getId());
             // 있었던 투표를 없애는 경우
             if (getVote.getTitle() != null && request.getVoteTitle() == null) {
                 toktok.deleteVote();
@@ -281,7 +281,10 @@ public class ToktokService {
         }
 
         // 이미지 수정
-        deleteImage(id);
+        List<Image> images = imageRepository.findByToktokId(toktok.getId());
+        if (images != null && !images.isEmpty()) {
+            imageRepository.deleteAll(images);
+        }
         if (request.getImages() != null) {
             for (String imgUrl : request.getImages()) {
                 Image uploadImg = Image.builder().toktok(toktok).imageUrl(imgUrl).build();
@@ -305,7 +308,7 @@ public class ToktokService {
             throw new CustomException(NOT_MATCH_WITH_VOTE);
         }
 
-        for (int i = 0; i < voteOptionIds.size(); i++) {
+        for(int i=0; i<voteOptionIds.size(); i++) {
             VoteOption voteOption = voteOptionRepository.findById(voteOptionIds.get(i)).get();
             UserVote userVote = UserVote.builder()
                 .user(user)
@@ -395,13 +398,9 @@ public class ToktokService {
 
         //vote 삭제
         if (toktok.getVote() != null) {
-            Optional<Vote> vote = voteRepository.findById(toktok.getVote().getId());
-            Vote getVote = vote.get();
+            Vote getVote = toktok.getVote();
             userVoteRepository.deleteByVoteId(getVote.getId());
-            List<VoteOption> voteOptionList = voteOptionRepository.findByVote(getVote);
-            if (voteOptionList != null) {
-                voteOptionRepository.deleteAll(voteOptionList);
-            }
+            voteOptionRepository.deleteByVoteId(getVote.getId());
             toktok.deleteVote();
             entityManager.flush();
             entityManager.clear();
@@ -426,13 +425,12 @@ public class ToktokService {
 
 
     @Transactional(readOnly = true)
-    public ToktokDto.SearchResponse search(String query, Integer isTag, Integer category,
-        Integer sortBy) {
+    public ToktokDto.SearchResponse search(String query, Integer isTag, Integer category, Integer sortBy) {
         List<Toktok> toktoks = toktokRepository.findAllByQuery(query, isTag, category, sortBy);
         return ToktokDto.SearchResponse.from(toktoks);
     }
 
-    private CategoryType viewCategory(int category) {
+    public CategoryType viewCategory(int category) {
         CategoryType categoryType = Arrays.stream(CategoryType.values())
             .filter(c -> c.getValue() == category)
             .findAny().get();
@@ -480,16 +478,9 @@ public class ToktokService {
     }
 
     private void deleteTag(Long toktokId) {
-        List<Tag> tags = tagRepository.findByToktokId(toktokId);
-        if (tags != null && !tags.isEmpty()) {
-            tagRepository.deleteAll(tags);
-        }
-    }
-
-    private void deleteLink(Long toktokId) {
-        List<Link> linkList = linkRepository.findByToktokId(toktokId);
-        if (linkList != null) {
-            linkRepository.deleteAll(linkList);
+        List<Tag> tagList = tagRepository.findByToktokId(toktokId);
+        if (tagList != null) {
+            tagRepository.deleteAll(tagList);
         }
     }
 
@@ -497,6 +488,13 @@ public class ToktokService {
         List<Image> imageList = imageRepository.findByToktokId(toktokId);
         if (imageList != null) {
             imageRepository.deleteAll(imageList);
+        }
+    }
+
+    private void deleteLink(Long toktokId) {
+        List<Link> linkList = linkRepository.findByToktokId(toktokId);
+        if (linkList != null) {
+            linkRepository.deleteAll(linkList);
         }
     }
 

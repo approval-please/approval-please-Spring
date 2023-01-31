@@ -51,6 +51,4 @@ public interface UserVoteRepository extends JpaRepository<UserVote, Long> {
 
     @Query(value = "select uv from UserVote uv where vote_option_id = :vote_option_id")
     List<UserVote> findByOptionId(@Param("vote_option_id") Long option_id);
-
-
 }
