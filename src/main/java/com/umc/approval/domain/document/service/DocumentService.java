@@ -114,8 +114,8 @@ public class DocumentService {
 
         // 게시글 작성자, 좋아요/스크랩 유무
         Boolean isWriter = null;
-        boolean likeOrNot = false;
-        boolean scrapOrNot = false;
+        boolean isLiked = false;
+        boolean isScrap = false;
         int isVoted = 0;
         Long userId = jwtService.getIdDirectHeader(request); // 로그인 한 사용자
 
@@ -139,8 +139,8 @@ public class DocumentService {
             }
 
             // 게시글 좋아요/스크랩 유무
-            likeOrNot = likeRepository.countByUserAndDocument(user, document) == 0 ? false : true;
-            scrapOrNot = scrapRepository.countByUserAndDocument(user, document) == 0 ? false : true;
+            isLiked = likeRepository.countByUserAndDocument(user, document) == 0 ? false : true;
+            isScrap = scrapRepository.countByUserAndDocument(user, document) == 0 ? false : true;
         }
 
         // 게시글의 결재보고서가 작성되었는지
@@ -153,7 +153,7 @@ public class DocumentService {
         }
 
         return new DocumentDto.GetDocumentResponse(document, user, tagNameList, imageUrlList, link,
-                approveCount, rejectCount, likedCount, commentCount, isModified, likeOrNot, scrapOrNot,
+                approveCount, rejectCount, likedCount, commentCount, isModified, isLiked, isScrap,
                 isWriter, reportMade, reportId, isVoted);
     }
 

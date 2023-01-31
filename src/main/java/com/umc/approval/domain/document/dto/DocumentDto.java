@@ -59,9 +59,10 @@ public class DocumentDto {
     @Data
     public static class GetDocumentResponse{
         private Long documentId;
+        private Long userId;
+        private Integer category;
 
         // user
-        private Long userId;
         private String profileImage;
         private String nickname;
         private Integer level;
@@ -70,12 +71,11 @@ public class DocumentDto {
         private Long reportId;
 
         // document
-        private Integer category;
         private String title;
         private String content;
-        private LinkDto.Response link;
         private List<String> tag;
-        private List<String> images;
+        private List<String> imageUrl;
+        private LinkDto.Response link;
 
         // state
         private Integer state;
@@ -89,8 +89,8 @@ public class DocumentDto {
         private Boolean isModified;
         private Long view;
 
-        private Boolean likeOrNot;
-        private Boolean scrapOrNot;
+        private Boolean isLiked;
+        private Boolean isScrap;
         private Integer isVoted;
 
 
@@ -115,7 +115,7 @@ public class DocumentDto {
             this.content = document.getContent();
             this.link = link == null ? null : LinkDto.Response.fromEntity(link);
             this.tag = tagNameList;
-            this.images = imageUrlList;
+            this.imageUrl = imageUrlList;
 
             this.state = document.getState();
             this.approveCount = approveCount;
@@ -127,8 +127,8 @@ public class DocumentDto {
             this.isModified = isModified;
             this.view = document.getView();
 
-            this.likeOrNot = likeOrNot;
-            this.scrapOrNot = scrapOrNot;
+            this.isLiked = likeOrNot;
+            this.isScrap = scrapOrNot;
             this.isVoted = isVoted;
         }
     }
