@@ -1,10 +1,6 @@
 package com.umc.approval.domain.toktok.controller;
 
-import com.umc.approval.domain.report.dto.ReportDto;
-import com.umc.approval.domain.document.dto.DocumentDto;
 import com.umc.approval.domain.toktok.dto.ToktokDto;
-import com.umc.approval.domain.toktok.dto.ToktokDto.GetToktokResponse;
-import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.toktok.service.ToktokService;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -31,11 +27,11 @@ public class ToktokController {
     }
 
     @GetMapping
-    public ResponseEntity<ToktokDto.SearchResponse> getDocumentList(
+    public ResponseEntity<ToktokDto.SearchResponse> getToktokList(
             HttpServletRequest request,
             @RequestParam(value = "sortBy", required = false) Integer sortBy
     ) {
-        return ResponseEntity.ok(toktokService.getDocumentList(request, sortBy));
+        return ResponseEntity.ok(toktokService.getToktokList(request, sortBy));
     }
 
     @GetMapping("/{toktokId}")

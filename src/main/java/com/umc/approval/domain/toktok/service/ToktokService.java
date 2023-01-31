@@ -511,7 +511,7 @@ public class ToktokService {
         return toktok;
     }
 
-    public ToktokDto.SearchResponse getDocumentList(HttpServletRequest request, Integer sortBy) {
+    public ToktokDto.SearchResponse getToktokList(HttpServletRequest request, Integer sortBy) {
         Long userId = jwtService.getIdDirectHeader(request);
         List<Follow> follows = List.of();
         if (userId != null && sortBy != null && sortBy == 1) {
