@@ -67,6 +67,7 @@ public class DocumentDto {
         private Integer level;
         private Boolean isWriter;
         private Boolean reportMade;
+        private Long reportId;
 
         // document
         private Integer category;
@@ -99,13 +100,14 @@ public class DocumentDto {
                                    Link link, int approveCount, int rejectCount,
                                    int likedCount, int commentCount,
                                    boolean isModified, boolean likeOrNot, boolean scrapOrNot,
-                                   Boolean isWriter, boolean reportMade, int isVoted) {
+                                   Boolean isWriter, boolean reportMade, Long reportId, int isVoted) {
             this.userId = user.getId();
             this.profileImage = user.getProfileImage();
             this.nickname = user.getNickname();
             this.level = user.getLevel();
             this.isWriter = isWriter;
             this.reportMade = reportMade;
+            this.reportId = reportId;
 
             this.documentId = document.getId();
             this.category = document.getCategory().getValue();

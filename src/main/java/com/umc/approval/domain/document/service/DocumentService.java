@@ -145,14 +145,16 @@ public class DocumentService {
 
         // 게시글의 결재보고서가 작성되었는지
         boolean reportMade = false;
+        Long reportId = null;
         Optional<Report> report = reportRepository.findByDocumentId(documentId);
         if(report != null && !report.isEmpty()){
             reportMade = true;
+            reportId = report.get().getId();
         }
 
         return new DocumentDto.GetDocumentResponse(document, user, tagNameList, imageUrlList, link,
                 approveCount, rejectCount, likedCount, commentCount, isModified, likeOrNot, scrapOrNot,
-                isWriter, reportMade, isVoted);
+                isWriter, reportMade, reportId, isVoted);
     }
 
     public void updateDocument(Long documentId, DocumentDto.DocumentRequest request) {
