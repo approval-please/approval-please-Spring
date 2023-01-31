@@ -3,6 +3,7 @@ package com.umc.approval.domain.toktok.service;
 
 import com.umc.approval.domain.comment.entity.Comment;
 import com.umc.approval.domain.comment.entity.CommentRepository;
+import com.umc.approval.domain.follow.entity.Follow;
 import com.umc.approval.domain.follow.entity.FollowRepository;
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.image.entity.ImageRepository;
@@ -510,7 +511,13 @@ public class ToktokService {
         return toktok;
     }
 
-    public ToktokDto.SearchResponse getDocumentList(Integer sortBy) {
-
+    public ToktokDto.SearchResponse getDocumentList(HttpServletRequest request, Integer sortBy) {
+        Long userId = jwtService.getIdDirectHeader(request);
+        List<Follow> follows = List.of();
+        if (userId != null && sortBy != null && sortBy == 1) {
+            follows = followRepository.findMyFollowers(userId);
+        }
+        List<Toktok> toktoks = toktokRepository.findAllByOption(userId, follows, sortBy);
+        return ToktokDto.SearchResponse.from(toktoks);
     }
 }
