@@ -30,6 +30,11 @@ public class ToktokController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping
+    public ResponseEntity<ToktokDto.SearchResponse> getDocumentList(@RequestParam(value = "sortBy", required = false) Integer sortBy) {
+        return ResponseEntity.ok(toktokService.getDocumentList(sortBy));
+    }
+
     @GetMapping("/{toktokId}")
     public ResponseEntity<ToktokDto.GetToktokResponse> getToktok(HttpServletRequest request,
         @PathVariable("toktokId") Long id) {
