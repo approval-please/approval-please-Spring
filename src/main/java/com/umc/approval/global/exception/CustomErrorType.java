@@ -60,6 +60,7 @@ public enum CustomErrorType {
     INVALID_HTTP_METHOD(METHOD_NOT_ALLOWED, 90001, "잘못된 Http Method 요청입니다."),
     INVALID_VALUE(BAD_REQUEST, 90002, "잘못된 입력값입니다."),
     SERVER_INTERNAL_ERROR(INTERNAL_SERVER_ERROR, 90003, "서버 내부에 오류가 발생했습니다."),
+    PARAM_INVALID_VALUE(BAD_REQUEST, 90004, "잘못된 parameter 입력값입니다."),
 
     // Follow (10xxxx)
     FOLLOW_NOT_FOUND(NOT_FOUND, 100001,"존재하는 팔로워 사용자가 없습니다."),
@@ -68,7 +69,6 @@ public enum CustomErrorType {
 
     // Scrap (11xxxx)
     POST_WITH_SCRAP_NOT_FOUND(NOT_FOUND, 110001, "스크랩한 게시글이 존재하지 않습니다."),
-
 
     // Vote(12xxxx)
     NOT_MATCH_WITH_VOTE(BAD_REQUEST, 120001, "투표에 해당하는 옵션이 아닙니다."),

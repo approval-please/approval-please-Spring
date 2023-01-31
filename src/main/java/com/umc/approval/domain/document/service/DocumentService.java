@@ -28,16 +28,10 @@ import com.umc.approval.global.security.service.JwtService;
 import com.umc.approval.global.type.CategoryType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.print.Doc;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -86,7 +80,7 @@ public class DocumentService {
         createImages(request.getImages(), document);
 
         // 포인트 적립
-        userRepository.updatePoint(user.getId(),100L);
+        userRepository.updatePoint(user.getId(), 100L);
     }
 
     public DocumentDto.GetDocumentResponse getDocument(HttpServletRequest request, Long documentId) {
@@ -120,7 +114,7 @@ public class DocumentService {
         Long userId = jwtService.getIdDirectHeader(request); // 로그인 한 사용자
 
         // 로그인 o
-        if(userId != null){
+        if (userId != null) {
             // 게시글 작성자인지
             if(userId == document.getUser().getId()){
                 isWriter = true;
@@ -147,7 +141,7 @@ public class DocumentService {
         boolean reportMade = false;
         Long reportId = null;
         Optional<Report> report = reportRepository.findByDocumentId(documentId);
-        if(report != null && !report.isEmpty()){
+        if (report != null && !report.isEmpty()) {
             reportMade = true;
             reportId = report.get().getId();
         }
@@ -231,65 +225,23 @@ public class DocumentService {
         documentRepository.deleteById(documentId);
     }
 
-    public DocumentDto.GetDocumentListResponse getDocumentList(Integer category, Integer state, Integer sortBy) {
-        // 게시글 목록 조회
-        List<Document> documents = new ArrayList<>();
-
-        if (category == null) { // 전체 게시글
-            documents = documentRepository.findAllWithJoin();
-        } else { // 특정 부서에 대한 게시글
-            if (category < 0 || category > 17) {
-                throw new CustomException(INVALID_VALUE, "카테고리는 0부터 17까지의 정수 값입니다.");
-            }
-            CategoryType categoryType = findCategory(category);
-            documents = documentRepository.findAllByCategory(categoryType);
-        }
-
-        List<DocumentDto.DocumentListResponse> response = documents.stream()
-                .map(document ->
-                        new DocumentDto.DocumentListResponse(
-                                document,
-                                document.getTags(),
-                                document.getImages(),
-                                document.getApprovals()))
-                .collect(Collectors.toList());
-
-        return new DocumentDto.GetDocumentListResponse(response);
+    @Transactional(readOnly = true)
+    public DocumentDto.SearchResponse getDocumentList(Integer category, Integer state, Integer sortBy) {
+        List<Document> documents = documentRepository.findAllByOption(category, state, sortBy);
+        return DocumentDto.SearchResponse.from(documents);
     }
 
-    public DocumentDto.GetDocumentListResponse getLikedDocumentList(Integer category, Integer state, Integer sortBy){
-        User user = certifyUser();
-
-        // 사용자의 관심부서
-        List<CategoryType> likedCategoryList = likeCategoryRepository.findCategoryListByUserId(user.getId());
-
-        // 게시글 목록 조회
-        List<Document> documents = new ArrayList<>();
-
-        if(category == null){ // 관심부서 전체 게시글
-            documents = documentRepository.findAllByLikedCategory(likedCategoryList);
-        }else{ // 관심부서 중 특정 부서에 대한 게시글
-            if (category < 0 || category > 17) {
-                throw new CustomException(INVALID_VALUE, "카테고리는 0부터 17까지의 정수 값입니다.");
-            }
-            CategoryType categoryType = findCategory(category);
-            if (likedCategoryList.contains(categoryType)){
-                documents = documentRepository.findAllByCategory(categoryType);
-            }else{
-                throw new CustomException(NOT_LIKED_CATEGORY);
-            }
+    @Transactional(readOnly = true)
+    public DocumentDto.SearchResponse getLikedDocumentList(Integer category, Integer state, Integer sortBy) {
+        List<Document> documents;
+        if (category != null) {
+            documents = documentRepository.findAllByOption(category, state, sortBy);
+        } else {
+            List<CategoryType> likeCategories = likeCategoryRepository.findByUserId(jwtService.getId())
+                    .stream().map(LikeCategory::getCategory).collect(Collectors.toList());
+            documents = documentRepository.findAllByLikedCategories(likeCategories, state, sortBy);
         }
-
-        List<DocumentDto.DocumentListResponse> response = documents.stream()
-                .map(document ->
-                        new DocumentDto.DocumentListResponse(
-                                document,
-                                document.getTags(),
-                                document.getImages(),
-                                document.getApprovals()))
-                .collect(Collectors.toList());
-
-        return new DocumentDto.GetDocumentListResponse(response);
+        return DocumentDto.SearchResponse.from(documents);
     }
 
 

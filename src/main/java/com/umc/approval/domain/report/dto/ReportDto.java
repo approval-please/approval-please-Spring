@@ -78,6 +78,7 @@ public class ReportDto {
     public static class GetReportResponse {
 
         // user
+        private Long userId;
         private String profileImage;
         private String nickname;
         private Integer level;
@@ -110,10 +111,10 @@ public class ReportDto {
         private Long view;
 
         public GetReportResponse(User user, Document document, Report report,
-            List<String> documentTagList, String documentImageUrlList, Integer documentImageCount,
-            List<String> reportTagList, List<String> reportImageUrlList,
-            List<LinkDto.Response> reportLink, Long likedCount, Long scrapCount, Long commentCount,
-            Boolean likeOrNot, Boolean followOrNot, Boolean isModified, Boolean writerOrNot, Boolean scrapOrNot) {
+                                 List<String> documentTagList, String documentImageUrlList, Integer documentImageCount,
+                                 List<String> reportTagList, List<String> reportImageUrlList,
+                                 List<LinkDto.Response> reportLink, Long likedCount, Long scrapCount, Long commentCount,
+                                 Boolean likeOrNot, Boolean followOrNot, Boolean isModified, Boolean writerOrNot, Boolean scrapOrNot) {
             this.profileImage = user.getProfileImage();
             this.nickname = user.getNickname();
             this.level = user.getLevel();

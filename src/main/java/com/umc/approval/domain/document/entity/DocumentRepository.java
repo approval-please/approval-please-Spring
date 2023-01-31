@@ -36,7 +36,7 @@ public interface DocumentRepository extends JpaRepository<Document, Long>, Docum
     @Query(value = "select d from Document d where d.user.id = :userId AND d.state = :state")
     List<Document> findAllByState(@Param("userId") Long userId, @Param("state") Integer state); // 사용자가 작성한 결재서류 상태별 조회
 
-    @Query(value = "select d from Document d where d.id = (select a.document.id from Approval a where a.isApprove = :isApproved AND a.user.id = :userId)")
+    @Query(value = "select d from Document d where d.id IN (select a.document.id from Approval a where a.isApprove = :isApproved AND a.user.id = :userId)")
     List<Document> findAllByApproval(@Param("userId") Long userId, @Param("isApproved") Boolean isApproved); // 사용자가 결재한 결재서류 승인별 조회
 
     // 게시글 목록 조회(페이징 x)
@@ -56,7 +56,7 @@ public interface DocumentRepository extends JpaRepository<Document, Long>, Docum
             "order by d.createdAt desc")
     List<Document> findAllByLikedCategory(@Param("categories") List<CategoryType> categories);
 
-    @Query(value = "select d from Document d where (select d.id from Document d where d.state = :state) = (select a.document.id from Approval a where a.isApprove = :isApproved AND a.user.id = :userId)")
+    @Query("select distinct d from Document d left join fetch d.approvals a join fetch a.user u where d.state = :state and a.isApprove = :isApproved and u.id = :userId")
     List<Document> findAllByStateApproval(@Param("userId") Long userId,
                                           @Param("state") Integer state, @Param("isApproved") Boolean isApproved); // 사용자가 결재한 결재서류 상태별 & 승인별 조회
 

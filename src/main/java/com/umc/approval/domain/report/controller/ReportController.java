@@ -28,7 +28,7 @@ public class ReportController {
 
     @GetMapping("/{reportId}")
     public ResponseEntity<ReportDto.GetReportResponse> getReport(HttpServletRequest request,
-        @PathVariable("reportId") Long id) {
+                                                                 @PathVariable("reportId") Long id) {
         return ResponseEntity.ok(reportService.getReport(id, request));
     }
 
