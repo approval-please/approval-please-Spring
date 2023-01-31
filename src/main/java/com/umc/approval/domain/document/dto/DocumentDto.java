@@ -59,21 +59,23 @@ public class DocumentDto {
     @Data
     public static class GetDocumentResponse{
         private Long documentId;
+        private Long userId;
+        private Integer category;
 
         // user
         private String profileImage;
         private String nickname;
         private Integer level;
-        private Boolean writerOrNot;
+        private Boolean isWriter;
         private Boolean reportMade;
+        private Long reportId;
 
         // document
-        private Integer category;
         private String title;
         private String content;
-        private LinkDto.Response link;
         private List<String> tag;
-        private List<String> images;
+        private List<String> imageUrl;
+        private LinkDto.Response link;
 
         // state
         private Integer state;
@@ -87,8 +89,9 @@ public class DocumentDto {
         private Boolean isModified;
         private Long view;
 
-        private Boolean likeOrNot;
-        private Boolean scrapOrNot;
+        private Boolean isLiked;
+        private Boolean isScrap;
+        private Integer isVoted;
 
 
         // Entity -> DTO
@@ -97,13 +100,14 @@ public class DocumentDto {
                                    Link link, int approveCount, int rejectCount,
                                    int likedCount, int commentCount,
                                    boolean isModified, boolean likeOrNot, boolean scrapOrNot,
-                                   Boolean writerOrNot, boolean reportMade) {
-
+                                   Boolean isWriter, boolean reportMade, Long reportId, int isVoted) {
+            this.userId = user.getId();
             this.profileImage = user.getProfileImage();
             this.nickname = user.getNickname();
             this.level = user.getLevel();
-            this.writerOrNot = writerOrNot;
+            this.isWriter = isWriter;
             this.reportMade = reportMade;
+            this.reportId = reportId;
 
             this.documentId = document.getId();
             this.category = document.getCategory().getValue();
@@ -111,7 +115,7 @@ public class DocumentDto {
             this.content = document.getContent();
             this.link = link == null ? null : LinkDto.Response.fromEntity(link);
             this.tag = tagNameList;
-            this.images = imageUrlList;
+            this.imageUrl = imageUrlList;
 
             this.state = document.getState();
             this.approveCount = approveCount;
@@ -123,8 +127,9 @@ public class DocumentDto {
             this.isModified = isModified;
             this.view = document.getView();
 
-            this.likeOrNot = likeOrNot;
-            this.scrapOrNot = scrapOrNot;
+            this.isLiked = likeOrNot;
+            this.isScrap = scrapOrNot;
+            this.isVoted = isVoted;
         }
     }
 
