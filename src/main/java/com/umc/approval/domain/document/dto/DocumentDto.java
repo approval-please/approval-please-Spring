@@ -92,7 +92,7 @@ public class DocumentDto {
         private Boolean isLiked;
         private Boolean isScrap;
         private Integer isVoted;
-
+        private Boolean isNotification;
 
         // Entity -> DTO
         public GetDocumentResponse(Document document, User user,
@@ -130,6 +130,7 @@ public class DocumentDto {
             this.isLiked = likeOrNot;
             this.isScrap = scrapOrNot;
             this.isVoted = isVoted;
+            this.isNotification = document.getNotification();
         }
     }
 
