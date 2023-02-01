@@ -151,19 +151,13 @@ public class ReportService {
         }
 
         // 링크 수정
-        List<Link> links = linkRepository.findByReportId(report.getId());
-        if (links != null && !links.isEmpty()) {
-            linkRepository.deleteAll(links);
-        }
+        deleteLink(id);
         if (request.getLink() != null && !request.getLink().isEmpty()) {
             createLink(request.getLink(), report);
         }
 
         // 이미지 수정
-        List<Image> images = imageRepository.findByReportId(report.getId());
-        if (images != null && !images.isEmpty()) {
-            imageRepository.deleteAll(images);
-        }
+        deleteImages(id);
         createImages(request.getImages(), report);
 
         report.update(request, updateDocument);
