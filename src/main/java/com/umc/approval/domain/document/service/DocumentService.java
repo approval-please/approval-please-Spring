@@ -107,7 +107,7 @@ public class DocumentService {
         boolean isModified = document.getCreatedAt().isEqual(document.getModifiedAt()) ? false : true;
 
         // 게시글 작성자, 좋아요/스크랩 유무
-        Boolean isWriter = null;
+        boolean isWriter = false;
         boolean isLiked = false;
         boolean isScrap = false;
         int isVoted = 0;
