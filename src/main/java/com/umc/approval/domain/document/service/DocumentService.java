@@ -118,7 +118,13 @@ public class DocumentService {
             // 게시글 작성자인지
             if(userId == document.getUser().getId()){
                 isWriter = true;
-                isVoted = 3;
+                if (document.getState() == 2) {
+                    isVoted = 0;
+                } else if (document.getState() == 1) {
+                    isVoted = 2;
+                } else {
+                    isVoted = 1;
+                }
             }else{
                 isWriter = false;
 
