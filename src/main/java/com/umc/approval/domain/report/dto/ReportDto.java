@@ -106,6 +106,7 @@ public class ReportDto {
         private Boolean scrapOrNot;
         private Long scrapCount;
         private Long commentCount;
+        private Boolean isNotification;
         private String datetime;
         private Boolean isModified;
         private Long view;
@@ -136,6 +137,7 @@ public class ReportDto {
             this.scrapCount = scrapCount;
             this.datetime = DateUtil.convert(report.getCreatedAt());
             this.commentCount = commentCount;
+            this.isNotification = report.getNotification();
             this.view = report.getView();
             this.likeOrNot = likeOrNot;
             this.followOrNot = followOrNot;

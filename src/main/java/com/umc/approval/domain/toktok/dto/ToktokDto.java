@@ -98,6 +98,7 @@ public class ToktokDto {
         private Boolean scrapOrNot;
         private Long scrapCount;
         private Long commentCount;
+        private Boolean isNotification;
         private Boolean isModified;
         private String datetime;
         private Long view;
@@ -135,6 +136,7 @@ public class ToktokDto {
             this.followOrNot = followOrNot;
             this.scrapCount = scrapCount;
             this.commentCount = commentCount;
+            this.isNotification = toktok.isNotification();
             this.datetime = DateUtil.convert(toktok.getCreatedAt());
             this.view = toktok.getView();
             this.isModified = isModified;
