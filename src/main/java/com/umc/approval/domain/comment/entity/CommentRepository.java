@@ -26,7 +26,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
 
     Boolean existsByParentCommentId(Long parentCommentId);
 
-    @Query(value = "select count(*) from comment where document_id = :document_id", nativeQuery = true)
+    @Query(value = "select count(*) from comment where document_id = :document_id and is_deleted = 0", nativeQuery = true)
     int countByDocumentId(@Param("document_id") Long documentId);
 
     @Query(value = "select count(*) from comment where report_id = :report_id and comment.is_deleted = 0", nativeQuery = true)
