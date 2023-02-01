@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-
 @RequestMapping("/documents/likedCategory")
 @RequiredArgsConstructor
 @RestController
@@ -15,10 +13,8 @@ public class LikeCategoryController {
     private final LikeCategoryService likeCategoryService;
 
     @GetMapping("/my")
-    public ResponseEntity<LikeCategoryDto.Response> getLikeCategoryList(
-            HttpServletRequest request
-    ) {
-        return ResponseEntity.ok(likeCategoryService.getLikeCategoryList(request));
+    public ResponseEntity<LikeCategoryDto.Response> getLikeCategoryList() {
+        return ResponseEntity.ok(likeCategoryService.getLikeCategoryList());
     }
 
     @PostMapping

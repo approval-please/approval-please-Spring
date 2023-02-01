@@ -1,7 +1,5 @@
 package com.umc.approval.domain.like_category.service;
 
-import com.umc.approval.domain.like.dto.LikeDto;
-import com.umc.approval.domain.like.entity.Like;
 import com.umc.approval.domain.like_category.dto.LikeCategoryDto;
 import com.umc.approval.domain.like_category.entity.LikeCategory;
 import com.umc.approval.domain.like_category.entity.LikeCategoryRepository;
@@ -13,13 +11,11 @@ import com.umc.approval.global.security.service.JwtService;
 import com.umc.approval.global.type.CategoryType;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
 
@@ -32,7 +28,7 @@ public class LikeCategoryService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
 
-    public LikeCategoryDto.Response getLikeCategoryList(HttpServletRequest request) {
+    public LikeCategoryDto.Response getLikeCategoryList() {
         User user = userRepository.findById(jwtService.getId())
                 .orElseThrow(() -> new CustomException(CustomErrorType.USER_NOT_FOUND));
 
