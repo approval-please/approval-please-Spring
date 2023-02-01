@@ -1,5 +1,6 @@
 package com.umc.approval.domain.report.service;
 
+import com.umc.approval.domain.approval.entity.Approval;
 import com.umc.approval.domain.approval.entity.ApprovalRepository;
 import com.umc.approval.domain.comment.entity.Comment;
 import com.umc.approval.domain.comment.entity.CommentRepository;
@@ -94,7 +95,9 @@ public class ReportService {
         // 작성자 포인트 적립
         userRepository.updatePoint(document.getUser().getId(), 500L);
         // 결재 참여자 포인트 적립
-        List<Long> userIdList = approvalRepository.findByDocumentId(document.getId());
+        List<Approval> approvalList = approvalRepository.findByDocumentId(document.getId());
+        List<Long> userIdList = approvalList.stream().map(a -> a.getUser().getId()).collect(Collectors.toList());
+        //List<Long> userIdList = approvalRepository.findByDocumentId(document.getId());
         userRepository.updatePoint(userIdList, 200L);
     }
 
