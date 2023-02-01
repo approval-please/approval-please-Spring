@@ -144,10 +144,7 @@ public class ReportService {
         // 태그 수정
         deleteTag(id);
         if (request.getTag() != null) {
-            List<String> tagList = request.getTag();
-            if (tagList != null && !tagList.isEmpty()) {
-                createTag(tagList, report);
-            }
+            createTag(request.getTag(), report);
         }
 
         // 링크 수정
@@ -311,9 +308,11 @@ public class ReportService {
     }
 
     public void createTag(List<String> tagList, Report report) {
-        for (String tag : tagList) {
-            Tag newTag = Tag.builder().report(report).tag(tag).build();
-            tagRepository.save(newTag);
+        if (tagList != null && !tagList.isEmpty()) {
+            for (String tag : tagList) {
+                Tag newTag = Tag.builder().report(report).tag(tag).build();
+                tagRepository.save(newTag);
+            }
         }
     }
 
