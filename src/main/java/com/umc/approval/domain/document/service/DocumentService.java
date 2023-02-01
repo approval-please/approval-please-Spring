@@ -94,6 +94,11 @@ public class DocumentService {
         List<String> tagNameList = tagRepository.findTagNameList(documentId);
         List<String> imageUrlList = imageRepository.findImageUrlList(documentId);
         Link link = linkRepository.findByDocumentId(documentId).orElse(null);
+        if(tagNameList == null){
+            System.out.println("***** tag null *****");
+        }else{
+            System.out.println("***** tag null 아님 *****");
+        }
 
         // 승인, 반려 수
         int approveCount = approvalRepository.countApproveByDocumentId(documentId);
@@ -226,6 +231,15 @@ public class DocumentService {
         if (scrapList != null) {
             scrapRepository.deleteAll(scrapList);
         }
+
+        // 승인/반려 삭제
+        List<Approval> approvalList = approvalRepository.findByDocumentId(documentId);
+        if(approvalList != null){
+            approvalRepository.deleteAllInBatch(approvalList);
+        }
+
+        // 결재보고서 삭제
+        reportRepository.findByDocumentId(documentId).ifPresent(reportRepository::delete);
 
         // document 삭제
         documentRepository.deleteById(documentId);
