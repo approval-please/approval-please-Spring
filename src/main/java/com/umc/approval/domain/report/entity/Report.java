@@ -66,4 +66,8 @@ public class Report extends BaseTimeEntity {
         this.document = document;
         this.content = request.getContent();
     }
+
+    public void setNotification(Boolean onOff){
+        this.notification = onOff;
+    }
 }
