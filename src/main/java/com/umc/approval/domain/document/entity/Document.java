@@ -86,4 +86,8 @@ public class Document extends BaseTimeEntity {
         this.title = title;
         this.content = content;
     }
+
+    public void setNotification(Boolean onOff){
+        this.notification = onOff;
+    }
 }
