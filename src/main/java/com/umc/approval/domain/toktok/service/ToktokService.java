@@ -236,22 +236,13 @@ public class ToktokService {
         }
 
         // 태그 수정
-        List<Tag> tags = tagRepository.findByToktokId(toktok.getId());
-        if (tags != null && !tags.isEmpty()) {
-            tagRepository.deleteAll(tags);
-        }
+        deleteTag(id);
         if (request.getTag() != null) {
-            List<String> tagList = request.getTag();
-            if (tagList != null && !tagList.isEmpty()) {
-                createTag(tagList, toktok);
-            }
+            createTag(request.getTag(), toktok);
         }
 
         // 링크 수정
-        List<Link> links = linkRepository.findByToktokId(toktok.getId());
-        if (links != null && !links.isEmpty()) {
-            linkRepository.deleteAll(links);
-        }
+        deleteLink(id);
         if (request.getLink() != null && !request.getLink().isEmpty()) {
             List<LinkDto.Request> linkList = request.getLink();
             createLink(linkList, toktok);
@@ -293,10 +284,7 @@ public class ToktokService {
         }
 
         // 이미지 수정
-        List<Image> images = imageRepository.findByToktokId(toktok.getId());
-        if (images != null && !images.isEmpty()) {
-            imageRepository.deleteAll(images);
-        }
+        deleteImage(id);
         if (request.getImages() != null) {
             for (String imgUrl : request.getImages()) {
                 Image uploadImg = Image.builder().toktok(toktok).imageUrl(imgUrl).build();
@@ -434,7 +422,6 @@ public class ToktokService {
 
         voteRepository.updateState(voteId);
     }
-
 
     @Transactional(readOnly = true)
     public ToktokDto.SearchResponse search(String query, Integer isTag, Integer category, Integer sortBy) {
