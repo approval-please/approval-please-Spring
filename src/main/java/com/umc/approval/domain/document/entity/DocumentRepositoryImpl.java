@@ -8,9 +8,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.umc.approval.global.type.CategoryType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
@@ -21,15 +20,19 @@ import java.util.List;
 import static com.umc.approval.domain.document.entity.QDocument.document;
 import static com.umc.approval.domain.tag.entity.QTag.tag1;
 
-public class DocumentRepositoryImpl extends QuerydslRepositorySupport implements DocumentRepositoryCustom {
+@Repository
+public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
 
-    public DocumentRepositoryImpl() {
-        super(Document.class);
+    private final EntityManager em;
+    private final JPAQueryFactory queryFactory;
+
+    public DocumentRepositoryImpl(EntityManager em) {
+        this.em = em;
+        this.queryFactory = new JPAQueryFactory(em);
     }
 
     @Override
     public List<Document> findAllByQuery(String query, Integer isTag, Integer category, Integer state, Integer sortBy) {
-        JPAQueryFactory queryFactory = new JPAQueryFactory(getEntityManager());
         NumberExpression<Integer> date = new CaseBuilder()
                 .when(document.createdAt.after(LocalDate.now().minusDays(7).atTime(LocalTime.MIN)))
                 .then(1)
@@ -76,7 +79,6 @@ public class DocumentRepositoryImpl extends QuerydslRepositorySupport implements
 
     @Override
     public Page<Document> findAllByQueryPaging(String query, Integer isTag, Integer category, Integer state, Integer sortBy, Pageable pageable) {
-        JPAQueryFactory queryFactory = new JPAQueryFactory(getEntityManager());
         List<Document> documents;
         JPAQuery<Long> countQuery;
         if (isTag == 1) {
@@ -144,7 +146,6 @@ public class DocumentRepositoryImpl extends QuerydslRepositorySupport implements
 
     @Override
     public List<Document> findAllByOption(Integer category, Integer state, Integer sortBy) {
-        JPAQueryFactory queryFactory = new JPAQueryFactory(getEntityManager());
         NumberExpression<Integer> date = new CaseBuilder()
                 .when(document.createdAt.after(LocalDate.now().minusDays(7).atTime(LocalTime.MIN)))
                 .then(1)
@@ -173,7 +174,6 @@ public class DocumentRepositoryImpl extends QuerydslRepositorySupport implements
 
     @Override
     public List<Document> findAllByLikedCategories(List<CategoryType> categories, Integer state, Integer sortBy) {
-        JPAQueryFactory queryFactory = new JPAQueryFactory(getEntityManager());
         NumberExpression<Integer> date = new CaseBuilder()
                 .when(document.createdAt.after(LocalDate.now().minusDays(7).atTime(LocalTime.MIN)))
                 .then(1)
