@@ -14,5 +14,8 @@ public interface LikeCategoryRepository extends JpaRepository<LikeCategory, Long
             "where l.user.id = :userId")
     List<LikeCategory> findByUserId(@Param("userId") Long userId);
 
-    Void deleteByCategoryAndUserId(CategoryType categoryType, Long userId);
+    @Query("delete from LikeCategory l " +
+            "where l.category = :categoryType " +
+            "and l.user.id = :userId")
+    void deleteByCategoryAndUserId(CategoryType categoryType, Long userId);
 }
