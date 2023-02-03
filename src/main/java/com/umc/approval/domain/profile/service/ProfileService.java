@@ -1,6 +1,5 @@
 package com.umc.approval.domain.profile.service;
 
-import com.umc.approval.domain.approval.entity.ApprovalRepository;
 import com.umc.approval.domain.comment.entity.CommentRepository;
 import com.umc.approval.domain.document.dto.DocumentDto;
 import com.umc.approval.domain.document.entity.Document;
@@ -8,7 +7,6 @@ import com.umc.approval.domain.document.entity.DocumentRepository;
 import com.umc.approval.domain.follow.dto.FollowDto;
 import com.umc.approval.domain.follow.entity.Follow;
 import com.umc.approval.domain.follow.entity.FollowRepository;
-import com.umc.approval.domain.image.entity.ImageRepository;
 import com.umc.approval.domain.performance.dto.PerformanceDto;
 import com.umc.approval.domain.performance.entity.Performance;
 import com.umc.approval.domain.performance.entity.PerformanceRepository;
@@ -17,7 +15,6 @@ import com.umc.approval.domain.report.dto.ReportDto;
 import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.report.entity.ReportRepository;
 import com.umc.approval.domain.scrap.entity.ScrapRepository;
-import com.umc.approval.domain.tag.entity.TagRepository;
 import com.umc.approval.domain.toktok.dto.ToktokDto;
 import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.toktok.entity.ToktokRepository;
@@ -54,7 +51,7 @@ public class ProfileService {
 
 
     // 로그인 확인
-    private User certifyUser (Long userId){
+    private User certifyUser(Long userId) {
         User user;
 
         if (userId == null) { // 내 사원증 조회
@@ -69,7 +66,7 @@ public class ProfileService {
     }
 
     // 사원증 프로필 조회
-    public JSONObject getUserProfile (HttpServletRequest request, Long userId) {
+    public JSONObject getUserProfile(HttpServletRequest request, Long userId) {
         User user = certifyUser(userId);
         Long loginUserId = jwtService.getIdDirectHeader(request);
 
@@ -77,14 +74,14 @@ public class ProfileService {
         JSONObject profile = new JSONObject();
 
         ProfileDto.ProfileResponse response = new ProfileDto.ProfileResponse(
-                            user.getProfileImage(),
-                            user.getIntroduction(),
-                            user.getNickname(),
-                            user.getLevel(),
-                            user.getPromotionPoint(),
-                            followRepository.countByToUser(user.getId()),
-                            followRepository.countByFromUser(user.getId())
-                            );
+                user.getProfileImage(),
+                user.getIntroduction(),
+                user.getNickname(),
+                user.getLevel(),
+                user.getPromotionPoint(),
+                followRepository.countByToUser(user.getId()),
+                followRepository.countByFromUser(user.getId())
+        );
 
         result.put("content", response);
 
@@ -120,15 +117,11 @@ public class ProfileService {
             documents = documentRepository.findAllByStateApproval(user.getId(), state, isApproved);
         }
 
-        if (documents.isEmpty()) {
-            throw new CustomException(DOCUMENT_NOT_FOUND);
-        }
-
         return DocumentDto.SearchResponse.from(documents);
     }
 
     // 커뮤니티 조회 - 결재톡톡 & 결재보고서
-    public Object findCommunity (Long userId, Integer postType){
+    public Object findCommunity(Long userId, Integer postType) {
         User user = certifyUser(userId);
 
         if (postType == 1) { // 결재톡톡 (기본값)
@@ -155,7 +148,7 @@ public class ProfileService {
     }
 
     // 댓글 작성한 게시글 조회 (내 사원증만 가능)
-    public Object findAllByComments (Integer postType, Integer state) {
+    public Object findAllByComments(Integer postType, Integer state) {
         User user = certifyUser(null);
 
         if (postType == 0) { // 결재서류 (기본값)
@@ -172,10 +165,6 @@ public class ProfileService {
                 documents = commentRepository.findDocuments(user.getId());
             }
 
-            if (documents.isEmpty()) {
-                throw new CustomException(POST_WITH_COMMENT_NOT_FOUND);
-            }
-
             return DocumentDto.SearchResponse.from(documents);
 
         } else if (postType == 1) { // 결재톡톡
@@ -183,10 +172,6 @@ public class ProfileService {
 
             if (state != null) {
                 throw new CustomException(PARAM_INVALID_VALUE);
-                }
-
-            if (toktoks.isEmpty()) {
-                throw new CustomException(POST_WITH_COMMENT_NOT_FOUND);
             }
 
             return ToktokDto.SearchResponse.from(toktoks);
@@ -210,7 +195,7 @@ public class ProfileService {
     }
 
     // 스크랩한 게시글 조회 (내 사원증만 가능)
-    public Object findAllByScraps (Integer postType, Integer state) {
+    public Object findAllByScraps(Integer postType, Integer state) {
         User user = certifyUser(null);
 
         if (postType == 0) { // 결재서류 (기본값)
@@ -227,10 +212,6 @@ public class ProfileService {
                 documents = scrapRepository.findDocuments(user.getId());
             }
 
-            if (documents.isEmpty()) {
-                throw new CustomException(POST_WITH_SCRAP_NOT_FOUND);
-            }
-
             return DocumentDto.SearchResponse.from(documents);
 
         } else if (postType == 1) { // 결재톡톡
@@ -238,10 +219,6 @@ public class ProfileService {
 
             if (state != null) {
                 throw new CustomException(PARAM_INVALID_VALUE);
-            }
-
-            if (toktoks.isEmpty()) {
-                throw new CustomException(POST_WITH_SCRAP_NOT_FOUND);
             }
 
             return ToktokDto.SearchResponse.from(toktoks);
@@ -265,26 +242,18 @@ public class ProfileService {
     }
 
     // 실적 조회
-    public PerformanceDto.SearchResponse findPerformances () {
+    public PerformanceDto.SearchResponse findPerformances() {
         User user = certifyUser(null);
         List<Performance> performances = performanceRepository.findByUserId(user.getId());
-
-        if (performances.isEmpty()) {
-            throw new CustomException(PERFORMANCE_NOT_FOUND);
-        }
 
         return PerformanceDto.SearchResponse.from(performances);
     }
 
     // 팔로우 목록 조회
-    public JSONObject findMyFollowers () {
+    public JSONObject findMyFollowers() {
         User user = certifyUser(null);
         List<Follow> follows = followRepository.findMyFollowers(user.getId());
         Boolean isFollow;
-
-        if (follows.isEmpty()) {
-            throw new CustomException(FOLLOW_NOT_FOUND);
-        }
 
         JSONObject result = new JSONObject();
 
@@ -308,13 +277,9 @@ public class ProfileService {
     }
 
     // 팔로잉 목록 조회
-    public JSONObject findMyFollowings () {
+    public JSONObject findMyFollowings() {
         User user = certifyUser(null);
         List<Follow> followings = followRepository.findMyFollowings(user.getId());
-
-        if (followings.isEmpty()) {
-            throw new CustomException(FOLLOWING_NOT_FOUND);
-        }
 
         JSONObject result = new JSONObject();
 
@@ -337,7 +302,7 @@ public class ProfileService {
     }
 
     // 사원증 프로필 수정
-    public void updateProfile (UserDto.ProfileRequest request){
+    public void updateProfile(UserDto.ProfileRequest request) {
         User user = certifyUser(null);
 
         if (user.getId() == null) {
@@ -352,10 +317,10 @@ public class ProfileService {
     }
 
     // 내 팔로잉 사용자가 나를 팔로우 하는지
-    public Boolean isFollow (Long fromUserId, Long toUserId) {
+    public Boolean isFollow(Long fromUserId, Long toUserId) {
         Integer isfollow = followRepository.countFollowOrNot(fromUserId, toUserId);
 
-        if(isfollow == 0) {
+        if (isfollow == 0) {
             return false;
         } else {
             return true;
