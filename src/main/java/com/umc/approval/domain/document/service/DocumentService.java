@@ -90,7 +90,7 @@ public class DocumentService {
 
         // 결재서류 정보
         Document document = findDocument(documentId);
-        User user = document.getUser(); // 결재서류 작성자
+        User writer = document.getUser(); // 결재서류 작성자
         List<String> tagNameList = tagRepository.findTagNameList(documentId);
         List<String> imageUrlList = imageRepository.findImageUrlList(documentId);
         Link link = linkRepository.findByDocumentId(documentId).orElse(null);
@@ -115,8 +115,10 @@ public class DocumentService {
 
         // 로그인 o
         if (userId != null) {
+            User user = userRepository.findById(userId).get();
+
             // 게시글 작성자인지
-            if(userId == document.getUser().getId()){
+            if(userId == writer.getId()){
                 isWriter = true;
                 if (document.getState() == 2) {
                     isVoted = 0;
@@ -129,7 +131,7 @@ public class DocumentService {
                 isWriter = false;
 
                 // 로그인한 사용자의 타 게시글에 대한 승인/반려 여부
-                Optional<Approval> approval = approvalRepository.findByUserIdAndDocumentId(documentId, userId);
+                Optional<Approval> approval = approvalRepository.findByUserAndDocument(user, document);
                 if(approval != null && !approval.isEmpty()){ // 승인/반려 선택한 경우
                     if(approval.get().getIsApprove() == true)
                         isVoted = 1;
@@ -152,7 +154,7 @@ public class DocumentService {
             reportId = report.get().getId();
         }
 
-        return new DocumentDto.GetDocumentResponse(document, user, tagNameList, imageUrlList, link,
+        return new DocumentDto.GetDocumentResponse(document, writer, tagNameList, imageUrlList, link,
                 approveCount, rejectCount, likedCount, commentCount, isModified, isLiked, isScrap,
                 isWriter, reportMade, reportId, isVoted);
     }
@@ -226,6 +228,15 @@ public class DocumentService {
         if (scrapList != null) {
             scrapRepository.deleteAll(scrapList);
         }
+
+        // 승인/반려 삭제
+        List<Approval> approvalList = approvalRepository.findByDocumentId(documentId);
+        if(approvalList != null){
+            approvalRepository.deleteAllInBatch(approvalList);
+        }
+
+        // 결재보고서 삭제
+        reportRepository.findByDocumentId(documentId).ifPresent(reportRepository::delete);
 
         // document 삭제
         documentRepository.deleteById(documentId);

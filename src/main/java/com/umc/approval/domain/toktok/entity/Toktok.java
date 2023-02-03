@@ -5,7 +5,6 @@ import com.umc.approval.domain.comment.entity.Comment;
 import com.umc.approval.domain.image.entity.Image;
 import com.umc.approval.domain.like.entity.Like;
 import com.umc.approval.domain.link.entity.Link;
-import com.umc.approval.domain.scrap.entity.Scrap;
 import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.toktok.dto.ToktokDto;
 import com.umc.approval.domain.user.entity.User;
@@ -83,5 +82,9 @@ public class Toktok extends BaseTimeEntity {
 
     public void deleteVote() {
         this.vote = null;
+    }
+
+    public void setNotification(Boolean onOff){
+        this.notification = onOff;
     }
 }
