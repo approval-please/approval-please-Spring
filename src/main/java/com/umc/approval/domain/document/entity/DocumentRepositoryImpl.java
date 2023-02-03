@@ -9,6 +9,7 @@ import com.umc.approval.global.type.CategoryType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
@@ -19,6 +20,7 @@ import java.util.List;
 import static com.umc.approval.domain.document.entity.QDocument.document;
 import static com.umc.approval.domain.tag.entity.QTag.tag1;
 
+@Transactional
 public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;

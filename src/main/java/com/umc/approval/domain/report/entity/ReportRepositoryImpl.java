@@ -6,6 +6,7 @@ import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.umc.approval.domain.follow.entity.Follow;
 import com.umc.approval.global.type.CategoryType;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
@@ -20,6 +21,7 @@ import static com.umc.approval.domain.tag.entity.QTag.tag1;
 import static com.umc.approval.domain.toktok.entity.QToktok.toktok;
 import static com.umc.approval.domain.vote.entity.QVote.vote;
 
+@Transactional
 public class ReportRepositoryImpl implements ReportRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
