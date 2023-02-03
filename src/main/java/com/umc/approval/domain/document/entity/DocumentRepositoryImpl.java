@@ -8,6 +8,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.umc.approval.global.type.CategoryType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,19 +21,15 @@ import java.util.List;
 import static com.umc.approval.domain.document.entity.QDocument.document;
 import static com.umc.approval.domain.tag.entity.QTag.tag1;
 
-@Transactional
-public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
+public class DocumentRepositoryImpl extends QuerydslRepositorySupport implements DocumentRepositoryCustom {
 
-    private final JPAQueryFactory queryFactory;
-    private final EntityManager em;
-
-    public DocumentRepositoryImpl(EntityManager em) {
-        this.em = em;
-        this.queryFactory = new JPAQueryFactory(em);
+    public DocumentRepositoryImpl() {
+        super(Document.class);
     }
 
     @Override
     public List<Document> findAllByQuery(String query, Integer isTag, Integer category, Integer state, Integer sortBy) {
+        JPAQueryFactory queryFactory = new JPAQueryFactory(getEntityManager());
         NumberExpression<Integer> date = new CaseBuilder()
                 .when(document.createdAt.after(LocalDate.now().minusDays(7).atTime(LocalTime.MIN)))
                 .then(1)
@@ -79,6 +76,7 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
 
     @Override
     public Page<Document> findAllByQueryPaging(String query, Integer isTag, Integer category, Integer state, Integer sortBy, Pageable pageable) {
+        JPAQueryFactory queryFactory = new JPAQueryFactory(getEntityManager());
         List<Document> documents;
         JPAQuery<Long> countQuery;
         if (isTag == 1) {
@@ -146,6 +144,7 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
 
     @Override
     public List<Document> findAllByOption(Integer category, Integer state, Integer sortBy) {
+        JPAQueryFactory queryFactory = new JPAQueryFactory(getEntityManager());
         NumberExpression<Integer> date = new CaseBuilder()
                 .when(document.createdAt.after(LocalDate.now().minusDays(7).atTime(LocalTime.MIN)))
                 .then(1)
@@ -174,6 +173,7 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
 
     @Override
     public List<Document> findAllByLikedCategories(List<CategoryType> categories, Integer state, Integer sortBy) {
+        JPAQueryFactory queryFactory = new JPAQueryFactory(getEntityManager());
         NumberExpression<Integer> date = new CaseBuilder()
                 .when(document.createdAt.after(LocalDate.now().minusDays(7).atTime(LocalTime.MIN)))
                 .then(1)
