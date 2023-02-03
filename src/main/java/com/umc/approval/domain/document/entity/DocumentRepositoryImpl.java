@@ -23,11 +23,9 @@ import static com.umc.approval.domain.tag.entity.QTag.tag1;
 @Repository
 public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
 
-    private final EntityManager em;
     private final JPAQueryFactory queryFactory;
 
     public DocumentRepositoryImpl(EntityManager em) {
-        this.em = em;
         this.queryFactory = new JPAQueryFactory(em);
     }
 
