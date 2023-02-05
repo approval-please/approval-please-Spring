@@ -1,6 +1,8 @@
 package com.umc.approval.domain.toktok.service;
 
 
+import com.umc.approval.domain.accuse.entity.Accuse;
+import com.umc.approval.domain.accuse.entity.AccuseRepository;
 import com.umc.approval.domain.comment.entity.Comment;
 import com.umc.approval.domain.comment.entity.CommentRepository;
 import com.umc.approval.domain.follow.entity.Follow;
@@ -12,6 +14,7 @@ import com.umc.approval.domain.like.entity.LikeRepository;
 import com.umc.approval.domain.link.dto.LinkDto;
 import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.entity.LinkRepository;
+import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.scrap.entity.Scrap;
 import com.umc.approval.domain.scrap.entity.ScrapRepository;
 import com.umc.approval.domain.tag.entity.Tag;
@@ -58,6 +61,7 @@ public class ToktokService {
     private final ScrapRepository scrapRepository;
     private final CommentRepository commentRepository;
     private final UserVoteRepository userVoteRepository;
+    private final AccuseRepository accuseRepository;
 
 
     public void createPost(ToktokDto.PostToktokRequest request) {
@@ -74,37 +78,17 @@ public class ToktokService {
         CategoryType categoryType = viewCategory(request.getCategory());
 
         //결제톡톡 게시글 등록
-        Toktok toktok = Toktok.builder()
-            .user(user)
-            .content(request.getContent())
-            .category(categoryType)
-            .vote(vote)
-            .view(0L)
-            .notification(true)
-            .build();
-
+        Toktok toktok = request.toEntity(user, categoryType, vote);
         toktokRepository.save(toktok);
 
         //링크 등록
-        if (request.getLink() != null && !request.getLink().isEmpty()) {
-            List<LinkDto.Request> linkList = request.getLink();
-            createLink(linkList, toktok);
-
-        }
+        createLink(request.getLink(), toktok);
 
         //태그 등록
-        if (request.getTag() != null) {
-            List<String> tagList = request.getTag();
-            createTag(tagList, toktok);
-        }
+        createTag(request.getTag(), toktok);
 
         //이미지 등록
-        if (request.getImages() != null) {
-            for (String imgUrl : request.getImages()) {
-                Image uploadImg = Image.builder().toktok(toktok).imageUrl(imgUrl).build();
-                imageRepository.save(uploadImg);
-            }
-        }
+        createImages(request.getImages(), toktok);
     }
 
     @Transactional(readOnly = true)
@@ -127,8 +111,7 @@ public class ToktokService {
         List<String> tags = tagRepository.findTagNameListByToktokId(toktokId);
         List<String> images = imageRepository.findImageUrlListBytoktokId(toktokId);
         List<Link> reportLinkList = linkRepository.findByToktokId(toktokId);
-        List<LinkDto.Response> linkResponse;
-        linkResponse = reportLinkList.stream().map(LinkDto.Response::fromEntity).collect(Collectors.toList());
+        List<LinkDto.Response> linkResponse = reportLinkList.stream().map(LinkDto.Response::fromEntity).collect(Collectors.toList());
         Boolean isModified = true;
         // 게시글이 수정된 적이 있는 확인
         if (toktok.getCreatedAt() == toktok.getModifiedAt()) {
@@ -160,16 +143,13 @@ public class ToktokService {
         Long likedCount = likeRepository.countByToktok(toktok);
         Long commentCount = commentRepository.countByToktokId(toktok.getId());
         Long scrapCount = scrapRepository.countByToktok(toktok);
-        Long likeToktokOrNot = likeRepository.countByUserAndToktok(visitUser, toktok);
-        Long scrapToktokOrNot = scrapRepository.countByUserAndToktok(visitUser, toktok);
         Boolean likeOrNot = true;
         Boolean followOrNot = true;
         Boolean scrapOrNot = true;
+        Boolean writerOrNot = false;
 
         // 해당 유저가 스크랩 했는지 여부
-        if(scrapToktokOrNot == 0) {
-            scrapOrNot = false;
-        }
+        scrapOrNot = scrapRepository.countByUserAndToktok(visitUser, toktok) == 0 ? false : true;
 
         if (userId != null) {
             //로그인 한 사용자
@@ -197,16 +177,13 @@ public class ToktokService {
         }
 
         // 게시글 조회한 유저가 게시글 작성자인지 여부
-        Boolean writerOrNot = false;
         if (userId == writer.getId()) {
             writerOrNot = true;
             voteSelect = null;
         }
 
         // 해당 유저가 게시글을 눌렀는지 여부
-        if (likeToktokOrNot == 0) {
-            likeOrNot = false;
-        }
+        likeOrNot = likeRepository.countByUserAndToktok(visitUser, toktok) == 0 ? false : true;
 
         // 게시글 상세 조회를 한 유저가 글을 쓴 유저를 팔로우 했는지 여부
         Long from_userId = userId;
@@ -217,9 +194,7 @@ public class ToktokService {
         } else if (follow == 0) {
             followOrNot = false;
         }
-        if (userId == toktok.getUser().getId()) {
-            voteSelect = null;
-        }
+
         return new ToktokDto.GetToktokResponse(writer, toktok, vote, tags,
             images, linkResponse, likedCount,
             commentCount, scrapCount, likeOrNot,
@@ -237,16 +212,11 @@ public class ToktokService {
 
         // 태그 수정
         deleteTag(id);
-        if (request.getTag() != null) {
-            createTag(request.getTag(), toktok);
-        }
+        createTag(request.getTag(), toktok);
 
         // 링크 수정
         deleteLink(id);
-        if (request.getLink() != null && !request.getLink().isEmpty()) {
-            List<LinkDto.Request> linkList = request.getLink();
-            createLink(linkList, toktok);
-        }
+        createLink(request.getLink(), toktok);
 
         CategoryType categoryType = viewCategory(request.getCategory());
 
@@ -285,12 +255,7 @@ public class ToktokService {
 
         // 이미지 수정
         deleteImage(id);
-        if (request.getImages() != null) {
-            for (String imgUrl : request.getImages()) {
-                Image uploadImg = Image.builder().toktok(toktok).imageUrl(imgUrl).build();
-                imageRepository.save(uploadImg);
-            }
-        }
+        createImages(request.getImages(), toktok);
     }
 
     // 투표하기
@@ -333,7 +298,7 @@ public class ToktokService {
     public ToktokDto.GetVotePeopleListResponse getVotePeopleList(Long voteOptionId) {
         User visitUser = certifyUser();
 
-        VoteOption voteOption = voteOptionRepository.findById(voteOptionId)
+        voteOptionRepository.findById(voteOptionId)
             .orElseThrow(() -> new CustomException(VOTE_OPTION_NOT_FOUND));
 
         List<UserVote> uservote = userVoteRepository.findByOptionId(voteOptionId);
@@ -407,6 +372,12 @@ public class ToktokService {
             voteRepository.delete(getVote);
         }
 
+        // 신고내역 삭제
+        List<Accuse> accuses = accuseRepository.findByToktokId(toktokId);
+        if (accuses != null) {
+            accuseRepository.deleteAll(accuses);
+        }
+
         toktokRepository.deleteById(toktokId);
     }
 
@@ -458,21 +429,34 @@ public class ToktokService {
 
 
     private void createLink(List<LinkDto.Request> linkList, Toktok toktok) {
-        for (LinkDto.Request l : linkList) {
-            Link link = Link.builder()
-                .toktok(toktok)
-                .url(l.getUrl())
-                .title(l.getTitle())
-                .image(l.getImage())
-                .build();
-            linkRepository.save(link);
+        if(linkList != null && !linkList.isEmpty()) {
+            for (LinkDto.Request l : linkList) {
+                Link link = Link.builder()
+                    .toktok(toktok)
+                    .url(l.getUrl())
+                    .title(l.getTitle())
+                    .image(l.getImage())
+                    .build();
+                linkRepository.save(link);
+            }
         }
     }
 
     private void createTag(List<String> tagList, Toktok toktok) {
-        for (String tag : tagList) {
-            Tag newTag = Tag.builder().toktok(toktok).tag(tag).build();
-            tagRepository.save(newTag);
+        if(tagList != null && !tagList.isEmpty()) {
+            for (String tag : tagList) {
+                Tag newTag = Tag.builder().toktok(toktok).tag(tag).build();
+                tagRepository.save(newTag);
+            }
+        }
+    }
+
+    private void createImages(List<String> images, Toktok toktok) {
+        if (images != null && !images.isEmpty()) {
+            for (String imgUrl : images) {
+                Image uploadImg = Image.builder().toktok(toktok).imageUrl(imgUrl).build();
+                imageRepository.save(uploadImg);
+            }
         }
     }
 
