@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface AccuseRepository extends JpaRepository<Accuse, Long>, AccuseRepositoryCustom {
     List<Accuse> findByReportId(Long reportId);
     List<Accuse> findByToktokId(Long toktokId);
+    List<Accuse> findByDocumentId(Long documentId);
 }

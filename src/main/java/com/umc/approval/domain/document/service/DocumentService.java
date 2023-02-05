@@ -1,5 +1,7 @@
 package com.umc.approval.domain.document.service;
 
+import com.umc.approval.domain.accuse.entity.Accuse;
+import com.umc.approval.domain.accuse.entity.AccuseRepository;
 import com.umc.approval.domain.approval.entity.Approval;
 import com.umc.approval.domain.approval.entity.ApprovalRepository;
 import com.umc.approval.domain.comment.entity.Comment;
@@ -17,6 +19,7 @@ import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.entity.LinkRepository;
 import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.report.entity.ReportRepository;
+import com.umc.approval.domain.report.service.ReportService;
 import com.umc.approval.domain.scrap.entity.Scrap;
 import com.umc.approval.domain.scrap.entity.ScrapRepository;
 import com.umc.approval.domain.tag.entity.Tag;
@@ -57,6 +60,8 @@ public class DocumentService {
     private final LikeCategoryRepository likeCategoryRepository;
     private final ScrapRepository scrapRepository;
     private final ReportRepository reportRepository;
+    private final ReportService reportService;
+    private final AccuseRepository accuseRepository;
 
     public void createDocument(DocumentDto.DocumentRequest request) {
         User user = certifyUser();
@@ -232,11 +237,17 @@ public class DocumentService {
         // 승인/반려 삭제
         List<Approval> approvalList = approvalRepository.findByDocumentId(documentId);
         if(approvalList != null){
-            approvalRepository.deleteAllInBatch(approvalList);
+            approvalRepository.deleteAll(approvalList);
         }
 
-        // 결재보고서 삭제
-        reportRepository.findByDocumentId(documentId).ifPresent(reportRepository::delete);
+        // 결재보고서 및 관련 내용 모두 삭제
+        reportRepository.findByDocumentId(documentId).ifPresent(r -> reportService.deletePost(r.getId()));
+
+        // 신고 내역 삭제
+        List<Accuse> accuseList = accuseRepository.findByDocumentId(documentId);
+        if(accuseList != null){
+            accuseRepository.deleteAll(accuseList);
+        }
 
         // document 삭제
         documentRepository.deleteById(documentId);
