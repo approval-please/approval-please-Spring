@@ -1,5 +1,7 @@
 package com.umc.approval.domain.report.service;
 
+import com.umc.approval.domain.accuse.entity.Accuse;
+import com.umc.approval.domain.accuse.entity.AccuseRepository;
 import com.umc.approval.domain.approval.entity.Approval;
 import com.umc.approval.domain.approval.entity.ApprovalRepository;
 import com.umc.approval.domain.comment.entity.Comment;
@@ -30,6 +32,7 @@ import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,6 +60,7 @@ public class ReportService {
     private final ScrapRepository scrapRepository;
     private final FollowRepository followRepository;
     private final ApprovalRepository approvalRepository;
+    private final AccuseRepository accuseRepository;
 
     public void createPost(ReportDto.ReportRequest request) {
 
@@ -70,24 +74,15 @@ public class ReportService {
         }
 
         //결재보고서 등록
-        Report report = Report.builder()
-                .content(request.getContent())
-                .document(document)
-                .notification(true)
-                .view(0L)
-                .build();
+        Report report = request.toEntity(document);
 
         reportRepository.save(report);
 
         //링크 등록
-        if (request.getLink() != null && !request.getLink().isEmpty()) {
-            createLink(request.getLink(), report);
-        }
+        createLink(request.getLink(), report);
 
         //태그 등록
-        if (request.getTag() != null) {
-            createTag(request.getTag(), report);
-        }
+        createTag(request.getTag(), report);
 
         //이미지 등록
         createImages(request.getImages(), report);
@@ -146,22 +141,17 @@ public class ReportService {
 
         // 태그 수정
         deleteTag(id);
-        if (request.getTag() != null) {
-            createTag(request.getTag(), report);
-        }
+        createTag(request.getTag(), report);
 
         // 링크 수정
         deleteLink(id);
-        if (request.getLink() != null && !request.getLink().isEmpty()) {
-            createLink(request.getLink(), report);
-        }
+        createLink(request.getLink(), report);
 
         // 이미지 수정
         deleteImages(id);
         createImages(request.getImages(), report);
 
         report.update(request, updateDocument);
-
     }
 
     // 게시글 상세 조회
@@ -195,33 +185,25 @@ public class ReportService {
         Long likedCount = likeRepository.countByReport(report);
         Long commentCount = commentRepository.countByReportId(report.getId());
         Long scrapCount = scrapRepository.countByReport(report);
-        Long scrapReportOrNot = scrapRepository.countByUserAndReport(visitUser, report);
-        Long likeReportOrNot = likeRepository.countByUserAndReport(visitUser, report);
-        Boolean likeOrNot = true;
-        Boolean followOrNot = true;
+        Boolean likeOrNot = false;
+        Boolean followOrNot = false;
         Boolean writerOrNot = false;
-        Boolean scrapOrNot = true;
+        Boolean scrapOrNot = false;
+        Boolean isModified = false;
 
         // 해당 유저가 스크랩 했는지 여부
-        if (scrapReportOrNot == 0) {
-            scrapOrNot = false;
-        }
+        scrapOrNot = scrapRepository.countByUserAndReport(visitUser, report) == 0 ? false : true;
 
-        Boolean isModified = true;
         // 게시글이 수정된 적이 있는 확인
         if (report.getCreatedAt() == report.getModifiedAt()) {
             isModified = false;
         }
 
-        // 해당 유저가 게시글을 눌렀는지 여부
-        if (likeReportOrNot == 0) {
-            likeOrNot = false;
-        }
+        // 해당 유저가 게시글 좋아요를 눌렀는지 여부
+        likeOrNot = likeRepository.countByUserAndReport(visitUser, report) == 0 ? false : true;
 
         // 게시글 상세 조회를 한 유저가 글 작성자인지 여부
-        if (userId == writer.getId()) {
-            writerOrNot = true;
-        }
+        writerOrNot = userId == writer.getId() ? true : false;
 
         // 게시글 상세 조회를 한 유저가 글을 쓴 유저를 팔로우 했는지 여부
         if (userId != null) {
@@ -281,9 +263,13 @@ public class ReportService {
             commentRepository.deleteAll(comments);
         }
 
+        // 신고 내역 삭제
+        List<Accuse> accuses = accuseRepository.findByReportId(reportId);
+        if (accuses != null) {
+            accuseRepository.deleteAll(accuses);
+        }
+
         reportRepository.deleteById(reportId);
-
-
     }
 
     @Transactional(readOnly = true)
@@ -299,14 +285,16 @@ public class ReportService {
     }
 
     public void createLink(List<LinkDto.Request> linkList, Report report) {
-        for (LinkDto.Request l : linkList) {
-            Link link = Link.builder()
+        if (linkList != null && !linkList.isEmpty()) {
+            for (LinkDto.Request l : linkList) {
+                Link link = Link.builder()
                     .report(report)
                     .url(l.getUrl())
                     .title(l.getTitle())
                     .image(l.getImage())
                     .build();
-            linkRepository.save(link);
+                linkRepository.save(link);
+            }
         }
     }
 
@@ -315,6 +303,15 @@ public class ReportService {
             for (String tag : tagList) {
                 Tag newTag = Tag.builder().report(report).tag(tag).build();
                 tagRepository.save(newTag);
+            }
+        }
+    }
+
+    private void createImages(List<String> images, Report report) {
+        if (images != null && !images.isEmpty()) {
+            for (String imgUrl : images) {
+                Image uploadImg = Image.builder().report(report).imageUrl(imgUrl).build();
+                imageRepository.save(uploadImg);
             }
         }
     }
@@ -331,15 +328,6 @@ public class ReportService {
                 .orElseThrow(() -> new CustomException(REPORT_NOT_FOUND));
 
         return report;
-    }
-
-    private void createImages(List<String> images, Report report) {
-        if (images != null && !images.isEmpty()) {
-            for (String imgUrl : images) {
-                Image uploadImg = Image.builder().report(report).imageUrl(imgUrl).build();
-                imageRepository.save(uploadImg);
-            }
-        }
     }
 
     private void deleteTag(Long reportId) {

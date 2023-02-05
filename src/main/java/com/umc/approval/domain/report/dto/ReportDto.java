@@ -36,6 +36,15 @@ public class ReportDto {
         private List<String> tag;
 
         private List<String> images;
+
+        public Report toEntity(Document document) {
+            return Report.builder()
+                .content(content)
+                .document(document)
+                .notification(true)
+                .view(0L)
+                .build();
+        }
     }
 
     @Getter
