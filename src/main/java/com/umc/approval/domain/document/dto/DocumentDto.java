@@ -201,6 +201,21 @@ public class DocumentDto {
     @Getter
     @Builder
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class ProfileResponse {
+        private Integer documentCount;
+        private List<SearchListResponse> documentContent;
+
+        public static ProfileResponse from(List<Document> documents) {
+            return ProfileResponse.builder()
+                    .documentCount(documents.size())
+                    .documentContent(documents.stream().map(SearchListResponse::fromEntity).collect(Collectors.toList()))
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class SearchListResponse {
         private Long documentId;
         private Integer category;

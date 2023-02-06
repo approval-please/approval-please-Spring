@@ -165,7 +165,7 @@ public class ProfileService {
                 documents = commentRepository.findDocuments(user.getId());
             }
 
-            return DocumentDto.SearchResponse.from(documents);
+            return DocumentDto.ProfileResponse.from(documents);
 
         } else if (postType == 1) { // 결재톡톡
             List<Toktok> toktoks = commentRepository.findToktoks(user.getId());
@@ -174,7 +174,7 @@ public class ProfileService {
                 throw new CustomException(PARAM_INVALID_VALUE);
             }
 
-            return ToktokDto.SearchResponse.from(toktoks);
+            return ToktokDto.ProfileResponse.from(toktoks);
 
         } else if (postType == 2) { // 결재보고서
             List<Report> reports = commentRepository.findReports(user.getId());
