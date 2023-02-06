@@ -64,7 +64,7 @@ public class CertService {
         if(LocalDateTime.now().minusMinutes(5).isAfter(cert.getModifiedAt())){
             throw new CustomException(CERT_TIME_OVER);
         }
-        System.out.println(cert.getCertNumber() + certRequest.getCertNumber());
+
         if(cert.getCertNumber().equals(certRequest.getCertNumber())) {
             if(cert.getIsChecked()) {
                 // 전화번호 중복 체크
@@ -77,12 +77,12 @@ public class CertService {
                             .socialType(user.getSocialType())
                             .build();
                 }
-            } else {
-                cert.setIsChecked(true);
-                return CertDto.CertCheckResponse.builder()
+            }
+
+            cert.setIsChecked(true);
+            return CertDto.CertCheckResponse.builder()
                         .isDuplicate(false)
                         .build();
-            }
         }
 
         throw new CustomException(CERT_FAILED);
