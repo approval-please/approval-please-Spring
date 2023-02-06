@@ -219,6 +219,14 @@ public class DocumentService {
         // 댓글 삭제
         List<Comment> commentList = commentRepository.findByDocumentId(documentId);
         if (commentList != null) {
+            // 신고 내역 삭제
+            List<Long> commentIdList = commentList.stream()
+                    .map(Comment::getId).collect(Collectors.toList());
+            List<Accuse> accuseList = accuseRepository.findByCommentId(commentIdList);
+            if(accuseList != null){
+                accuseRepository.deleteAll(accuseList);
+            }
+            // 댓글 삭제
             commentRepository.deleteAll(commentList);
         }
 
