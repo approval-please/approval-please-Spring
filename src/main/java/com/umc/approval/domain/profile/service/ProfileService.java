@@ -131,7 +131,7 @@ public class ProfileService {
                 throw new CustomException(TOKTOKPOST_NOT_FOUND);
             }
 
-            return ToktokDto.SearchResponse.from(toktoks);
+            return ToktokDto.ProfileResponse.from(toktoks);
 
         } else if (postType == 2) { // 결재보고서
             List<Report> reports = reportRepository.findAllByUserId(user.getId());
@@ -140,7 +140,7 @@ public class ProfileService {
                 throw new CustomException(REPORT_NOT_FOUND);
             }
 
-            return ReportDto.GetReportListResponse.from(reports);
+            return ReportDto.ProfileResponse.from(reports);
 
         } else {
             throw new CustomException(PARAM_INVALID_VALUE);
@@ -187,7 +187,7 @@ public class ProfileService {
                 throw new CustomException(POST_WITH_COMMENT_NOT_FOUND);
             }
 
-            return ReportDto.GetReportListResponse.from(reports);
+            return ReportDto.ProfileResponse.from(reports);
 
         } else {
             throw new CustomException(PARAM_INVALID_VALUE);
@@ -234,7 +234,7 @@ public class ProfileService {
                 throw new CustomException(POST_WITH_SCRAP_NOT_FOUND);
             }
 
-            return ReportDto.GetReportListResponse.from(reports);
+            return ReportDto.ProfileResponse.from(reports);
 
         } else {
             throw new CustomException(PARAM_INVALID_VALUE);

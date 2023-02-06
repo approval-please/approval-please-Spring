@@ -187,6 +187,21 @@ public class ToktokDto {
     @Getter
     @Builder
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class ProfileResponse {
+        private Integer toktokCount;
+        private List<SearchListResponse> toktokContent;
+
+        public static ProfileResponse from(List<Toktok> toktoks) {
+            return ProfileResponse.builder()
+                    .toktokCount(toktoks.size())
+                    .toktokContent(toktoks.stream().map(SearchListResponse::fromEntity).collect(Collectors.toList()))
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class SearchListResponse {
         private Long toktokId;
         private Integer category;

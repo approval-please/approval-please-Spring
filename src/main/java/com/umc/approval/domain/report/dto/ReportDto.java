@@ -7,15 +7,14 @@ import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.global.util.DateUtil;
-import java.time.LocalDateTime;
+
 import java.util.List;
-import javax.persistence.criteria.CriteriaBuilder.In;
+
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class ReportDto {
@@ -163,14 +162,14 @@ public class ReportDto {
     @Getter
     @Builder
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class GetReportListResponse {
+    public static class ProfileResponse {
         private Integer reportCount;
-        private List<SearchListResponse> content;
+        private List<SearchListResponse> reportContent;
 
-        public static GetReportListResponse from(List<Report> reports) {
-            return GetReportListResponse.builder()
+        public static ProfileResponse from(List<Report> reports) {
+            return ProfileResponse.builder()
                     .reportCount(reports.size())
-                    .content(reports.stream().map(SearchListResponse::fromEntity).collect(Collectors.toList()))
+                    .reportContent(reports.stream().map(SearchListResponse::fromEntity).collect(Collectors.toList()))
                     .build();
         }
     }
