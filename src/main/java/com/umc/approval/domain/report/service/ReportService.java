@@ -260,6 +260,9 @@ public class ReportService {
         // 댓글 삭제
         List<Comment> comments = commentRepository.findByReportId(reportId);
         if (comments != null) {
+            // 댓글 신고 내역 삭제
+            List<Long> commentIds = comments.stream().map(Comment::getId).collect(Collectors.toList());
+            accuseRepository.deleteByCommentId(commentIds);
             commentRepository.deleteAll(comments);
         }
 
