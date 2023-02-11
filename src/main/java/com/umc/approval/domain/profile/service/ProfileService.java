@@ -151,7 +151,7 @@ public class ProfileService {
     public Object findAllByComments(Integer postType, Integer state) {
         User user = certifyUser(null);
 
-        if (postType == 0) { // 결재서류 (기본값)
+        if (postType == null) { // 결재서류 (기본값)
             List<Document> documents;
 
             if (state != null) { // 상태별 조회
@@ -167,7 +167,7 @@ public class ProfileService {
 
             return DocumentDto.ProfileResponse.from(documents);
 
-        } else if (postType == 1) { // 결재톡톡
+        } else if (postType == 0) { // 결재톡톡
             List<Toktok> toktoks = commentRepository.findToktoks(user.getId());
 
             if (state != null) {
@@ -176,7 +176,7 @@ public class ProfileService {
 
             return ToktokDto.ProfileResponse.from(toktoks);
 
-        } else if (postType == 2) { // 결재보고서
+        } else if (postType == 1) { // 결재보고서
             List<Report> reports = commentRepository.findReports(user.getId());
 
             if (state != null) {
@@ -198,7 +198,7 @@ public class ProfileService {
     public Object findAllByScraps(Integer postType, Integer state) {
         User user = certifyUser(null);
 
-        if (postType == 0) { // 결재서류 (기본값)
+        if (postType == null) { // 결재서류 (기본값)
             List<Document> documents;
 
             if (state != null) { // 상태별 조회
@@ -214,7 +214,7 @@ public class ProfileService {
 
             return DocumentDto.ProfileResponse.from(documents);
 
-        } else if (postType == 1) { // 결재톡톡
+        } else if (postType == 0) { // 결재톡톡
             List<Toktok> toktoks = scrapRepository.findToktoks(user.getId());
 
             if (state != null) {
@@ -223,7 +223,7 @@ public class ProfileService {
 
             return ToktokDto.ProfileResponse.from(toktoks);
 
-        } else if (postType == 2) { // 결재보고서
+        } else if (postType == 1) { // 결재보고서
             List<Report> reports = scrapRepository.findReports(user.getId());
 
             if (state != null) {

@@ -4,7 +4,6 @@ import com.umc.approval.domain.document.dto.DocumentDto;
 import com.umc.approval.domain.performance.dto.PerformanceDto;
 import com.umc.approval.domain.profile.dto.ProfileDto;
 import com.umc.approval.domain.profile.service.ProfileService;
-import com.umc.approval.domain.report.dto.ReportDto;
 import com.umc.approval.domain.user.dto.UserDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,14 +45,14 @@ public class ProfileController {
 
     // 댓글 작성한 게시글 조회
     @GetMapping("/my/comments")
-    public Object findAllByComments(@RequestParam(value = "postType", defaultValue = "0") Integer postType,
+    public Object findAllByComments(@RequestParam(value = "postType", required = false) Integer postType,
                                     @RequestParam(value = "state", required = false) Integer state) {
         return profileService.findAllByComments(postType, state);
     }
 
     // 스크랩한 게시글 조회
     @GetMapping("/my/scraps")
-    public Object findAllByScraps(@RequestParam(value = "postType", defaultValue = "0") Integer postType,
+    public Object findAllByScraps(@RequestParam(value = "postType", required = false) Integer postType,
                                   @RequestParam(value = "state", required = false) Integer state) {
         return profileService.findAllByScraps(postType, state);
     }
