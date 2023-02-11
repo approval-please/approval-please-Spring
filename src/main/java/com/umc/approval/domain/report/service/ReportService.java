@@ -17,6 +17,8 @@ import com.umc.approval.domain.like.entity.LikeRepository;
 import com.umc.approval.domain.link.dto.LinkDto;
 import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.entity.LinkRepository;
+import com.umc.approval.domain.performance.entity.Performance;
+import com.umc.approval.domain.performance.entity.PerformanceRepository;
 import com.umc.approval.domain.report.dto.ReportDto;
 import com.umc.approval.domain.report.dto.ReportDto.GetReportResponse;
 import com.umc.approval.domain.report.entity.Report;
@@ -31,6 +33,7 @@ import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
+import com.umc.approval.global.type.PerformanceType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
@@ -42,6 +45,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.umc.approval.global.exception.CustomErrorType.*;
+import static com.umc.approval.global.type.PerformanceType.*;
+import static com.umc.approval.global.type.PerformanceType.FINAL_REJECT_OTHER_DOCUMENT;
 
 @Transactional
 @RequiredArgsConstructor
@@ -61,11 +66,14 @@ public class ReportService {
     private final FollowRepository followRepository;
     private final ApprovalRepository approvalRepository;
     private final AccuseRepository accuseRepository;
+    private final PerformanceRepository performanceRepository;
 
     public void createPost(ReportDto.ReportRequest request) {
 
         //결재서류 가져오기
         Document document = findDocument(request.getDocumentId());
+
+        User user = certifyUser();
 
         //해당 결재서류에 대한 결재보고서가 이미 존재하는 경우
         Optional<Report> getReport = reportRepository.findByDocumentId(request.getDocumentId());
@@ -88,12 +96,25 @@ public class ReportService {
         createImages(request.getImages(), report);
 
         // 작성자 포인트 적립
-        userRepository.updatePoint(document.getUser().getId(), 500L);
+        Performance performance = Performance.builder()
+                .user(user)
+                .content(WRITE_REPORT.getContent())
+                .point(WRITE_REPORT.getPoint())
+                .build();
+        performanceRepository.save(performance);
+        user.updatePoint(WRITE_REPORT.getPoint());
+
         // 결재 참여자 포인트 적립
-        List<Approval> approvalList = approvalRepository.findByDocumentId(document.getId());
-        List<Long> userIdList = approvalList.stream().map(a -> a.getUser().getId()).collect(Collectors.toList());
-        //List<Long> userIdList = approvalRepository.findByDocumentId(document.getId());
-        userRepository.updatePoint(userIdList, 200L);
+        List<User> approveUsers = userRepository.findAllByApproval(document.getId());
+        approveUsers.forEach(u -> {
+            Performance p = Performance.builder()
+                    .user(u)
+                    .content(WRITE_OTHER_REPORT.getContent())
+                    .point(WRITE_OTHER_REPORT.getPoint())
+                    .build();
+            performanceRepository.save(p);
+            u.updatePoint(WRITE_OTHER_REPORT.getPoint());
+        });
     }
 
     @Transactional(readOnly = true)

@@ -1,7 +1,6 @@
 package com.umc.approval.domain.user.entity;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -22,5 +21,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "join fetch a.user u " +
             "where a.document.id = :documentId " +
             "and a.isApprove = :isApprove")
-    List<User> findByApprove(@Param("documentId") Long documentId, @Param("isApprove") Boolean isApprove);
+    List<User> findAllByDocumentIsApprove(@Param("documentId") Long documentId, @Param("isApprove") Boolean isApprove);
+
+    @Query("select u from Approval a " +
+            "join fetch a.user u " +
+            "where a.document.id = :documentId")
+    List<User> findAllByApproval(@Param("documentId") Long documentId);
 }
