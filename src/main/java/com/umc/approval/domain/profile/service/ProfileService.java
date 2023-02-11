@@ -1,5 +1,6 @@
 package com.umc.approval.domain.profile.service;
 
+import com.umc.approval.domain.comment.entity.Comment;
 import com.umc.approval.domain.comment.entity.CommentRepository;
 import com.umc.approval.domain.document.dto.DocumentDto;
 import com.umc.approval.domain.document.entity.Document;
@@ -149,7 +150,8 @@ public class ProfileService {
                 if (state < 0 || state > 2) {
                     throw new CustomException(PARAM_INVALID_VALUE);
                 } else {
-                    documents = commentRepository.findDocumentsByState(user.getId(), state);
+                    documents = commentRepository.findCommentsByUserAndState(user.getId(), state)
+                            .stream().map(Comment::getDocument).collect(Collectors.toList());
                 }
 
             } else { // 전체 조회
