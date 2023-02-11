@@ -124,22 +124,12 @@ public class ProfileService {
     public Object findCommunity(Long userId, Integer postType) {
         User user = certifyUser(userId);
 
-        if (postType == 1) { // 결재톡톡 (기본값)
+        if (postType == 0) { // 결재톡톡 (기본값)
             List<Toktok> toktoks = toktokRepository.findByUserId(user.getId());
-
-            if (toktoks.isEmpty()) {
-                throw new CustomException(TOKTOKPOST_NOT_FOUND);
-            }
-
             return ToktokDto.ProfileResponse.from(toktoks);
 
-        } else if (postType == 2) { // 결재보고서
+        } else if (postType == 1) { // 결재보고서
             List<Report> reports = reportRepository.findAllByUserId(user.getId());
-
-            if (reports.isEmpty()) {
-                throw new CustomException(REPORT_NOT_FOUND);
-            }
-
             return ReportDto.ProfileResponse.from(reports);
 
         } else {

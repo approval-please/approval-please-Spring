@@ -40,7 +40,7 @@ public class ProfileController {
     // 커뮤니티 - 결재톡톡 / 결재보고서 조회
     @GetMapping({"/my/community", "/{userId}/community"})
     public Object findCommunity(@PathVariable(value = "userId", required = false) Long userId,
-                                @RequestParam(value = "postType", defaultValue = "1") Integer postType) {
+                                @RequestParam(value = "postType", defaultValue = "0") Integer postType) {
         return profileService.findCommunity(userId, postType);
     }
 
