@@ -27,15 +27,11 @@ import com.umc.approval.domain.scrap.entity.Scrap;
 import com.umc.approval.domain.scrap.entity.ScrapRepository;
 import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.tag.entity.TagRepository;
-import com.umc.approval.domain.toktok.dto.ToktokDto;
-import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
-import com.umc.approval.global.type.PerformanceType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,7 +42,6 @@ import java.util.stream.Collectors;
 
 import static com.umc.approval.global.exception.CustomErrorType.*;
 import static com.umc.approval.global.type.PerformanceType.*;
-import static com.umc.approval.global.type.PerformanceType.FINAL_REJECT_OTHER_DOCUMENT;
 
 @Transactional
 @RequiredArgsConstructor
@@ -105,7 +100,8 @@ public class ReportService {
         user.updatePoint(WRITE_REPORT.getPoint());
 
         // 결재 참여자 포인트 적립
-        List<User> approveUsers = userRepository.findAllByApproval(document.getId());
+        List<User> approveUsers = approvalRepository.findAllUserByApproval(document.getId())
+                .stream().map(Approval::getUser).collect(Collectors.toList());
         approveUsers.forEach(u -> {
             Performance p = Performance.builder()
                     .user(u)

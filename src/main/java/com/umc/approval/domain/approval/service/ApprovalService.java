@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.umc.approval.global.exception.CustomErrorType.*;
 import static com.umc.approval.global.type.PerformanceType.*;
@@ -91,7 +92,9 @@ public class ApprovalService {
                 user.updatePoint(FINAL_APPROVE_MY_DOCUMENT.getPoint());
 
                 // 결재 참여자 실적, 포인트 적립
-                List<User> approveUsers = userRepository.findAllByDocumentIsApprove(document.getId(), request.getIsApprove());
+                List<User> approveUsers = approvalRepository.
+                        findAllUserByDocumentIsApprove(document.getId(), request.getIsApprove())
+                        .stream().map(Approval::getUser).collect(Collectors.toList());
                 PerformanceType performanceType = request.getIsApprove() ?
                         FINAL_APPROVE_OTHER_DOCUMENT : FINAL_REJECT_OTHER_DOCUMENT;
                 approveUsers.forEach(u -> {
