@@ -21,7 +21,7 @@ public interface DocumentRepository extends JpaRepository<Document, Long>, Docum
     @Query(value = "update document set state = :state where document_id = :document_id", nativeQuery = true)
     void updateState(@Param("document_id") Long documentId, @Param("state") Integer state);
 
-    @Query("select i from Document i where (i.state = 0 or i.state = 1) and i.user.id = :user_id")
+    @Query("select i from Document i where (i.state = 0 or i.state = 1) and i.user.id = :user_id order by i.createdAt desc")
     List<Document> findByUserId(@Param("user_id") Long userId);
     
     @Query("select d from Document d " +
@@ -30,13 +30,20 @@ public interface DocumentRepository extends JpaRepository<Document, Long>, Docum
     Optional<Document> findByIdWithUser(@Param("documentId") Long documentId);
 
     // 마이페이지 - 사원증 조회
-    @Query(value = "select d from Document d where d.user.id = :userId")
+    @Query(value = "select d from Document d " +
+            "where d.user.id = :userId " +
+            "order by d.createdAt desc")
     List<Document> findAllByUserId(@Param("userId") Long userId); // 사용자가 작성한 결재서류 전체 조회
 
-    @Query(value = "select d from Document d where d.user.id = :userId AND d.state = :state")
+    @Query(value = "select d from Document d " +
+            "where d.user.id = :userId " +
+            "AND d.state = :state " +
+            "order by d.createdAt desc")
     List<Document> findAllByState(@Param("userId") Long userId, @Param("state") Integer state); // 사용자가 작성한 결재서류 상태별 조회
 
-    @Query(value = "select d from Document d where d.id IN (select a.document.id from Approval a where a.isApprove = :isApproved AND a.user.id = :userId)")
+    @Query(value = "select d from Document d " +
+            "where d.id IN (select a.document.id from Approval a where a.isApprove = :isApproved AND a.user.id = :userId) " +
+            "order by d.createdAt desc")
     List<Document> findAllByApproval(@Param("userId") Long userId, @Param("isApproved") Boolean isApproved); // 사용자가 결재한 결재서류 승인별 조회
 
     // 게시글 목록 조회(페이징 x)
@@ -56,7 +63,13 @@ public interface DocumentRepository extends JpaRepository<Document, Long>, Docum
             "order by d.createdAt desc")
     List<Document> findAllByLikedCategory(@Param("categories") List<CategoryType> categories);
 
-    @Query("select distinct d from Document d left join fetch d.approvals a join fetch a.user u where d.state = :state and a.isApprove = :isApproved and u.id = :userId")
+    @Query("select distinct d from Document d " +
+            "left join fetch d.approvals a " +
+            "join fetch a.user u " +
+            "where d.state = :state " +
+            "and a.isApprove = :isApproved " +
+            "and u.id = :userId " +
+            "order by d.createdAt desc")
     List<Document> findAllByStateApproval(@Param("userId") Long userId,
                                           @Param("state") Integer state, @Param("isApproved") Boolean isApproved); // 사용자가 결재한 결재서류 상태별 & 승인별 조회
 
