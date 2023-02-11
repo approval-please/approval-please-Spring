@@ -70,9 +70,30 @@ public class User extends BaseTimeEntity {
     }
 
     // 사원증 프로필 수정
-    public void update(String nickname, String introduction, String profileImage) {
+    public void updateProfile(String nickname, String introduction, String profileImage) {
         this.nickname = nickname;
         this.introduction = introduction;
         this.profileImage = profileImage;
+    }
+
+    // 실적포인트 및 레벨 업데이트
+    public void updatePoint(Long point) {
+        this.promotionPoint += point;
+        // 레벨 업데이트
+        if (this.level == 0 && this.promotionPoint > 7000) {
+            this.level = 1;
+        }
+        if (this.level == 1 && this.promotionPoint > 21000) {
+            this.level = 2;
+        }
+        if (this.level == 2 && this.promotionPoint > 33000) {
+            this.level = 3;
+        }
+        if (this.level == 3 && this.promotionPoint > 50000) {
+            this.level = 4;
+        }
+        if (this.level == 4 && this.promotionPoint > 71000) {
+            this.level = 5;
+        }
     }
 }
