@@ -16,15 +16,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findBySocialId(Long socialId);
 
     List<User> findByNicknameContains(String query);
-
-    @Query("select u from Approval a " +
-            "join fetch a.user u " +
-            "where a.document.id = :documentId " +
-            "and a.isApprove = :isApprove")
-    List<User> findAllByDocumentIsApprove(@Param("documentId") Long documentId, @Param("isApprove") Boolean isApprove);
-
-    @Query("select u from Approval a " +
-            "join fetch a.user u " +
-            "where a.document.id = :documentId")
-    List<User> findAllByApproval(@Param("documentId") Long documentId);
 }
