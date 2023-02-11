@@ -313,7 +313,7 @@ public class ProfileService {
         String introduction = request.getIntroduction();
         String image = request.getImage();
 
-        user.update(nickname, introduction, image);
+        user.updateProfile(nickname, introduction, image);
     }
 
     // 내 팔로잉 사용자가 나를 팔로우 하는지
