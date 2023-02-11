@@ -91,7 +91,7 @@ public class ApprovalService {
                 user.updatePoint(FINAL_APPROVE_MY_DOCUMENT.getPoint());
 
                 // 결재 참여자 실적, 포인트 적립
-                List<User> approveUsers = userRepository.findByApprove(document.getId(), request.getIsApprove());
+                List<User> approveUsers = userRepository.findAllByDocumentIsApprove(document.getId(), request.getIsApprove());
                 PerformanceType performanceType = request.getIsApprove() ?
                         FINAL_APPROVE_OTHER_DOCUMENT : FINAL_REJECT_OTHER_DOCUMENT;
                 approveUsers.forEach(u -> {
@@ -101,7 +101,7 @@ public class ApprovalService {
                             .point(performanceType.getPoint())
                             .build();
                     performanceRepository.save(p);
-                    user.updatePoint(performanceType.getPoint());
+                    u.updatePoint(performanceType.getPoint());
                 });
             } else {
                 throw new CustomException(ALREADY_APPROVED);
