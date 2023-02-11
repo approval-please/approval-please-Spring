@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ToktokRepository extends JpaRepository<Toktok, Long>, ToktokRepositoryCustom {
-    @Query("select t from Toktok t where t.user.id = :userId")
+    @Query("select t from Toktok t where t.user.id = :userId order by t.createdAt desc")
     List<Toktok> findByUserId(@Param("userId") Long userId);
 
     @Query("select t from Toktok t " +
