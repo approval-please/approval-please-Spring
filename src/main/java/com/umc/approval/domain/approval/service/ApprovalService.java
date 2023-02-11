@@ -48,7 +48,13 @@ public class ApprovalService {
                     approvalRepository.save(approval);
 
                     // 포인트 적립
-                    userRepository.updatePoint(user.getId(), 50L);
+                    Performance performance = Performance.builder()
+                            .user(user)
+                            .content(APPROVE_OTHER_DOCUMENT.getContent())
+                            .point(APPROVE_OTHER_DOCUMENT.getPoint())
+                            .build();
+                    performanceRepository.save(performance);
+                    user.updatePoint(APPROVE_OTHER_DOCUMENT.getPoint());
                 } else {
                     throw new CustomException(APPROVAL_ALREADY_EXISTS);
                 }
