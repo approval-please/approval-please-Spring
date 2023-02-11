@@ -41,15 +41,15 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
 
     List<Comment> findByDocumentId(Long documentId);
 
-    @Query("select d from Document d where d.id IN (select c.document.id from Comment c where c.user.id = :userId)")
+    @Query("select distinct d from Document d join Comment c on c.document.id = d.id order by c.createdAt desc")
     List<Document> findDocuments(Long userId);
 
-    @Query("select d from Document d where d.id IN (select c.document.id from Comment c where c.user.id = :userId) AND d.state = :state")
-    List<Document> findDocumentsByState(Long userId, Integer state);
+    @Query("select c from Comment c join fetch c.document d where c.user.id = :userId and d.state = :state order by c.createdAt desc")
+    List<Comment> findCommentsByUserAndState(Long userId, Integer state);
 
-    @Query("select t from Toktok t where t.id IN (select c.toktok.id from Comment c where c.user.id = :userId)")
+    @Query("select distinct t from Toktok t join Comment c on c.toktok.id = t.id order by c.createdAt desc")
     List<Toktok> findToktoks(Long userId);
 
-    @Query("select r from Report r where r.id IN (select c.report.id from Comment c where c.user.id = :userId)")
+    @Query("select distinct r from Report r join Comment c on c.report.id = r.id order by c.createdAt desc")
     List<Report> findReports(Long userId);
 }
