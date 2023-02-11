@@ -77,7 +77,7 @@ public class User extends BaseTimeEntity {
     }
 
     // 실적포인트 및 레벨 업데이트
-    public void updatePoint(Long point) {
+    public void updatePoint(Integer point) {
         this.promotionPoint += point;
         // 레벨 업데이트
         if (this.level == 0 && this.promotionPoint > 7000) {

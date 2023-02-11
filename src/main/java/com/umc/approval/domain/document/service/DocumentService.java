@@ -17,6 +17,8 @@ import com.umc.approval.domain.like_category.entity.LikeCategory;
 import com.umc.approval.domain.like_category.entity.LikeCategoryRepository;
 import com.umc.approval.domain.link.entity.Link;
 import com.umc.approval.domain.link.entity.LinkRepository;
+import com.umc.approval.domain.performance.entity.Performance;
+import com.umc.approval.domain.performance.entity.PerformanceRepository;
 import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.report.entity.ReportRepository;
 import com.umc.approval.domain.report.service.ReportService;
@@ -41,6 +43,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.umc.approval.global.exception.CustomErrorType.*;
+import static com.umc.approval.global.type.PerformanceType.WRITE_DOCUMENT;
 
 @Transactional
 @RequiredArgsConstructor
@@ -62,6 +65,7 @@ public class DocumentService {
     private final ReportRepository reportRepository;
     private final ReportService reportService;
     private final AccuseRepository accuseRepository;
+    private final PerformanceRepository performanceRepository;
 
     public void createDocument(DocumentDto.DocumentRequest request) {
         User user = certifyUser();
@@ -84,8 +88,14 @@ public class DocumentService {
 
         createImages(request.getImages(), document);
 
-        // 포인트 적립
-        userRepository.updatePoint(user.getId(), 100L);
+        // 실적, 포인트 업데이트
+        Performance performance = Performance.builder()
+                .user(user)
+                .content(WRITE_DOCUMENT.getContent())
+                .point(WRITE_DOCUMENT.getPoint())
+                .build();
+        performanceRepository.save(performance);
+        user.updatePoint(WRITE_DOCUMENT.getPoint());
     }
 
     public DocumentDto.GetDocumentResponse getDocument(HttpServletRequest request, Long documentId) {
