@@ -14,6 +14,7 @@ import com.umc.approval.domain.profile.dto.ProfileDto;
 import com.umc.approval.domain.report.dto.ReportDto;
 import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.report.entity.ReportRepository;
+import com.umc.approval.domain.scrap.entity.Scrap;
 import com.umc.approval.domain.scrap.entity.ScrapRepository;
 import com.umc.approval.domain.toktok.dto.ToktokDto;
 import com.umc.approval.domain.toktok.entity.Toktok;
@@ -195,7 +196,8 @@ public class ProfileService {
                 if (state < 0 || state > 2) {
                     throw new CustomException(PARAM_INVALID_VALUE);
                 } else {
-                    documents = scrapRepository.findDocumentsByState(user.getId(), state);
+                    documents = scrapRepository.findScrapsByUserAndState(user.getId(), state)
+                            .stream().map(Scrap::getDocument).collect(Collectors.toList());
                 }
 
             } else { // 전체 조회

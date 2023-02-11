@@ -6,7 +6,6 @@ import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.user.entity.User;
 import java.util.List;
 
-import com.umc.approval.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -29,15 +28,15 @@ public interface ScrapRepository extends JpaRepository<Scrap, Long>, ScrapReposi
 
     Long countByUserAndReport(User user, Report report);
 
-    @Query("select d from Document d where d.id IN (select s.document.id from Scrap s where s.user.id = :userId)")
+    @Query("select distinct d from Document d join Scrap s on s.document.id = d.id order by s.createdAt desc")
     List<Document> findDocuments(Long userId);
 
-    @Query("select d from Document d where d.id IN (select s.document.id from Scrap s where s.user.id = :userId) AND d.state = :state")
-    List<Document> findDocumentsByState(Long userId, Integer state);
+    @Query("select s from Scrap s join fetch s.document d where s.user.id = :userId and d.state = :state order by s.createdAt desc")
+    List<Scrap> findScrapsByUserAndState(Long userId, Integer state);
 
-    @Query("select t from Toktok t where t.id IN (select s.toktok.id from Scrap s where s.user.id = :userId)")
+    @Query("select distinct t from Toktok t join Scrap s on s.toktok.id = t.id order by s.createdAt desc")
     List<Toktok> findToktoks(Long userId);
 
-    @Query("select r from Report r where r.id IN (select s.report.id from Scrap s where s.user.id = :userId)")
+    @Query("select distinct r from Report r join Scrap s on s.report.id = r.id order by s.createdAt desc")
     List<Report> findReports(Long userId);
 }
