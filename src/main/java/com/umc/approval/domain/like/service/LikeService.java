@@ -61,12 +61,12 @@ public class LikeService {
                     .map(l -> {
                         Boolean isFollow = follows.stream().anyMatch(f ->
                                 f.getToUser().getId() == l.getUser().getId());
-                        return LikeDto.Response.fromEntity(l, isFollow);
+                        return LikeDto.Response.fromEntity(l, isFollow, userId);
                     }).collect(Collectors.toList());
         } else {
             // 로그인 X
             response = likes.stream()
-                    .map(l -> LikeDto.Response.fromEntity(l, false))
+                    .map(l -> LikeDto.Response.fromEntity(l, false, null))
                     .collect(Collectors.toList());
         }
         return LikeDto.ListResponse.from(response);

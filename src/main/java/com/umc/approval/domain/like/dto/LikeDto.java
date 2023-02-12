@@ -3,7 +3,6 @@ package com.umc.approval.domain.like.dto;
 import com.umc.approval.domain.like.entity.Like;
 import com.umc.approval.domain.user.entity.User;
 import lombok.*;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -50,8 +49,9 @@ public class LikeDto {
         private String nickname;
         private Integer level;
         private Boolean isFollow;
+        private Boolean isMy;
 
-        public static Response fromEntity(Like like, Boolean isFollow) {
+        public static Response fromEntity(Like like, Boolean isFollow, Long userId) {
             User user = like.getUser();
             return Response.builder()
                     .userId(user.getId())
@@ -59,6 +59,7 @@ public class LikeDto {
                     .nickname(user.getNickname())
                     .level(user.getLevel())
                     .isFollow(isFollow)
+                    .isMy(userId != null && userId == user.getId())
                     .build();
         }
     }
