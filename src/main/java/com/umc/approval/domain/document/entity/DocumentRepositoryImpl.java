@@ -80,6 +80,7 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
         List<Document> documents;
         JPAQuery<Long> countQuery;
         if (isTag == 1) {
+            String withoutShapeQuery = query.substring(1);
             documents = queryFactory
                     .select(document)
                     .from(tag1)
@@ -90,7 +91,7 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
                     .leftJoin(document.approvals)
                     .leftJoin(document.images)
                     .where(
-                            tagEq(query),
+                            tagEq(withoutShapeQuery),
                             categoryEq(category),
                             stateEq(state)
                     )
