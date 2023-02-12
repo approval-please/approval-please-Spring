@@ -80,7 +80,7 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
         List<Document> documents;
         JPAQuery<Long> countQuery;
         if (isTag == 1) {
-            String withoutShapeQuery = query.substring(1);
+            String withoutShapeQuery = query.substring(3);
             documents = queryFactory
                     .select(document)
                     .from(tag1)

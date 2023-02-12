@@ -39,7 +39,7 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
                 .then(1)
                 .otherwise(0);
         if (isTag == 1) {
-            String withoutShapeQuery = query.substring(1);
+            String withoutShapeQuery = query.substring(3);
             return queryFactory
                     .select(report)
                     .from(tag1)
