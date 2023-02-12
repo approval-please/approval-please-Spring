@@ -38,8 +38,8 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
                 .then(1)
                 .otherwise(0);
         if (isTag == 1) {
-            log.debug("Query Hash : " + query + " / " + query.substring(3));
-            String withoutShapeQuery = query.substring(3);
+            log.debug("Query Hash : " + query + " / " + query.substring(1));
+            String withoutShapeQuery = query.substring(1);
             return queryFactory
                     .select(document)
                     .from(tag1)
@@ -94,7 +94,7 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
                     .leftJoin(document.approvals)
                     .leftJoin(document.images)
                     .where(
-                            tagEq(withoutShapeQuery),
+                            tagEq(query),
                             categoryEq(category),
                             stateEq(state)
                     )
