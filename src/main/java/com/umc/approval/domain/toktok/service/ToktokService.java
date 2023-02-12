@@ -297,18 +297,18 @@ public class ToktokService {
     public ToktokDto.GetVotePeopleListResponse getVotePeopleList(Long voteOptionId) {
         User visitUser = certifyUser();
 
-        voteOptionRepository.findById(voteOptionId)
-            .orElseThrow(() -> new CustomException(VOTE_OPTION_NOT_FOUND));
+        VoteOption voteOption = voteOptionRepository.findById(voteOptionId)
+                .orElseThrow(() -> new CustomException(VOTE_OPTION_NOT_FOUND));
+
+        Vote vote = voteOption.getVote();
+        // 익명투표일 경우 목록 조회 불가
+        if (vote.getIsAnonymous()) {
+            throw new CustomException(CANNOT_INQUIRE_VOTE);
+        }
 
         List<UserVote> uservote = userVoteRepository.findByOptionId(voteOptionId);
         if (uservote.size() == 0) {
             return new GetVotePeopleListResponse(null);
-        }
-
-        Vote vote = uservote.get(0).getVote();
-        // 익명투표일 경우 목록 조회 불가
-        if (vote.getIsAnonymous() == true) {
-            throw new CustomException(CANNOT_INQUIRE_VOTE);
         }
 
         // 투표 참여자 내역(옵션별)
