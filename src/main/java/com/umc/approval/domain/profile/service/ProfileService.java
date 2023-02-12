@@ -151,11 +151,12 @@ public class ProfileService {
                     throw new CustomException(PARAM_INVALID_VALUE);
                 } else {
                     documents = commentRepository.findCommentsByUserAndState(user.getId(), state)
-                            .stream().map(Comment::getDocument).collect(Collectors.toList());
+                            .stream().map(Comment::getDocument).distinct().collect(Collectors.toList());
                 }
 
             } else { // 전체 조회
-                documents = commentRepository.findDocuments(user.getId());
+                documents = commentRepository.findCommentsByUser(user.getId())
+                        .stream().map(Comment::getDocument).distinct().collect(Collectors.toList());
             }
 
             return DocumentDto.ProfileResponse.from(documents);

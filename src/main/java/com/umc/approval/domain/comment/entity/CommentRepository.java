@@ -41,8 +41,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
 
     List<Comment> findByDocumentId(Long documentId);
 
-    @Query("select distinct d from Document d join Comment c on c.document.id = d.id order by c.createdAt desc")
-    List<Document> findDocuments(Long userId);
+    @Query("select c from Comment c join fetch c.document d where c.user.id = :userId order by c.createdAt desc")
+    List<Comment> findCommentsByUser(Long userId);
 
     @Query("select c from Comment c join fetch c.document d where c.user.id = :userId and d.state = :state order by c.createdAt desc")
     List<Comment> findCommentsByUserAndState(Long userId, Integer state);
