@@ -1,5 +1,6 @@
 package com.umc.approval.domain.comment.service;
 
+import com.umc.approval.domain.accuse.entity.AccuseRepository;
 import com.umc.approval.domain.comment.dto.CommentDto;
 import com.umc.approval.domain.comment.entity.Comment;
 import com.umc.approval.domain.comment.entity.CommentRepository;
@@ -38,6 +39,7 @@ public class CommentService {
     private final ReportRepository reportRepository;
     private final ToktokRepository toktokRepository;
     private final LikeRepository likeRepository;
+    private final AccuseRepository accuseRepository;
 
     public void createComment(CommentDto.CreateRequest requestDto) {
 
@@ -93,6 +95,11 @@ public class CommentService {
         if (!comment.getUser().getId().equals(user.getId())) {
             throw new CustomException(NO_PERMISSION);
         }
+        // 좋아요 삭제
+        likeRepository.deleteByCommentId(commentId);
+
+        // 신고 삭제
+        accuseRepository.deleteByCommentId(commentId);
 
         // 대댓글 존재 여부에 따른 삭제 처리
         if (commentRepository.existsByParentCommentId(commentId)) {

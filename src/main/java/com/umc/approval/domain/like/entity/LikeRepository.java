@@ -5,6 +5,7 @@ import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -37,4 +38,7 @@ public interface LikeRepository extends JpaRepository<Like, Long>, LikeRepositor
 
     Long countByUserAndDocument(User user, Document document);
 
+    @Modifying
+    @Query("delete from Like l where l.comment.id = :commentId")
+    void deleteByCommentId(Long commentId);
 }

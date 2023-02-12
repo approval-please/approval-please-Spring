@@ -17,5 +17,9 @@ public interface AccuseRepository extends JpaRepository<Accuse, Long>, AccuseRep
     @Transactional
     @Modifying
     @Query(value = "delete from accuse where comment_id in :comment_list", nativeQuery = true)
-    void deleteByCommentId(@Param("comment_list") List<Long> commentList);
+    void deleteByCommentIds(@Param("comment_list") List<Long> commentList);
+
+    @Modifying
+    @Query("delete from Accuse a where a.comment.id = :commentId")
+    void deleteByCommentId(Long commentId);
 }
