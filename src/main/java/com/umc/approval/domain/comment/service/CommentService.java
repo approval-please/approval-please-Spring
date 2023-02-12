@@ -1,5 +1,6 @@
 package com.umc.approval.domain.comment.service;
 
+import com.umc.approval.domain.BaseTimeEntity;
 import com.umc.approval.domain.accuse.entity.AccuseRepository;
 import com.umc.approval.domain.comment.dto.CommentDto;
 import com.umc.approval.domain.comment.entity.Comment;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -149,7 +151,7 @@ public class CommentService {
         });
         List<Long> commentIds = allComments.stream().map(Comment::getId).collect(Collectors.toList());
         List<Like> likes = likeRepository.findAllByUserAndCommentIn(userId, commentIds);
-
+        comments.sort(Comparator.comparing(Comment::getCreatedAt));
         return CommentDto.ListResponse.from(comments, userId, writer.getId(), likes);
     }
 }
