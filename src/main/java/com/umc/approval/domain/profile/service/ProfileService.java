@@ -178,10 +178,6 @@ public class ProfileService {
                 throw new CustomException(PARAM_INVALID_VALUE);
             }
 
-            if (reports.isEmpty()) {
-                throw new CustomException(POST_WITH_COMMENT_NOT_FOUND);
-            }
-
             return ReportDto.ProfileResponse.from(reports);
 
         } else {
@@ -224,10 +220,6 @@ public class ProfileService {
 
             if (state != null) {
                 throw new CustomException(PARAM_INVALID_VALUE);
-            }
-
-            if (reports.isEmpty()) {
-                throw new CustomException(POST_WITH_SCRAP_NOT_FOUND);
             }
 
             return ReportDto.ProfileResponse.from(reports);
