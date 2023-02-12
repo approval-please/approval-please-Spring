@@ -28,15 +28,15 @@ public interface ScrapRepository extends JpaRepository<Scrap, Long>, ScrapReposi
 
     Long countByUserAndReport(User user, Report report);
 
-    @Query("select distinct d from Document d join Scrap s on s.document.id = d.id order by s.createdAt desc")
-    List<Document> findDocuments(Long userId);
+    @Query("select s from Scrap s join fetch s.document d where s.user.id = :userId order by s.createdAt desc")
+    List<Scrap> findScrapsByUserAndDocument(Long userId);
 
     @Query("select s from Scrap s join fetch s.document d where s.user.id = :userId and d.state = :state order by s.createdAt desc")
-    List<Scrap> findScrapsByUserAndState(Long userId, Integer state);
+    List<Scrap> findScrapsByUserAndDocumentAndState(Long userId, Integer state);
 
-    @Query("select distinct t from Toktok t join Scrap s on s.toktok.id = t.id order by s.createdAt desc")
-    List<Toktok> findToktoks(Long userId);
+    @Query("select s from Scrap s join fetch s.toktok t where s.user.id = :userId order by s.createdAt desc")
+    List<Scrap> findScrapsByUserAndToktok(Long userId);
 
-    @Query("select distinct r from Report r join Scrap s on s.report.id = r.id order by s.createdAt desc")
-    List<Report> findReports(Long userId);
+    @Query("select s from Scrap s join fetch s.report r where s.user.id = :userId order by s.createdAt desc")
+    List<Scrap> findScrapsByUserAndReport(Long userId);
 }

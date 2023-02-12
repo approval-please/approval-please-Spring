@@ -151,19 +151,20 @@ public class ProfileService {
                 if (state < 0 || state > 2) {
                     throw new CustomException(PARAM_INVALID_VALUE);
                 } else {
-                    documents = commentRepository.findCommentsByUserAndState(user.getId(), state)
+                    documents = commentRepository.findCommentByUserAndDocumentAndState(user.getId(), state)
                             .stream().map(Comment::getDocument).distinct().collect(Collectors.toList());
                 }
 
             } else { // 전체 조회
-                documents = commentRepository.findCommentsByUser(user.getId())
+                documents = commentRepository.findCommentByUserAndDocument(user.getId())
                         .stream().map(Comment::getDocument).distinct().collect(Collectors.toList());
             }
 
             return DocumentDto.ProfileResponse.from(documents);
 
         } else if (postType == 0) { // 결재톡톡
-            List<Toktok> toktoks = commentRepository.findToktoks(user.getId());
+            List<Toktok> toktoks = commentRepository.findCommentsByUserAndToktok(user.getId())
+                    .stream().map(Comment::getToktok).distinct().collect(Collectors.toList());
 
             if (state != null) {
                 throw new CustomException(PARAM_INVALID_VALUE);
@@ -172,7 +173,8 @@ public class ProfileService {
             return ToktokDto.ProfileResponse.from(toktoks);
 
         } else if (postType == 1) { // 결재보고서
-            List<Report> reports = commentRepository.findReports(user.getId());
+            List<Report> reports = commentRepository.findCommentsByUserAndReport(user.getId())
+                    .stream().map(Comment::getReport).distinct().collect(Collectors.toList());
 
             if (state != null) {
                 throw new CustomException(PARAM_INVALID_VALUE);
@@ -196,18 +198,20 @@ public class ProfileService {
                 if (state < 0 || state > 2) {
                     throw new CustomException(PARAM_INVALID_VALUE);
                 } else {
-                    documents = scrapRepository.findScrapsByUserAndState(user.getId(), state)
+                    documents = scrapRepository.findScrapsByUserAndDocumentAndState(user.getId(), state)
                             .stream().map(Scrap::getDocument).collect(Collectors.toList());
                 }
 
             } else { // 전체 조회
-                documents = scrapRepository.findDocuments(user.getId());
+                documents = scrapRepository.findScrapsByUserAndDocument(user.getId())
+                        .stream().map(Scrap::getDocument).collect(Collectors.toList());
             }
 
             return DocumentDto.ProfileResponse.from(documents);
 
         } else if (postType == 0) { // 결재톡톡
-            List<Toktok> toktoks = scrapRepository.findToktoks(user.getId());
+            List<Toktok> toktoks = scrapRepository.findScrapsByUserAndToktok(user.getId())
+                    .stream().map(Scrap::getToktok).collect(Collectors.toList());
 
             if (state != null) {
                 throw new CustomException(PARAM_INVALID_VALUE);
@@ -216,7 +220,8 @@ public class ProfileService {
             return ToktokDto.ProfileResponse.from(toktoks);
 
         } else if (postType == 1) { // 결재보고서
-            List<Report> reports = scrapRepository.findReports(user.getId());
+            List<Report> reports = scrapRepository.findScrapsByUserAndReport(user.getId())
+                    .stream().map(Scrap::getReport).collect(Collectors.toList());
 
             if (state != null) {
                 throw new CustomException(PARAM_INVALID_VALUE);

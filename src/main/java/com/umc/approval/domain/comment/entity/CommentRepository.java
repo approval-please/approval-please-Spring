@@ -1,10 +1,8 @@
 package com.umc.approval.domain.comment.entity;
 
-import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.report.entity.Report;
 import java.util.List;
 
-import com.umc.approval.domain.toktok.entity.Toktok;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -42,14 +40,14 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
     List<Comment> findByDocumentId(Long documentId);
 
     @Query("select c from Comment c join fetch c.document d where c.user.id = :userId order by c.createdAt desc")
-    List<Comment> findCommentsByUser(Long userId);
+    List<Comment> findCommentByUserAndDocument(Long userId);
 
     @Query("select c from Comment c join fetch c.document d where c.user.id = :userId and d.state = :state order by c.createdAt desc")
-    List<Comment> findCommentsByUserAndState(Long userId, Integer state);
+    List<Comment> findCommentByUserAndDocumentAndState(Long userId, Integer state);
 
-    @Query("select distinct t from Toktok t join Comment c on c.toktok.id = t.id order by c.createdAt desc")
-    List<Toktok> findToktoks(Long userId);
+    @Query("select c from Comment c join fetch c.toktok t where c.user.id = :userId order by c.createdAt desc")
+    List<Comment> findCommentsByUserAndToktok(Long userId);
 
-    @Query("select distinct r from Report r join Comment c on c.report.id = r.id order by c.createdAt desc")
-    List<Report> findReports(Long userId);
+    @Query("select c from Comment c join fetch c.report r where c.user.id = :userId order by c.createdAt desc")
+    List<Comment> findCommentsByUserAndReport(Long userId);
 }
