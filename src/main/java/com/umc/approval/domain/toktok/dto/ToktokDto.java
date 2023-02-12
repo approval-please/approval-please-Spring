@@ -155,12 +155,14 @@ public class ToktokDto {
 
     @Data
     public static class VotePeopleListResponse {
+        private Long userId;
         private String profileImage;
         private String nickname;
         private Integer level;
         private Boolean followOrNot;
 
         public VotePeopleListResponse(User user, Integer followOrNot) {
+            this.userId = user.getId();
             this.profileImage = user.getProfileImage();
             this.nickname = user.getNickname();
             this.level = user.getLevel();
