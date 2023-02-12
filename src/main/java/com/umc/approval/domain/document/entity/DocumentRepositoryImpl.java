@@ -6,6 +6,7 @@ import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.umc.approval.global.type.CategoryType;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -20,6 +21,7 @@ import java.util.List;
 import static com.umc.approval.domain.document.entity.QDocument.document;
 import static com.umc.approval.domain.tag.entity.QTag.tag1;
 
+@Slf4j
 @Repository
 public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
 
@@ -80,6 +82,7 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
         List<Document> documents;
         JPAQuery<Long> countQuery;
         if (isTag == 1) {
+            log.debug("Query Hash : " + query + " / " + query.substring(3));
             String withoutShapeQuery = query.substring(3);
             documents = queryFactory
                     .select(document)
