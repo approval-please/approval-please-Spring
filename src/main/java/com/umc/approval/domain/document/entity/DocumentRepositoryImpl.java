@@ -38,6 +38,8 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
                 .then(1)
                 .otherwise(0);
         if (isTag == 1) {
+            log.debug("Query Hash : " + query + " / " + query.substring(3));
+            String withoutShapeQuery = query.substring(3);
             return queryFactory
                     .select(document)
                     .from(tag1)
@@ -48,7 +50,7 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
                     .leftJoin(document.approvals)
                     .leftJoin(document.images)
                     .where(
-                            tagEq(query),
+                            tagEq(withoutShapeQuery),
                             categoryEq(category),
                             stateEq(state)
                     )
@@ -82,8 +84,6 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
         List<Document> documents;
         JPAQuery<Long> countQuery;
         if (isTag == 1) {
-            log.debug("Query Hash : " + query + " / " + query.substring(3));
-            String withoutShapeQuery = query.substring(3);
             documents = queryFactory
                     .select(document)
                     .from(tag1)
