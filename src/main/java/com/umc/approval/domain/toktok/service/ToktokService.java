@@ -320,7 +320,7 @@ public class ToktokService {
 
         List<ToktokDto.VotePeopleListResponse> response = users.stream()
             .map(uv -> new ToktokDto.VotePeopleListResponse(uv.get(),
-                followRepository.countFollowOrNot(visitUser.getId(), uv.get().getId())))
+                followRepository.countFollowOrNot(visitUser.getId(), uv.get().getId()),visitUser.getId()))
             .collect(Collectors.toList());
 
         return new ToktokDto.GetVotePeopleListResponse(response);

@@ -160,13 +160,15 @@ public class ToktokDto {
         private String nickname;
         private Integer level;
         private Boolean followOrNot;
+        private Boolean isMy;
 
-        public VotePeopleListResponse(User user, Integer followOrNot) {
+        public VotePeopleListResponse(User user, Integer followOrNot, Long userId) {
             this.userId = user.getId();
             this.profileImage = user.getProfileImage();
             this.nickname = user.getNickname();
             this.level = user.getLevel();
             this.followOrNot = followOrNot == 0? false : true;
+            this.isMy = userId == user.getId();
             System.out.println(followOrNot);
         }
     }
