@@ -155,7 +155,7 @@ public class ToktokService {
             //로그인 한 사용자
             User user = userRepository.findById(userId).get();
             if (vote != null) {
-                voteSelect = userVoteRepository.findAllByUserAndVote(user.getId(), toktok.getId())
+                voteSelect = userVoteRepository.findAllByUserAndVote(user.getId(), vote.getId())
                     .stream()
                     .map(uv -> ToktokDto.VoteOptionResponse.fromEntity(uv.getVoteOption()))
                     .collect(Collectors.toList());
