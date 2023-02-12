@@ -41,7 +41,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.umc.approval.global.exception.CustomErrorType.*;
-import static com.umc.approval.global.type.PerformanceType.*;
+import static com.umc.approval.global.type.PerformanceType.WRITE_OTHER_REPORT;
+import static com.umc.approval.global.type.PerformanceType.WRITE_REPORT;
 
 @Transactional
 @RequiredArgsConstructor
@@ -187,7 +188,10 @@ public class ReportService {
         // 결재서류 정보
         List<String> documentTagList = tagRepository.findTagNameList(document.getId());
         List<String> documentImageUrlList = imageRepository.findImageUrlList(document.getId());
-        String documentImageUrl = documentImageUrlList.get(0);
+        String documentImageUrl = null;
+        if (documentImageUrlList != null && !documentImageUrlList.isEmpty()) {
+            documentImageUrl = documentImageUrlList.get(0);
+        }
         Integer documentImageCount = documentImageUrlList.size();
 
         // 결재보고서 정보
@@ -308,11 +312,11 @@ public class ReportService {
         if (linkList != null && !linkList.isEmpty()) {
             for (LinkDto.Request l : linkList) {
                 Link link = Link.builder()
-                    .report(report)
-                    .url(l.getUrl())
-                    .title(l.getTitle())
-                    .image(l.getImage())
-                    .build();
+                        .report(report)
+                        .url(l.getUrl())
+                        .title(l.getTitle())
+                        .image(l.getImage())
+                        .build();
                 linkRepository.save(link);
             }
         }
