@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 public class ProfileDto {
     @Data
     public static class ProfileResponse {
+        private Long userId;
         private String profileImage;
         private String introduction;
         private String nickname;
@@ -18,7 +19,8 @@ public class ProfileDto {
         private Integer followings;
 
         // Entity -> DTO
-        public ProfileResponse (String profileImage, String introduction, String nickname, Integer level, Long promotionPoint, Integer follows, Integer followings) {
+        public ProfileResponse (Long userId, String profileImage, String introduction, String nickname, Integer level, Long promotionPoint, Integer follows, Integer followings) {
+            this.userId = userId;
             this.profileImage = profileImage;
             this.introduction = introduction;
             this.nickname = nickname;

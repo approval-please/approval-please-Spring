@@ -76,6 +76,7 @@ public class ProfileService {
         JSONObject profile = new JSONObject();
 
         ProfileDto.ProfileResponse response = new ProfileDto.ProfileResponse(
+                userId == null ? loginUserId : userId,
                 user.getProfileImage(),
                 user.getIntroduction(),
                 user.getNickname(),
