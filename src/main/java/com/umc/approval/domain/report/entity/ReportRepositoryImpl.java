@@ -39,6 +39,7 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
                 .then(1)
                 .otherwise(0);
         if (isTag == 1) {
+            String withoutShapeQuery = query.substring(1);
             return queryFactory
                     .select(report)
                     .from(tag1)
@@ -54,7 +55,7 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
                     .leftJoin(report.images)
                     .leftJoin(report.comments)
                     .where(
-                            tagEq(query),
+                            tagEq(withoutShapeQuery),
                             categoryEq(category)
                     )
                     .distinct()

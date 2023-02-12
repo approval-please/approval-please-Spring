@@ -39,6 +39,7 @@ public class ToktokRepositoryImpl implements ToktokRepositoryCustom {
                 .then(1)
                 .otherwise(0);
         if (isTag == 1) {
+            String withoutShapeQuery = query.substring(1);
             return queryFactory
                     .select(toktok)
                     .from(tag1)
@@ -52,7 +53,7 @@ public class ToktokRepositoryImpl implements ToktokRepositoryCustom {
                     .leftJoin(toktok.vote, vote)
                     .leftJoin(vote.userVotes)
                     .where(
-                            tagEq(query),
+                            tagEq(withoutShapeQuery),
                             categoryEq(category)
                     )
                     .distinct()
