@@ -2,12 +2,12 @@
 프로젝트 요약                             
                         
 
-## 🖍 프로젝트 기간
+## 📍 프로젝트 기간
 - 개발 : 2023.01 ~ 2023.02
 - 리팩토링 : 2023.02 ~ 진행 중                         
                                         
                                         
-## 🖍 Developers
+## 📍 Developers
 <table>
   <tbody>
     <tr>
@@ -27,7 +27,7 @@
 </table>                                  
                                       
                                       
-## 🖍 기술 스택
+## 📍 기술 스택
 **Framework**
 - Java 11
 - Spring Boot 2.7.7
@@ -51,15 +51,15 @@
 - H2 (In-memory Test DB)                                        
                                                   
                                                   
-## 🖍 ERD
+## 📍 ERD
 <img src="https://user-images.githubusercontent.com/71416677/218406579-b3e480e9-9f0e-487f-9514-d1695df6aa2b.png" width="450"/>                    
                                                     
                                                     
-## 🖍 프로젝트 아키텍처
+## 📍 프로젝트 아키텍처
 <img width="800" alt="image" src="https://user-images.githubusercontent.com/71416677/218409265-15957d4b-a808-4e9f-8f00-e6de082a1c95.png">                        
                                       
                                       
-## 🖍 프로젝트 진행 일정
+## 📍 프로젝트 진행 일정
 **1월 1주차**
 - 개발 일정 정리
 - 사용 기술스택 선정
