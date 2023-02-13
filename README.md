@@ -1,12 +1,13 @@
 # 현명한 소비습관을 돕는 앱, 결재 부탁드립니다 - Spring 🌱
-프로젝트 요약
+프로젝트 요약                             
+                        
 
 ## 프로젝트 진행 기간
 - 개발 : 2023.01 ~ 2023.02
-- 리팩토링 : 2023.02 ~ 진행 중
-
+- 리팩토링 : 2023.02 ~ 진행 중                         
+                                        
+                                        
 ## Backend Developers 💻
-
 <table>
   <tbody>
     <tr>
@@ -23,8 +24,9 @@
       <td align="center">Backend</td>
     </tr>
   </tbody>
-</table>
-
+</table>                                  
+                                      
+                                      
 ## 기술 스택 ⚙️
 **Framework**
 - Java 11
@@ -46,15 +48,18 @@
 
 **Database**
 - MySQL (Local, Deploy DB)
-- H2 (In-memory Test DB)
-
+- H2 (In-memory Test DB)                                        
+                                                  
+                                                  
 ## ERD 📊
-![image](https://user-images.githubusercontent.com/71416677/218406579-b3e480e9-9f0e-487f-9514-d1695df6aa2b.png)
-
+<img src="https://user-images.githubusercontent.com/71416677/218406579-b3e480e9-9f0e-487f-9514-d1695df6aa2b.png" width="450"/>                    
+                                                    
+                                                    
 ## 프로젝트 아키텍처 🏗
-아키텍처 이미지 첨부
-
-## 프로젝트 진행 일정
+아키텍처 이미지 첨부                         
+                                      
+                                      
+## 프로젝트 진행 일정 🗓
 **1월 1주차**
 - 개발 일정 정리
 - 사용 기술스택 선정
