@@ -14,9 +14,8 @@
   </tbody>
 </table>
 
-|1|2|3|4|5|
-|------|---|---|---|---|
-|[박훈성](https://github.com/HunSeongPark)|[곽태영]()|[신정윤]()|[이유종]()|[허희원]()|
-|Backend Lead / 로그인,회원가입,공통|PM,Backend / 공통|Backend / 커뮤니티|Backend / 결재서류|Backend / 마이페이지|
+|<a href="https://github.com/HunSeongPark"><img src="https://avatars.githubusercontent.com/u/71416677?v=4" width="100px;" alt=""/></a>|<a href="https://github.com/sharpie1330"><img src="https://avatars.githubusercontent.com/u/71365547?v=4" width="100px;" alt=""/></a>|<a href="https://github.com/JungYoonShin"><img src="https://avatars.githubusercontent.com/u/63058347?v=4" width="100px;" alt=""/></a>|<a href="https://github.com/eujjong18"><img src="https://avatars.githubusercontent.com/u/76527090?v=4" width="100px;" alt=""/></a>|<a href="https://github.com/Huh21"><img src="https://avatars.githubusercontent.com/u/71316148?v=4" width="100px;" alt=""/></a>|
+|[박훈성](https://github.com/HunSeongPark)|[곽태영](https://github.com/sharpie1330)|[신정윤](https://github.com/JungYoonShin)|[이유종](https://github.com/eujjong18)|[허희원](https://github.com/Huh21)|
+|Backend Lead|PM / Backend|Backend|Backend|Backend|
 
 ## 
