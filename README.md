@@ -1,6 +1,10 @@
 # 현명한 소비습관을 돕는 앱, 결재 부탁드립니다 - Spring 🌱
 프로젝트 요약
 
+## 프로젝트 진행 기간
+- 개발 : 2023.01 ~ 2023.02
+- 리팩토링 : 2023.02 ~ 진행 중
+
 ## Backend Developers 💻
 
 <table>
@@ -21,4 +25,54 @@
   </tbody>
 </table>
 
-## 
+## 기술 스택 ⚙️
+**Framework**
+- Java 11
+- Spring Boot 2.7.7
+
+**Dependencies**
+- Spring Security + JWT
+- Spring Data Jpa
+- QueryDsl
+- JUnit 4
+
+**Infra**
+- Github Actions
+- AWS EC2
+- AWS S3
+- AWS CodeDeploy
+- AWS RDS
+- Nginx
+
+**Database**
+- MySQL (Local, Deploy DB)
+- H2 (In-memory Test DB)
+
+## ERD 📊
+![image](https://user-images.githubusercontent.com/71416677/218406579-b3e480e9-9f0e-487f-9514-d1695df6aa2b.png)
+
+## 프로젝트 아키텍처 🏗
+아키텍처 이미지 첨부
+
+## 프로젝트 진행 일정
+**1월 1주차**
+- 개발 일정 정리
+- 사용 기술스택 선정
+
+**1월 2주차**
+- 컨벤션 정리 및 ERD 설계
+- 도메인 별 역할 분담 및 프로젝트 세팅
+
+**1월 3,4주차**
+- 매일 오전 10시 스크럼 진행
+- 담당 도메인 별 개발 진행
+
+**2월 1주차**
+- 안드로이드와 연동 전 자체 디버깅 (Postman, 테스트 코드)
+
+**2월 2주차**
+- 안드로이드와 연동 테스트 진행 및 디버깅
+- 개발 마무리
+
+**이후 일정**
+- 성능 최적화 및 디버깅을 위한 리팩토링 진행 예정
