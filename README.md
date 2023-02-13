@@ -56,7 +56,7 @@
                                                     
                                                     
 ## 프로젝트 아키텍처 🏗
-아키텍처 이미지 첨부                         
+<img width="935" alt="image" src="https://user-images.githubusercontent.com/71416677/218409265-15957d4b-a808-4e9f-8f00-e6de082a1c95.png">                        
                                       
                                       
 ## 프로젝트 진행 일정 🗓
