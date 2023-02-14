@@ -14,15 +14,19 @@
                 
 ## 📍 기능 소개
 **🏠 로그인&홈**                      
+                        
 <img width="800" alt="image" src="https://user-images.githubusercontent.com/71416677/218637355-ef4cc2fd-64d4-4e53-9f05-1e6d8c465f21.png">         
                       
 **📝 결재하기**                         
+                        
 <img width="800" alt="image" src="https://user-images.githubusercontent.com/71416677/218637446-eddb0af8-5271-4c1f-8b9e-6d8a95b48c0c.png">         
                             
 **🗨️ 커뮤니티**                          
+                        
 <img width="800" alt="image" src="https://user-images.githubusercontent.com/71416677/218637504-d956c896-8524-4d83-9c13-650cd691a1d2.png">         
 
 **💁 내 정보**                       
+                        
 <img width="800" alt="image" src="https://user-images.githubusercontent.com/71416677/218637565-fc592735-1c69-46e9-9195-4034106a376a.png">         
                                             
             
