@@ -9,6 +9,6 @@ import java.util.List;
 
 public interface PerformanceRepository extends JpaRepository<Performance, Long> {
     @Modifying
-    @Query(value = "select p from Performance p where p.user.id = :user_id")
+    @Query(value = "select p from Performance p where p.user.id = :user_id order by p.createdAt desc")
     List<Performance> findByUserId(@Param("user_id") Long user_id);
 }
