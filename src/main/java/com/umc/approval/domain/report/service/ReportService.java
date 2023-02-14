@@ -235,6 +235,8 @@ public class ReportService {
                 followOrNot = null;
             } else if (follow == 0) {
                 followOrNot = false;
+            } else {
+                followOrNot = true;
             }
         } else {
             return new GetReportResponse(writer, document, report, documentTagList,
