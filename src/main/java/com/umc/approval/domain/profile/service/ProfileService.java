@@ -88,14 +88,18 @@ public class ProfileService {
 
         result.put("content", response);
 
-        if (!((user.getId()).equals(loginUserId))) { // 타 사원증 조회일 경우,
-            if (loginUserId != null) { // 로그인 되어 있을 때
-                result.put("isFollow", isFollow(loginUserId, user.getId()));
-            } else { // 로그인 되어있지 않을 때
+        // 타 사원증 조회
+        if (userId != null) {
+            // 로그인 아닐 때
+            if (loginUserId == null) {
                 result.put("isFollow", false);
+                result.put("isMy", false);
+            } else {
+                // 로그인일 때 - 타 사원증
+                result.put("isFollow", isFollow(loginUserId, user.getId()));
+                result.put("isMy", userId.equals(loginUserId));
             }
         }
-
         return result;
     }
 
