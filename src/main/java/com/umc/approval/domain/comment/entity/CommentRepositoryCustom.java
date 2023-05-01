@@ -13,4 +13,6 @@ public interface CommentRepositoryCustom {
     Page<Comment> findAllByPostPaging(Pageable pageable, Long documentId, Long toktokId, Long reportId);
 
     Integer countByPost(Long documentId, Long toktokId, Long reportId);
+
+    boolean existsParentCommentByPost(Long parentCommentId, Long documentId, Long toktokId, Long reportId);
 }
