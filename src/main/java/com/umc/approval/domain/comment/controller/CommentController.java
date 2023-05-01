@@ -3,8 +3,6 @@ package com.umc.approval.domain.comment.controller;
 import com.umc.approval.domain.comment.dto.CommentDto;
 import com.umc.approval.domain.comment.service.CommentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
