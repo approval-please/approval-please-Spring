@@ -97,7 +97,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
     @Override
     public boolean existsParentCommentByPost(Long parentCommentId, Long documentId, Long toktokId, Long reportId) {
         return queryFactory
-                .select(comment.count())
+                .selectOne()
                 .from(comment)
                 .where(
                         documentEq(documentId),
@@ -105,7 +105,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                         reportEq(reportId),
                         comment.parentComment.id.eq(parentCommentId)
                 )
-                .fetchFirst() > 0;
+                .fetchFirst() != null;
     }
 
     public BooleanExpression documentEq(Long documentId) {
