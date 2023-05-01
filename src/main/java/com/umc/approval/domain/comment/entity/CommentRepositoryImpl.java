@@ -1,6 +1,7 @@
 package com.umc.approval.domain.comment.entity;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
@@ -93,15 +94,29 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 .fetchFirst());
     }
 
-    private BooleanExpression documentEq(Long documentId) {
+    @Override
+    public boolean existsParentCommentByPost(Long parentCommentId, Long documentId, Long toktokId, Long reportId) {
+        return queryFactory
+                .select(comment.count())
+                .from(comment)
+                .where(
+                        documentEq(documentId),
+                        toktokEq(toktokId),
+                        reportEq(reportId),
+                        comment.parentComment.id.eq(parentCommentId)
+                )
+                .fetchFirst() > 0;
+    }
+
+    public BooleanExpression documentEq(Long documentId) {
         return documentId == null ? null : comment.document.id.eq(documentId);
     }
 
-    private BooleanExpression toktokEq(Long toktokId) {
+    public BooleanExpression toktokEq(Long toktokId) {
         return toktokId == null ? null : comment.toktok.id.eq(toktokId);
     }
 
-    private BooleanExpression reportEq(Long reportId) {
+    public BooleanExpression reportEq(Long reportId) {
         return reportId == null ? null : comment.report.id.eq(reportId);
     }
 }
