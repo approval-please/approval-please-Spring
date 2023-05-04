@@ -1,6 +1,5 @@
 package com.umc.approval.domain.comment.service;
 
-import com.umc.approval.domain.BaseTimeEntity;
 import com.umc.approval.domain.accuse.entity.AccuseRepository;
 import com.umc.approval.domain.comment.dto.CommentDto;
 import com.umc.approval.domain.comment.entity.Comment;

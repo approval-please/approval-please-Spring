@@ -1,24 +1,14 @@
 package com.umc.approval.domain.vote.entity;
 
 import com.umc.approval.domain.BaseTimeEntity;
-import com.umc.approval.domain.toktok.dto.ToktokDto;
 import com.umc.approval.domain.toktok.dto.ToktokDto.PostToktokRequest;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.persistence.CascadeType;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import lombok.Setter;
+import javax.persistence.*;
+import java.util.List;
 
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;

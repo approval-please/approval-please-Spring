@@ -1,12 +1,10 @@
 package com.umc.approval.domain.image.entity;
-import com.umc.approval.domain.toktok.entity.Toktok;
-import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 public interface ImageRepository extends JpaRepository<Image, Long> {

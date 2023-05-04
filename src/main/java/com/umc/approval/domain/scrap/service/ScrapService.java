@@ -2,13 +2,11 @@ package com.umc.approval.domain.scrap.service;
 
 import com.umc.approval.domain.document.entity.Document;
 import com.umc.approval.domain.document.entity.DocumentRepository;
-import com.umc.approval.domain.like.entity.LikeRepository;
 import com.umc.approval.domain.report.entity.Report;
 import com.umc.approval.domain.report.entity.ReportRepository;
 import com.umc.approval.domain.scrap.dto.ScrapDto;
 import com.umc.approval.domain.scrap.entity.Scrap;
 import com.umc.approval.domain.scrap.entity.ScrapRepository;
-import com.umc.approval.domain.scrap.entity.ScrapRepositoryCustom;
 import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.toktok.entity.ToktokRepository;
 import com.umc.approval.domain.user.entity.User;
@@ -42,7 +40,7 @@ public class ScrapService {
         Optional<Scrap> findScrap = scrapRepository.findByUserAndPost(user.getId(), scrapRequest);
 
         // 스크랩 추가 되어있는 경우 -> 취소
-        if(findScrap.isPresent()) {
+        if (findScrap.isPresent()) {
             scrapRepository.delete(findScrap.get());
             return new ScrapDto.UpdateResponse(false);
         }
@@ -52,7 +50,7 @@ public class ScrapService {
         Toktok toktok = null;
         Report report = null;
 
-        if(scrapRequest.getDocumentId() != null) {
+        if (scrapRequest.getDocumentId() != null) {
             document = documentRepository.findById(scrapRequest.getDocumentId())
                     .orElseThrow(() -> new CustomException(DOCUMENT_NOT_FOUND));
         } else if (scrapRequest.getToktokId() != null) {

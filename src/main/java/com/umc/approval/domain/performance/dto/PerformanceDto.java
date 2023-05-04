@@ -1,13 +1,11 @@
 package com.umc.approval.domain.performance.dto;
 
-import com.umc.approval.domain.approval.entity.Approval;
-import com.umc.approval.domain.document.dto.DocumentDto;
-import com.umc.approval.domain.document.entity.Document;
-import com.umc.approval.domain.link.dto.LinkDto;
 import com.umc.approval.domain.performance.entity.Performance;
-import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.global.util.DateUtil;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.util.List;
 import java.util.stream.Collectors;

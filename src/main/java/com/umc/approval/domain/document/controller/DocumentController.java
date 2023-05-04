@@ -4,8 +4,6 @@ import com.umc.approval.domain.document.dto.DocumentDto;
 import com.umc.approval.domain.document.service.DocumentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,7 +58,7 @@ public class DocumentController {
     public ResponseEntity<DocumentDto.SearchResponse> getLikedLDocumentList(
             @RequestParam(value = "category", required = false) Integer category,
             @RequestParam(value = "state", required = false) Integer state,
-            @RequestParam(value = "sortBy", required = false) Integer sortBy){
+            @RequestParam(value = "sortBy", required = false) Integer sortBy) {
         return ResponseEntity.ok().body(documentService.getLikedDocumentList(category, state, sortBy));
     }
 
