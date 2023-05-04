@@ -1,6 +1,5 @@
 package com.umc.approval.domain.comment.service;
 
-import com.umc.approval.domain.BaseTimeEntity;
 import com.umc.approval.domain.accuse.entity.AccuseRepository;
 import com.umc.approval.domain.comment.dto.CommentDto;
 import com.umc.approval.domain.comment.entity.Comment;
@@ -123,6 +122,7 @@ public class CommentService {
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
     }
 
+    @Transactional(readOnly = true)
     public CommentDto.ListResponse getCommentList(HttpServletRequest request, Long documentId, Long toktokId, Long reportId) {
 
         List<Comment> comments = commentRepository.findAllByPost(documentId, toktokId, reportId);

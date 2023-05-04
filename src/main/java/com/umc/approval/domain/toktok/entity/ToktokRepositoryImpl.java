@@ -1,6 +1,5 @@
 package com.umc.approval.domain.toktok.entity;
 
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.NumberExpression;
@@ -16,7 +15,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.umc.approval.domain.document.entity.QDocument.document;
 import static com.umc.approval.domain.tag.entity.QTag.tag1;
 import static com.umc.approval.domain.toktok.entity.QToktok.toktok;
 import static com.umc.approval.domain.vote.entity.QVote.vote;

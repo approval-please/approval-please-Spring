@@ -1,14 +1,11 @@
 package com.umc.approval.domain.link.entity;
-import com.umc.approval.domain.report.entity.Report;
-import com.umc.approval.domain.toktok.entity.Toktok;
-import com.umc.approval.domain.user.entity.User;
-import java.util.Optional;
-import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.List;
-import java.util.Optional;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.util.List;
+import java.util.Optional;
 
 
 public interface LinkRepository extends JpaRepository<Link, Long> {

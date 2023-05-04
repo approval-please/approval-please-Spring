@@ -294,6 +294,7 @@ public class ToktokService {
 
     }
 
+    @Transactional(readOnly = true)
     public ToktokDto.GetVotePeopleListResponse getVotePeopleList(Long voteOptionId) {
         User visitUser = certifyUser();
 

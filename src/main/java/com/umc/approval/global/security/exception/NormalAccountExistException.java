@@ -1,6 +1,5 @@
 package com.umc.approval.global.security.exception;
 
-import com.umc.approval.global.type.SocialType;
 import lombok.Getter;
 import org.springframework.security.core.AuthenticationException;
 

@@ -1,14 +1,12 @@
 package com.umc.approval.domain.report.entity;
 
-import com.umc.approval.domain.document.entity.Document;
-
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.util.List;
+import java.util.Optional;
 
 public interface ReportRepository extends JpaRepository<Report, Long>, ReportRepositoryCustom {
     Optional<Report> findByDocumentId(Long documentId);

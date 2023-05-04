@@ -9,9 +9,7 @@ import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.global.type.CategoryType;
 import com.umc.approval.global.util.DateUtil;
-
 import lombok.*;
-import org.springframework.data.domain.Page;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
@@ -42,7 +40,7 @@ public class DocumentDto {
         private @Valid LinkDto.Request link;
 
         // DTO -> Entity
-        public Document toEntity(User user, CategoryType categoryType){
+        public Document toEntity(User user, CategoryType categoryType) {
             return Document.builder()
                     .user(user)
                     .category(categoryType)
@@ -57,7 +55,7 @@ public class DocumentDto {
 
     // 결재서류 상세 조회
     @Data
-    public static class GetDocumentResponse{
+    public static class GetDocumentResponse {
         private Long documentId;
         private Long userId;
         private Integer category;
@@ -138,7 +136,7 @@ public class DocumentDto {
     public static class GetDocumentListResponse {
         private List<DocumentDto.DocumentListResponse> content;
 
-        public GetDocumentListResponse(List<DocumentDto.DocumentListResponse> content){
+        public GetDocumentListResponse(List<DocumentDto.DocumentListResponse> content) {
             this.content = content;
         }
     }

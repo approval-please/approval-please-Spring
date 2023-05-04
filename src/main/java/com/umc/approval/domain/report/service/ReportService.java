@@ -126,6 +126,7 @@ public class ReportService {
     }
 
     // 결재서류 글 작성시 결재서류 선택 리스트
+    @Transactional(readOnly = true)
     public ReportDto.ReportGetDocumentResponse selectDocument() {
         User user = certifyUser();
 

@@ -1,21 +1,19 @@
 package com.umc.approval.domain.toktok.dto;
+
+import com.umc.approval.domain.image.entity.Image;
+import com.umc.approval.domain.link.dto.LinkDto;
 import com.umc.approval.domain.tag.entity.Tag;
 import com.umc.approval.domain.toktok.entity.Toktok;
 import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.vote.entity.Vote;
+import com.umc.approval.domain.vote.entity.VoteOption;
 import com.umc.approval.global.type.CategoryType;
 import com.umc.approval.global.util.DateUtil;
+import lombok.*;
+
+import javax.validation.constraints.*;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import com.umc.approval.domain.image.entity.Image;
-import com.umc.approval.domain.link.dto.LinkDto;
-import com.umc.approval.domain.vote.entity.VoteOption;
-import lombok.*;
 
 public class ToktokDto {
 
@@ -51,13 +49,13 @@ public class ToktokDto {
 
         public Toktok toEntity(User user, CategoryType categoryType, Vote vote) {
             return Toktok.builder()
-                .user(user)
-                .content(content)
-                .category(categoryType)
-                .vote(vote)
-                .view(0L)
-                .notification(true)
-                .build();
+                    .user(user)
+                    .content(content)
+                    .category(categoryType)
+                    .vote(vote)
+                    .view(0L)
+                    .notification(true)
+                    .build();
         }
     }
 
@@ -104,10 +102,10 @@ public class ToktokDto {
         private Long view;
 
         public GetToktokResponse(User user, Toktok toktok, Vote vote, List<String> tags,
-            List<String> images, List<LinkDto.Response> linkResponse, Long likedCount,
-            Long commentCount, Long scrapCount, Boolean likeOrNot,
-            Boolean followOrNot, List<VoteOptionResponse> voteOption, List<VoteOptionResponse> voteSelect,
-            Integer votePeople, List<Long> votePeopleEachOption, Boolean writerOrNot, Boolean isModified, Boolean scrapOrNot) {
+                                 List<String> images, List<LinkDto.Response> linkResponse, Long likedCount,
+                                 Long commentCount, Long scrapCount, Boolean likeOrNot,
+                                 Boolean followOrNot, List<VoteOptionResponse> voteOption, List<VoteOptionResponse> voteSelect,
+                                 Integer votePeople, List<Long> votePeopleEachOption, Boolean writerOrNot, Boolean isModified, Boolean scrapOrNot) {
             this.userId = user.getId();
             this.profileImage = user.getProfileImage();
             this.level = user.getLevel();
@@ -167,7 +165,7 @@ public class ToktokDto {
             this.profileImage = user.getProfileImage();
             this.nickname = user.getNickname();
             this.level = user.getLevel();
-            this.followOrNot = followOrNot == 0? false : true;
+            this.followOrNot = followOrNot == 0 ? false : true;
             this.isMy = userId == user.getId();
             System.out.println(followOrNot);
         }

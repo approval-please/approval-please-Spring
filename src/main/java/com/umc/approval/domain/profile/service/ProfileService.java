@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 
 import static com.umc.approval.global.exception.CustomErrorType.*;
 
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 @SuppressWarnings("unchecked")
@@ -299,6 +299,7 @@ public class ProfileService {
     }
 
     // 사원증 프로필 수정
+    @Transactional
     public void updateProfile(UserDto.ProfileRequest request) {
         User user = certifyUser(null);
 

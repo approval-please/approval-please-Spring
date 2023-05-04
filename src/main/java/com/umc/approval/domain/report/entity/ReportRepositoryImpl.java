@@ -18,8 +18,6 @@ import java.util.stream.Collectors;
 import static com.umc.approval.domain.document.entity.QDocument.document;
 import static com.umc.approval.domain.report.entity.QReport.report;
 import static com.umc.approval.domain.tag.entity.QTag.tag1;
-import static com.umc.approval.domain.toktok.entity.QToktok.toktok;
-import static com.umc.approval.domain.vote.entity.QVote.vote;
 
 @Transactional
 public class ReportRepositoryImpl implements ReportRepositoryCustom {
