@@ -38,17 +38,12 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
                 .then(1)
                 .otherwise(0);
         if (isTag == 1) {
-            log.debug("Query Hash : " + query + " / " + query.substring(1));
             String withoutShapeQuery = query.substring(1);
             return queryFactory
                     .select(document)
                     .from(tag1)
                     .innerJoin(tag1.document, document)
-                    .leftJoin(document.likes)
-                    .leftJoin(document.tags)
                     .leftJoin(document.link).fetchJoin()
-                    .leftJoin(document.approvals)
-                    .leftJoin(document.images)
                     .where(
                             tagEq(withoutShapeQuery),
                             categoryEq(category),
@@ -61,12 +56,7 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
         } else {
             return queryFactory
                     .selectFrom(document)
-                    .leftJoin(document.likes)
-                    .leftJoin(document.tags)
-                    .leftJoin(document.comments)
                     .leftJoin(document.link).fetchJoin()
-                    .leftJoin(document.approvals)
-                    .leftJoin(document.images)
                     .where(
                             titleLike(query).or(contentLike(query)),
                             categoryEq(category),
@@ -88,11 +78,7 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
                     .select(document)
                     .from(tag1)
                     .innerJoin(tag1.document, document)
-                    .leftJoin(document.likes)
-                    .leftJoin(document.tags)
                     .leftJoin(document.link).fetchJoin()
-                    .leftJoin(document.approvals)
-                    .leftJoin(document.images)
                     .where(
                             tagEq(query),
                             categoryEq(category),
@@ -117,11 +103,7 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
         } else {
             documents = queryFactory
                     .selectFrom(document)
-                    .leftJoin(document.likes)
-                    .leftJoin(document.tags)
                     .leftJoin(document.link).fetchJoin()
-                    .leftJoin(document.approvals)
-                    .leftJoin(document.images)
                     .where(
                             titleLike(query).or(contentLike(query)),
                             categoryEq(category),
@@ -154,12 +136,7 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
                 .otherwise(0);
         return queryFactory
                 .selectFrom(document)
-                .leftJoin(document.likes)
-                .leftJoin(document.tags)
-                .leftJoin(document.comments)
                 .leftJoin(document.link).fetchJoin()
-                .leftJoin(document.approvals)
-                .leftJoin(document.images)
                 .where(
                         categoryEq(category),
                         stateEq(state)
@@ -182,12 +159,7 @@ public class DocumentRepositoryImpl implements DocumentRepositoryCustom {
                 .otherwise(0);
         return queryFactory
                 .selectFrom(document)
-                .leftJoin(document.likes)
-                .leftJoin(document.tags)
-                .leftJoin(document.comments)
                 .leftJoin(document.link).fetchJoin()
-                .leftJoin(document.approvals)
-                .leftJoin(document.images)
                 .where(
                         document.category.in(categories),
                         stateEq(state)

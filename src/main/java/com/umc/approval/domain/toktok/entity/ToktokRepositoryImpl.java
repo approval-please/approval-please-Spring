@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 
 import static com.umc.approval.domain.tag.entity.QTag.tag1;
 import static com.umc.approval.domain.toktok.entity.QToktok.toktok;
-import static com.umc.approval.domain.vote.entity.QVote.vote;
 
 @Transactional
 public class ToktokRepositoryImpl implements ToktokRepositoryCustom {
@@ -43,13 +42,6 @@ public class ToktokRepositoryImpl implements ToktokRepositoryCustom {
                     .from(tag1)
                     .innerJoin(tag1.toktok, toktok)
                     .innerJoin(toktok.user).fetchJoin()
-                    .leftJoin(toktok.likes)
-                    .leftJoin(toktok.tags)
-                    .leftJoin(toktok.links)
-                    .leftJoin(toktok.images)
-                    .leftJoin(toktok.comments)
-                    .leftJoin(toktok.vote, vote)
-                    .leftJoin(vote.userVotes)
                     .where(
                             tagEq(withoutShapeQuery),
                             categoryEq(category)
@@ -62,13 +54,6 @@ public class ToktokRepositoryImpl implements ToktokRepositoryCustom {
             return queryFactory
                     .selectFrom(toktok)
                     .innerJoin(toktok.user).fetchJoin()
-                    .leftJoin(toktok.likes)
-                    .leftJoin(toktok.tags)
-                    .leftJoin(toktok.links)
-                    .leftJoin(toktok.images)
-                    .leftJoin(toktok.comments)
-                    .leftJoin(toktok.vote, vote)
-                    .leftJoin(vote.userVotes)
                     .where(
                             contentLike(query),
                             categoryEq(category)
@@ -89,13 +74,6 @@ public class ToktokRepositoryImpl implements ToktokRepositoryCustom {
         return queryFactory
                 .selectFrom(toktok)
                 .innerJoin(toktok.user).fetchJoin()
-                .leftJoin(toktok.likes)
-                .leftJoin(toktok.tags)
-                .leftJoin(toktok.links)
-                .leftJoin(toktok.images)
-                .leftJoin(toktok.comments)
-                .leftJoin(toktok.vote, vote)
-                .leftJoin(vote.userVotes)
                 .where(
                         followingEq(follows, sortBy),
                         userEq(userId, sortBy)

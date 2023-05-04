@@ -25,15 +25,9 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 
     @Override
     public List<Comment> findAllByPost(Long documentId, Long toktokId, Long reportId) {
-        QComment cc = new QComment("cc");
-
         return queryFactory
                 .selectFrom(comment)
-                .leftJoin(comment.childComment, cc) // 대댓글 함께 조회
-                .leftJoin(cc.user) // 대댓글 유저 함께 조회
-                .leftJoin(cc.likes) // 대댓글 좋아요 함께 조회
                 .innerJoin(comment.user).fetchJoin() // 댓글 유저 함께 조회
-                .leftJoin(comment.likes) // 댓글 좋아요 함께 조회
                 .where(
                         documentEq(documentId),
                         toktokEq(toktokId),
@@ -46,16 +40,9 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 
     @Override
     public Page<Comment> findAllByPostPaging(Pageable pageable, Long documentId, Long toktokId, Long reportId) {
-
-        QComment cc = new QComment("cc");
-
         List<Comment> comments = queryFactory
                 .selectFrom(comment)
-                .leftJoin(comment.childComment, cc) // 대댓글 함께 조회
-                .leftJoin(cc.user) // 대댓글 유저 함께 조회
-                .leftJoin(cc.likes) // 대댓글 좋아요 함께 조회
-                .innerJoin(comment.user) // 댓글 유저 함께 조회
-                .leftJoin(comment.likes) // 댓글 좋아요 함께 조회
+                .innerJoin(comment.user).fetchJoin() // 댓글 유저 함께 조회
                 .where(
                         documentEq(documentId),
                         toktokEq(toktokId),

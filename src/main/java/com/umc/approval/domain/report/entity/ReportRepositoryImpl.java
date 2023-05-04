@@ -44,14 +44,7 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
                     .innerJoin(tag1.report, report)
                     .innerJoin(report.document, document).fetchJoin()
                     .innerJoin(document.user).fetchJoin()
-                    .leftJoin(report.likes)
-                    .leftJoin(report.tags)
-                    .leftJoin(document.tags)
-                    .leftJoin(document.images)
                     .leftJoin(document.link).fetchJoin()
-                    .leftJoin(report.links)
-                    .leftJoin(report.images)
-                    .leftJoin(report.comments)
                     .where(
                             tagEq(withoutShapeQuery),
                             categoryEq(category)
@@ -65,14 +58,7 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
                     .selectFrom(report)
                     .innerJoin(report.document, document).fetchJoin()
                     .innerJoin(document.user).fetchJoin()
-                    .leftJoin(report.likes)
-                    .leftJoin(report.tags)
-                    .leftJoin(document.tags)
-                    .leftJoin(document.images)
                     .leftJoin(document.link).fetchJoin()
-                    .leftJoin(report.links)
-                    .leftJoin(report.images)
-                    .leftJoin(report.comments)
                     .where(
                             contentLike(query),
                             categoryEq(category)
@@ -94,14 +80,7 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
                 .selectFrom(report)
                 .innerJoin(report.document, document).fetchJoin()
                 .innerJoin(document.user).fetchJoin()
-                .leftJoin(report.likes)
-                .leftJoin(report.tags)
-                .leftJoin(document.tags)
-                .leftJoin(document.images)
                 .leftJoin(document.link).fetchJoin()
-                .leftJoin(report.links)
-                .leftJoin(report.images)
-                .leftJoin(report.comments)
                 .where(
                         followingEq(follows, sortBy),
                         userEq(userId, sortBy)
