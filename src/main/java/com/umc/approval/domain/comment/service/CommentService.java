@@ -122,6 +122,7 @@ public class CommentService {
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
     }
 
+    @Transactional(readOnly = true)
     public CommentDto.ListResponse getCommentList(HttpServletRequest request, Long documentId, Long toktokId, Long reportId) {
 
         List<Comment> comments = commentRepository.findAllByPost(documentId, toktokId, reportId);
