@@ -16,6 +16,7 @@ import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
+import com.umc.approval.global.util.BooleanBuilderUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -124,8 +125,12 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public CommentDto.ListResponse getCommentList(HttpServletRequest request, Long documentId, Long toktokId, Long reportId) {
-
-        List<Comment> comments = commentRepository.findAllByPost(documentId, toktokId, reportId);
+        BooleanBuilderUtil.PostIds postIds = BooleanBuilderUtil.PostIds.builder()
+                .documentId(documentId)
+                .toktokId(toktokId)
+                .reportId(reportId)
+                .build();
+        List<Comment> comments = commentRepository.findAllByPost(postIds);
 
         // 글쓴이 조회
         User writer;
