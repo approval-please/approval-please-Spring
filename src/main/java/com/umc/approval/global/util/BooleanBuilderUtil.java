@@ -15,8 +15,8 @@ import java.util.function.Supplier;
 
 public class BooleanBuilderUtil {
 
-    public static BooleanBuilder postEq(QDocument document, QToktok toktok ,QReport report, PostIds ids) {
-        return documentEq(document, ids).and(toktokEq(toktok, ids)).and(reportEq(report, ids));
+    public static BooleanBuilder postEq(QDocument document, QToktok toktok ,QReport report, PostIds postIds) {
+        return documentEq(document, postIds).and(toktokEq(toktok, postIds)).and(reportEq(report, postIds));
     }
 
     private static BooleanBuilder nullSafeBuilder(Supplier<BooleanExpression> be) {
@@ -27,16 +27,16 @@ public class BooleanBuilderUtil {
         }
     }
 
-    private static BooleanBuilder documentEq(QDocument document, PostIds ids) {
-        return nullSafeBuilder(() -> document.id.eq(ids.getDocumentId()));
+    private static BooleanBuilder documentEq(QDocument document, PostIds postIds) {
+        return nullSafeBuilder(() -> document.id.eq(postIds.getDocumentId()));
     }
 
-    private static BooleanBuilder toktokEq(QToktok toktok, PostIds ids) {
-        return nullSafeBuilder(() -> toktok.id.eq(ids.getToktokId()));
+    private static BooleanBuilder toktokEq(QToktok toktok, PostIds postIds) {
+        return nullSafeBuilder(() -> toktok.id.eq(postIds.getToktokId()));
     }
 
-    private static BooleanBuilder reportEq(QReport report, PostIds ids) {
-        return nullSafeBuilder(() -> report.id.eq(ids.getReportId()));
+    private static BooleanBuilder reportEq(QReport report, PostIds postIds) {
+        return nullSafeBuilder(() -> report.id.eq(postIds.getReportId()));
     }
 
     @Getter
