@@ -15,8 +15,23 @@ import java.util.function.Supplier;
 
 public class BooleanBuilderUtil {
 
-    public static BooleanBuilder postEq(QDocument document, QToktok toktok ,QReport report, PostIds postIds) {
-        return documentEq(document, postIds).and(toktokEq(toktok, postIds)).and(reportEq(report, postIds));
+    public static BooleanBuilder postEq(QDocument document, QToktok toktok, QReport report, PostIds postIds) {
+        return documentEq(document, postIds.getDocumentId())
+                .and(toktokEq(toktok, postIds.getToktokId()))
+                .and(reportEq(report, postIds.getReportId()));
+    }
+
+    public static BooleanBuilder postEq(
+            QDocument document,
+            QToktok toktok,
+            QReport report,
+            Long documentId,
+            Long toktokId,
+            Long reportId
+    ) {
+        return documentEq(document, documentId)
+                .and(toktokEq(toktok, toktokId))
+                .and(reportEq(report, reportId));
     }
 
     private static BooleanBuilder nullSafeBuilder(Supplier<BooleanExpression> be) {
@@ -27,16 +42,16 @@ public class BooleanBuilderUtil {
         }
     }
 
-    private static BooleanBuilder documentEq(QDocument document, PostIds postIds) {
-        return nullSafeBuilder(() -> document.id.eq(postIds.getDocumentId()));
+    private static BooleanBuilder documentEq(QDocument document, Long documentId) {
+        return nullSafeBuilder(() -> document.id.eq(documentId));
     }
 
-    private static BooleanBuilder toktokEq(QToktok toktok, PostIds postIds) {
-        return nullSafeBuilder(() -> toktok.id.eq(postIds.getToktokId()));
+    private static BooleanBuilder toktokEq(QToktok toktok, Long toktokId) {
+        return nullSafeBuilder(() -> toktok.id.eq(toktokId));
     }
 
-    private static BooleanBuilder reportEq(QReport report, PostIds postIds) {
-        return nullSafeBuilder(() -> report.id.eq(postIds.getReportId()));
+    private static BooleanBuilder reportEq(QReport report, Long reportId) {
+        return nullSafeBuilder(() -> report.id.eq(reportId));
     }
 
     @Getter

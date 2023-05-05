@@ -4,6 +4,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.umc.approval.domain.like.dto.LikeDto;
+import com.umc.approval.global.util.BooleanBuilderUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -26,28 +27,20 @@ public class LikeRepositoryImpl implements LikeRepositoryCustom {
     }
 
     @Override
-    public List<Like> findAllByPost(Long documentId, Long toktokId, Long reportId) {
+    public List<Like> findAllByPost(BooleanBuilderUtil.PostIds postIds) {
         return queryFactory
                 .selectFrom(like)
                 .innerJoin(like.user, user).fetchJoin()
-                .where(
-                        documentEq(documentId),
-                        toktokEq(toktokId),
-                        reportEq(reportId)
-                )
+                .where(BooleanBuilderUtil.postEq(like.document, like.toktok, like.report, postIds))
                 .fetch();
     }
 
     @Override
-    public Page<Like> findAllByPostPaging(Pageable pageable, LikeDto.Request requestDto) {
+    public Page<Like> findAllByPostPaging(Pageable pageable, BooleanBuilderUtil.PostIds postIds) {
         List<Like> likes = queryFactory
                 .selectFrom(like)
                 .innerJoin(like.user, user).fetchJoin()
-                .where(
-                        documentEq(requestDto.getDocumentId()),
-                        toktokEq(requestDto.getToktokId()),
-                        reportEq(requestDto.getReportId())
-                )
+                .where(BooleanBuilderUtil.postEq(like.document, like.toktok, like.report, postIds))
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
@@ -55,11 +48,7 @@ public class LikeRepositoryImpl implements LikeRepositoryCustom {
         JPAQuery<Long> countQuery = queryFactory
                 .select(like.count())
                 .from(like)
-                .where(
-                        documentEq(requestDto.getDocumentId()),
-                        toktokEq(requestDto.getToktokId()),
-                        reportEq(requestDto.getReportId())
-                );
+                .where(BooleanBuilderUtil.postEq(like.document, like.toktok, like.report, postIds));
 
         return PageableExecutionUtils.getPage(likes, pageable, countQuery::fetchOne);
     }
@@ -69,10 +58,15 @@ public class LikeRepositoryImpl implements LikeRepositoryCustom {
         Like result = queryFactory
                 .selectFrom(like)
                 .where(
+                        BooleanBuilderUtil.postEq(
+                                like.document,
+                                like.toktok,
+                                like.report,
+                                requestDto.getDocumentId(),
+                                requestDto.getToktokId(),
+                                requestDto.getReportId()
+                        ),
                         userEq(userId),
-                        documentEq(requestDto.getDocumentId()),
-                        toktokEq(requestDto.getToktokId()),
-                        reportEq(requestDto.getReportId()),
                         commentEq(requestDto.getCommentId())
                 )
                 .fetchOne();
@@ -82,18 +76,6 @@ public class LikeRepositoryImpl implements LikeRepositoryCustom {
 
     private BooleanExpression userEq(Long userId) {
         return like.user.id.eq(userId);
-    }
-
-    private BooleanExpression documentEq(Long documentId) {
-        return documentId == null ? null : like.document.id.eq(documentId);
-    }
-
-    private BooleanExpression toktokEq(Long toktokId) {
-        return toktokId == null ? null : like.toktok.id.eq(toktokId);
-    }
-
-    private BooleanExpression reportEq(Long reportId) {
-        return reportId == null ? null : like.report.id.eq(reportId);
     }
 
     private BooleanExpression commentEq(Long commentId) {

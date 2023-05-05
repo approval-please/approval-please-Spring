@@ -17,6 +17,7 @@ import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
+import com.umc.approval.global.util.BooleanBuilderUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,8 +45,12 @@ public class LikeService {
 
     @Transactional(readOnly = true)
     public LikeDto.ListResponse getLikeList(HttpServletRequest request, Long documentId, Long toktokId, Long reportId) {
-
-        List<Like> likes = likeRepository.findAllByPost(documentId, toktokId, reportId);
+        BooleanBuilderUtil.PostIds postIds = BooleanBuilderUtil.PostIds.builder()
+                .documentId(documentId)
+                .toktokId(toktokId)
+                .reportId(reportId)
+                .build();
+        List<Like> likes = likeRepository.findAllByPost(postIds);
 
         // 팔로우 처리
         Long userId = jwtService.getIdDirectHeader(request);
