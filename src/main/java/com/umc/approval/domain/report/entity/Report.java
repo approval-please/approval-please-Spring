@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static javax.persistence.FetchType.LAZY;
@@ -47,20 +48,25 @@ public class Report extends BaseTimeEntity {
     @Column(nullable = false)
     private Boolean notification;
 
+    @Builder.Default
     @OneToMany(fetch = LAZY, mappedBy = "report")
-    private List<Tag> tags;
+    private List<Tag> tags = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(fetch = LAZY, mappedBy = "report")
-    private List<Image> images;
+    private List<Image> images = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(fetch = LAZY, mappedBy = "report")
-    private List<Link> links;
+    private List<Link> links = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(fetch = LAZY, mappedBy = "report")
-    private List<Like> likes;
+    private List<Like> likes = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(fetch = LAZY, mappedBy = "report")
-    private List<Comment> comments;
+    private List<Comment> comments = new ArrayList<>();
 
     public void update(ReportDto.ReportRequest request, Document document) {
         this.document = document;

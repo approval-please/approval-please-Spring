@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static javax.persistence.EnumType.STRING;
@@ -59,20 +60,25 @@ public class Toktok extends BaseTimeEntity {
     @Column(nullable = false)
     private boolean notification;
 
+    @Builder.Default
     @OneToMany(fetch = LAZY, mappedBy = "toktok")
-    private List<Tag> tags;
+    private List<Tag> tags = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(fetch = LAZY, mappedBy = "toktok")
-    private List<Link> links;
+    private List<Link> links = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(fetch = LAZY, mappedBy = "toktok")
-    private List<Like> likes;
+    private List<Like> likes = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(fetch = LAZY, mappedBy = "toktok")
-    private List<Comment> comments;
+    private List<Comment> comments = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(fetch = LAZY, mappedBy = "toktok")
-    private List<Image> images;
+    private List<Image> images = new ArrayList<>();
 
     public void update(ToktokDto.PostToktokRequest request, CategoryType categoryType, Vote vote) {
         this.category = categoryType;
