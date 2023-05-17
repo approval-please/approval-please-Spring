@@ -5,6 +5,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.umc.approval.global.util.BooleanBuilderUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import javax.persistence.EntityManager;
@@ -37,7 +38,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
     }
 
     @Override
-    public Page<Comment> findAllByPostPaging(Pageable pageable, BooleanBuilderUtil.PostIds postIds) {
+    public Slice<Comment> findAllByPostSlice(Pageable pageable, BooleanBuilderUtil.PostIds postIds) {
         List<Comment> comments = queryFactory
                 .selectFrom(comment)
                 .innerJoin(comment.user).fetchJoin() // 댓글 유저 함께 조회
@@ -49,14 +50,6 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
-
-        JPAQuery<Long> countQuery = queryFactory
-                .select(comment.count())
-                .from(comment)
-                .where(
-                        BooleanBuilderUtil.postEq(comment.document, comment.toktok, comment.report, postIds),
-                        comment.parentComment.id.isNull()
-                );
 
         return PageableExecutionUtils.getPage(comments, pageable, countQuery::fetchOne);
     }
