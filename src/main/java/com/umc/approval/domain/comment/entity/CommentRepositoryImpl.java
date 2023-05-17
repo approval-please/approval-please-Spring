@@ -1,12 +1,11 @@
 package com.umc.approval.domain.comment.entity;
 
-import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.umc.approval.global.util.BooleanBuilderUtil;
-import org.springframework.data.domain.Page;
+import com.umc.approval.global.util.SliceUtil;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.support.PageableExecutionUtils;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -33,25 +32,29 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                         BooleanBuilderUtil.postEq(comment.document, comment.toktok, comment.report, postIds),
                         comment.parentComment.id.isNull() // 대댓글이 아닌 것만
                 )
-                .distinct()
+                .orderBy(comment.id.desc())
                 .fetch();
     }
 
     @Override
-    public Slice<Comment> findAllByPostSlice(Pageable pageable, BooleanBuilderUtil.PostIds postIds) {
+    public Slice<Comment> findAllByPostSlice(Pageable pageable, BooleanBuilderUtil.PostIds postIds, Long lastCommentId) {
         List<Comment> comments = queryFactory
                 .selectFrom(comment)
                 .innerJoin(comment.user).fetchJoin() // 댓글 유저 함께 조회
                 .where(
+                        ltCommentId(lastCommentId),
                         BooleanBuilderUtil.postEq(comment.document, comment.toktok, comment.report, postIds),
                         comment.parentComment.id.isNull() // 대댓글이 아닌 것만
                 )
-                .distinct()
-                .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
+                .orderBy(comment.id.desc())
+                .limit(pageable.getPageSize() + 1) // 다음 페이지 존재 여부를 위해 pageSize + 1 조회
                 .fetch();
 
-        return PageableExecutionUtils.getPage(comments, pageable, countQuery::fetchOne);
+        return SliceUtil.slice(comments, pageable);
+    }
+
+    private BooleanExpression ltCommentId(Long commentId) {
+        return commentId == null ? null : comment.id.lt(commentId);
     }
 
     @Override

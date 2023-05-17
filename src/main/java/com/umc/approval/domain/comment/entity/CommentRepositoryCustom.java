@@ -10,7 +10,7 @@ public interface CommentRepositoryCustom {
 
     List<Comment> findAllByPost(BooleanBuilderUtil.PostIds postIds);
 
-    Slice<Comment> findAllByPostSlice(Pageable pageable, BooleanBuilderUtil.PostIds postIds);
+    Slice<Comment> findAllByPostSlice(Pageable pageable, BooleanBuilderUtil.PostIds postIds, Long lastCommentId);
 
     Integer countByPost(BooleanBuilderUtil.PostIds postIds);
 
