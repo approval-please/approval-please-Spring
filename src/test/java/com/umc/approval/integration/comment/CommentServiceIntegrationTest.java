@@ -17,6 +17,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -367,5 +370,57 @@ public class CommentServiceIntegrationTest {
         CustomException e = assertThrows(CustomException.class,
                 () -> commentService.deleteComment(comment.getId()));
         assertThat(e.getErrorType()).isEqualTo(NO_PERMISSION);
+    }
+
+    @DisplayName("댓글 조회에 성공한다 - Slice")
+    @Test
+    void get_comment_list_slice_success() {
+
+        // given
+        User user = createUser(1L);
+        Comment comment = createComment(user);
+        Document document = comment.getDocument();
+        for (int i = 1; i < 30; i++) {
+            comment = Comment.builder()
+                    .user(user)
+                    .document(document)
+                    .content("content")
+                    .isDeleted(false)
+                    .build();
+            commentRepository.save(comment);
+        }
+        loginUser(user);
+        PageRequest pageable = PageRequest.of(0, 20);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+
+        // when & then
+
+        // 30개 댓글 중 20개 조회
+        Slice<CommentDto.ChildResponse> result = commentService.getCommentList(
+                request,
+                document.getId(),
+                null,
+                null,
+                null,
+                pageable
+        );
+
+        assertThat(result.getContent().size()).isEqualTo(pageable.getPageSize());
+        assertThat(result.isLast()).isFalse();
+
+        // 나머지 10개 데이터 No-Offset 방식으로 조회
+        Long lastCommentId = result.getContent().get(result.getSize() - 1).getCommentId();
+
+        result = commentService.getCommentList(
+                request,
+                document.getId(),
+                null,
+                null,
+                lastCommentId,
+                pageable
+        );
+
+        assertThat(result.getContent().size()).isEqualTo(30 - pageable.getPageSize());
+        assertThat(result.isLast()).isTrue();
     }
 }

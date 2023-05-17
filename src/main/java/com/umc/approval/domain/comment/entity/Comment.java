@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 import static javax.persistence.FetchType.LAZY;
@@ -54,8 +55,9 @@ public class Comment extends BaseTimeEntity {
     @OneToMany(mappedBy = "parentComment")
     private List<Comment> childComment;
 
+    @Builder.Default
     @OneToMany(mappedBy = "comment")
-    private List<Like> likes;
+    private List<Like> likes = new ArrayList<>();
 
     @Column(nullable = false)
     private String content; //255자 최대
