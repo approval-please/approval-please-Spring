@@ -18,12 +18,12 @@ import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
 import com.umc.approval.global.util.BooleanBuilderUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -124,13 +124,21 @@ public class CommentService {
     }
 
     @Transactional(readOnly = true)
-    public CommentDto.ListResponse getCommentList(HttpServletRequest request, Long documentId, Long toktokId, Long reportId) {
+    public Slice<CommentDto.ChildResponse> getCommentList(
+            HttpServletRequest request,
+            Long documentId,
+            Long toktokId,
+            Long reportId,
+            Long lastCommentId,
+            Pageable pageable
+    ) {
         BooleanBuilderUtil.PostIds postIds = BooleanBuilderUtil.PostIds.builder()
                 .documentId(documentId)
                 .toktokId(toktokId)
                 .reportId(reportId)
                 .build();
-        List<Comment> comments = commentRepository.findAllByPost(postIds);
+
+        Slice<Comment> result = commentRepository.findAllByPostSlice(pageable, postIds, lastCommentId);
 
         // 글쓴이 조회
         User writer;
@@ -150,13 +158,9 @@ public class CommentService {
 
         // (로그인 시) 사용자가 좋아요 누른 댓글 리스트 조회
         Long userId = jwtService.getIdDirectHeader(request);
-        List<Comment> allComments = new ArrayList<>(comments);
-        comments.forEach(c -> {
-            if (c.getChildComment() != null) allComments.addAll(c.getChildComment());
-        });
-        List<Long> commentIds = allComments.stream().map(Comment::getId).collect(Collectors.toList());
+        List<Long> commentIds = result.getContent().stream().map(Comment::getId).collect(Collectors.toList());
         List<Like> likes = likeRepository.findAllByUserAndCommentIn(userId, commentIds);
-        comments.sort(Comparator.comparing(Comment::getCreatedAt));
-        return CommentDto.ListResponse.from(comments, userId, writer.getId(), likes);
+
+        return result.map(c -> CommentDto.ChildResponse.from(c, userId, writer.getId(), likes));
     }
 }

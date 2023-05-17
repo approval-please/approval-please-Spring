@@ -1,7 +1,9 @@
 package com.umc.approval.domain.comment.entity;
 
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.umc.approval.domain.comment.dto.CommentDto;
 import com.umc.approval.global.util.BooleanBuilderUtil;
 import com.umc.approval.global.util.SliceUtil;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +26,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
     }
 
     @Override
-    public List<Comment> findAllByPost(BooleanBuilderUtil.PostIds postIds) {
+    public List<Comment> findAllByPostWithParentComment(BooleanBuilderUtil.PostIds postIds) {
         return queryFactory
                 .selectFrom(comment)
                 .innerJoin(comment.user).fetchJoin() // 댓글 유저 함께 조회

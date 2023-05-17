@@ -21,7 +21,7 @@ public class CommentController {
 
 
     @GetMapping
-    public ResponseEntity<Slice<CommentDto.ParentResponse>> getCommentList(
+    public ResponseEntity<Slice<CommentDto.ChildResponse>> getCommentList(
             HttpServletRequest request,
             @RequestParam(value = "documentId", required = false) Long documentId,
             @RequestParam(value = "toktokId", required = false) Long toktokId,
