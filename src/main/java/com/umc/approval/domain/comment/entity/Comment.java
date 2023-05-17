@@ -52,8 +52,9 @@ public class Comment extends BaseTimeEntity {
     @JoinColumn(name = "parent_comment_id")
     private Comment parentComment; // 대댓글
 
+    @Builder.Default
     @OneToMany(mappedBy = "parentComment")
-    private List<Comment> childComment;
+    private List<Comment> childComment = new ArrayList<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "comment")

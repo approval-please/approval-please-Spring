@@ -16,6 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 import static javax.persistence.EnumType.STRING;
@@ -60,26 +61,32 @@ public class Document extends BaseTimeEntity {
     @Column(nullable = false)
     private Boolean notification;
 
+    @Builder.Default
     @OneToMany(fetch = LAZY, mappedBy = "document")
-    private List<Tag> tags;
+    private List<Tag> tags = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(fetch = LAZY, mappedBy = "document")
-    private List<Image> images;
+    private List<Image> images = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(fetch = LAZY, mappedBy = "document")
-    private List<Approval> approvals;
+    private List<Approval> approvals = new ArrayList<>();
 
     @OneToOne(fetch = LAZY, mappedBy = "document")
     private Link link;
 
+    @Builder.Default
     @OneToMany(fetch = LAZY, mappedBy = "document")
-    private List<Like> likes;
+    private List<Like> likes = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(fetch = LAZY, mappedBy = "document")
-    private List<Scrap> scraps;
+    private List<Scrap> scraps = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(fetch = LAZY, mappedBy = "document")
-    private List<Comment> comments;
+    private List<Comment> comments = new ArrayList<>();
 
     public void update(CategoryType category, String title, String content) {
         this.category = category;
