@@ -384,9 +384,9 @@ public class ReportService {
     }
 
     private void reportsOnDocumentDuplicateValidation(Long documentId) {
-        Optional<Report> getReport = reportRepository.findByDocumentId(documentId);
-            if (getReport.isPresent()) {
-                throw new CustomException(REPORT_ALREADY_EXISTS);
-            }
+        reportRepository.findByDocumentId(documentId)
+                .ifPresent(report -> {
+                    throw new CustomException(REPORT_ALREADY_EXISTS);
+                });
     }
 }
