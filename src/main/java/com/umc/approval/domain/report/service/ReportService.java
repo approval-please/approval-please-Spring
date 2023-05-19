@@ -137,14 +137,16 @@ public class ReportService {
     public void updatePost(Long id, ReportDto.ReportRequest request) {
         User user = certifyUser();
         Report report = findReport(id);
+
         // 현재 결재서류
         Document document = report.getDocument();
 
         // 변경된 결재서류
         Document updateDocument = findDocument(request.getDocumentId());
 
-        if (user.getId() != document.getUser().getId() || user.getId() != updateDocument.getUser()
-                .getId()) {
+        // 자신이 작성한 서류가 아닌 경우 권한 없음 예외처리
+        if (user.getId().equals(document.getUser().getId())
+                || user.getId().equals(updateDocument.getUser().getId())) {
             throw new CustomException(NO_PERMISSION);
         }
 
@@ -259,7 +261,8 @@ public class ReportService {
         Report report = findReport(reportId);
         Document document = report.getDocument();
 
-        if (user.getId() != document.getUser().getId()) {
+        // 자신이 작성한 서류가 아닌 경우 권한 없음 예외처리
+        if (user.getId().equals(document.getUser().getId())) {
             throw new CustomException(NO_PERMISSION);
         }
 
