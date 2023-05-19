@@ -99,14 +99,17 @@ public class ReportService {
     @Transactional(readOnly = true)
     public ReportDto.SearchResponse getReportList(HttpServletRequest request, Integer sortBy) {
         Long userId = jwtService.getIdDirectHeader(request);
-        List<Follow> follows = List.of();
+        List<Follow> follows;
 
         // 팔로우한 사람의 게시글만 조회하는 경우
         if (userId != null
                 && sortBy != null
                 && sortBy.equals(ReportSortType.FOLLOW.getValue())) {
             follows = followRepository.findMyFollowers(userId);
+        } else {
+            follows = List.of();
         }
+
         List<Report> reports = reportRepository.findAllByOption(userId, follows, sortBy);
         return ReportDto.SearchResponse.from(reports);
     }
@@ -116,14 +119,15 @@ public class ReportService {
     public ReportDto.ReportGetDocumentResponse selectDocument() {
         User user = certifyUser();
 
+        // 아직 보고서를 작성하지 않은 결재서류 목록 조회
         List<Document> documents = documentRepository.findByUserId(user.getId());
-        // 아직 보고서를 작성하지 않은 결재서류
-        List<Document> notWriteReportDocuments = documents.stream().filter(document -> !reportRepository.findByDocumentId(document.getId()).isPresent()).collect(
-                Collectors.toList());
-        // Dto로 변환
-        List<ReportDto.DocumentListResponse> response;
+        List<Document> notWriteReportDocuments = documents.stream()
+                .filter(document -> reportRepository.findByDocumentId(document.getId()).isEmpty())
+                .collect(Collectors.toList());
 
-        response = notWriteReportDocuments.stream()
+        // Dto로 변환
+        List<ReportDto.DocumentListResponse> response =
+                notWriteReportDocuments.stream()
                 .map(ReportDto.DocumentListResponse::fromEntity)
                 .collect(Collectors.toList());
 
