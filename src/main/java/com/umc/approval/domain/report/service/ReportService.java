@@ -286,9 +286,8 @@ public class ReportService {
     }
 
     private User certifyUser() {
-        User user = userRepository.findById(jwtService.getId())
+        return userRepository.findById(jwtService.getId())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
-        return user;
     }
 
     public void createLink(List<LinkDto.Request> linkList, Report report) {
@@ -349,17 +348,13 @@ public class ReportService {
     }
 
     private Document findDocument(Long documentId) {
-        Document document = documentRepository.findById(documentId)
+        return documentRepository.findById(documentId)
                 .orElseThrow(() -> new CustomException(DOCUMENT_NOT_FOUND));
-
-        return document;
     }
 
     private Report findReport(Long reportId) {
-        Report report = reportRepository.findById(reportId)
+        return reportRepository.findById(reportId)
                 .orElseThrow(() -> new CustomException(REPORT_NOT_FOUND));
-
-        return report;
     }
 
     private void deleteTag(Long reportId) {
