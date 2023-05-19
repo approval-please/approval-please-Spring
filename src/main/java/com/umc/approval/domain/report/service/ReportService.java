@@ -65,17 +65,13 @@ public class ReportService {
     private final PerformanceRepository performanceRepository;
 
     public void createPost(ReportDto.ReportRequest request) {
+        User user = certifyUser();
 
         //결재서류 가져오기
         Document document = findDocument(request.getDocumentId());
 
-        User user = certifyUser();
-
-        //해당 결재서류에 대한 결재보고서가 이미 존재하는 경우
-        Optional<Report> getReport = reportRepository.findByDocumentId(request.getDocumentId());
-        if (getReport.isPresent()) {
-            throw new CustomException(REPORT_ALREADY_EXISTS);
-        }
+        //해당 결재서류에 대한 결재보고서가 이미 존재하는 경우 예외처리
+        reportsOnDocumentDuplicateValidation(request.getDocumentId());
 
         //결재보고서 등록
         Report report = request.toEntity(document);
@@ -92,26 +88,10 @@ public class ReportService {
         createImages(request.getImages(), report);
 
         // 작성자 포인트 적립
-        Performance performance = Performance.builder()
-                .user(user)
-                .content(WRITE_REPORT.getContent())
-                .point(WRITE_REPORT.getPoint())
-                .build();
-        performanceRepository.save(performance);
-        user.updatePoint(WRITE_REPORT.getPoint());
+        writerPointsUp(user);
 
         // 결재 참여자 포인트 적립
-        List<User> approveUsers = approvalRepository.findAllUserByApproval(document.getId())
-                .stream().map(Approval::getUser).collect(Collectors.toList());
-        approveUsers.forEach(u -> {
-            Performance p = Performance.builder()
-                    .user(u)
-                    .content(WRITE_OTHER_REPORT.getContent())
-                    .point(WRITE_OTHER_REPORT.getPoint())
-                    .build();
-            performanceRepository.save(p);
-            u.updatePoint(WRITE_OTHER_REPORT.getPoint());
-        });
+        approveUsersPointsUp(document);
     }
 
     @Transactional(readOnly = true)
@@ -343,6 +323,31 @@ public class ReportService {
         }
     }
 
+    private void writerPointsUp(User user){
+        Performance performance = Performance.builder()
+                .user(user)
+                .content(WRITE_REPORT.getContent())
+                .point(WRITE_REPORT.getPoint())
+                .build();
+        performanceRepository.save(performance);
+        user.updatePoint(WRITE_REPORT.getPoint());
+    }
+
+    private void approveUsersPointsUp(Document document){
+        List<User> approveUsers = approvalRepository.findAllUserByApproval(document.getId())
+                .stream().map(Approval::getUser).collect(Collectors.toList());
+
+        approveUsers.forEach(u -> {
+            Performance p = Performance.builder()
+                    .user(u)
+                    .content(WRITE_OTHER_REPORT.getContent())
+                    .point(WRITE_OTHER_REPORT.getPoint())
+                    .build();
+            performanceRepository.save(p);
+            u.updatePoint(WRITE_OTHER_REPORT.getPoint());
+        });
+    }
+
     private Document findDocument(Long documentId) {
         Document document = documentRepository.findById(documentId)
                 .orElseThrow(() -> new CustomException(DOCUMENT_NOT_FOUND));
@@ -376,5 +381,12 @@ public class ReportService {
         if (imageList != null) {
             imageRepository.deleteAll(imageList);
         }
+    }
+
+    private void reportsOnDocumentDuplicateValidation(Long documentId) {
+        Optional<Report> getReport = reportRepository.findByDocumentId(documentId);
+            if (getReport.isPresent()) {
+                throw new CustomException(REPORT_ALREADY_EXISTS);
+            }
     }
 }
