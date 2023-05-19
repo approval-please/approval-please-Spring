@@ -31,6 +31,7 @@ import com.umc.approval.domain.user.entity.User;
 import com.umc.approval.domain.user.entity.UserRepository;
 import com.umc.approval.global.exception.CustomException;
 import com.umc.approval.global.security.service.JwtService;
+import com.umc.approval.global.type.ReportSortType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -94,11 +95,16 @@ public class ReportService {
         approveUsersPointsUp(document);
     }
 
+    // 결재보고서 목록 조회
     @Transactional(readOnly = true)
     public ReportDto.SearchResponse getReportList(HttpServletRequest request, Integer sortBy) {
         Long userId = jwtService.getIdDirectHeader(request);
         List<Follow> follows = List.of();
-        if (userId != null && sortBy != null && sortBy == 1) {
+
+        // 팔로우한 사람의 게시글만 조회하는 경우
+        if (userId != null
+                && sortBy != null
+                && sortBy.equals(ReportSortType.FOLLOW.getValue())) {
             follows = followRepository.findMyFollowers(userId);
         }
         List<Report> reports = reportRepository.findAllByOption(userId, follows, sortBy);
