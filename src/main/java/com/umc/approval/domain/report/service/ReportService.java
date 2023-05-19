@@ -165,80 +165,93 @@ public class ReportService {
 
     // 게시글 상세 조회
     public ReportDto.GetReportResponse getReport(Long reportId, HttpServletRequest request) {
+        // 조회수 ++
         reportRepository.updateView(reportId);
 
+        // 보고서, 서류, 작성자
         Report report = findReport(reportId);
         Document document = report.getDocument();
-        Long userId = jwtService.getIdDirectHeader(request);
-        User visitUser = null;
-        if (userId != null) {
-            visitUser = userRepository.findById(userId).get();
-        }
         User writer = document.getUser();
+
+        // userId를 활용해 방문 사용자 구하기
+        Long userId = jwtService.getIdDirectHeader(request);
+        User visitUser;
+
+        // 좋아요, 팔로우, 작성자, 스크랩, 수정 여부 변수 선언
+        Boolean likeOrNot;
+        Boolean followOrNot;
+        Boolean writerOrNot;
+        Boolean scrapOrNot;
+        boolean isModified; // 수정여부는 null이 될 수 없음
+
+        // 로그인한 유저일 경우
+        if (userId != null) {
+            // 게시글 상세 조회를 한 유저
+            visitUser = userRepository.findById(userId)
+                    .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
+            // visitUser가 글 작성자인지 여부
+            writerOrNot = userId.equals(writer.getId());
+
+            // visitUser가 작성자를 팔로우 했는지 여부
+            Long from_userId = visitUser.getId();
+            Long to_userId = document.getUser().getId();
+            Integer follow = followRepository.countFollowOrNot(from_userId, to_userId);
+            if (from_userId.equals(to_userId)) {
+                followOrNot = null;
+            } else {
+                followOrNot = (follow != 0);
+            }
+
+            // 해당 유저가 스크랩 했는지 여부
+            scrapOrNot = (scrapRepository.countByUserAndReport(visitUser, report) != 0);
+
+            // 해당 유저가 게시글 좋아요를 눌렀는지 여부
+            likeOrNot = (likeRepository.countByUserAndReport(visitUser, report) != 0);
+        }
+        // 비로그인 상태라면
+        else {
+            writerOrNot = null;
+            followOrNot = null;
+            scrapOrNot = null;
+            likeOrNot = null;
+        }
+
+        // 게시글이 수정된 적이 있는 확인
+        isModified = !report.getCreatedAt().equals(report.getModifiedAt());
 
         // 결재서류 정보
         List<String> documentTagList = tagRepository.findTagNameList(document.getId());
         List<String> documentImageUrlList = imageRepository.findImageUrlList(document.getId());
-        String documentImageUrl = null;
-        if (documentImageUrlList != null && !documentImageUrlList.isEmpty()) {
+        String documentImageUrl;
+        Integer documentImageCount;
+            if (documentImageUrlList != null && !documentImageUrlList.isEmpty()) {
             documentImageUrl = documentImageUrlList.get(0);
+            documentImageCount = documentImageUrlList.size();
+        } else {
+            documentImageUrl = null;
+            documentImageCount = null;
         }
-        Integer documentImageCount = documentImageUrlList.size();
 
         // 결재보고서 정보
         List<String> reportTagList = tagRepository.findTagNameListByReportId(reportId);
         List<String> reportImageUrlList = imageRepository.findImageUrlListByReportId(reportId);
         List<Link> reportLinkList = linkRepository.findByReportId(reportId);
-        List<LinkDto.Response> linkResponse;
-        linkResponse = reportLinkList.stream().map(LinkDto.Response::fromEntity)
-                .collect(Collectors.toList());
+        List<LinkDto.Response> linkResponseList =
+                reportLinkList.stream().map(LinkDto.Response::fromEntity)
+                        .collect(Collectors.toList());
 
         // 좋아요, 스크랩, 댓글 수
         Long likedCount = likeRepository.countByReport(report);
         Long commentCount = commentRepository.countByReportId(report.getId());
         Long scrapCount = scrapRepository.countByReport(report);
-        Boolean likeOrNot = false;
-        Boolean followOrNot = false;
-        Boolean writerOrNot = false;
-        Boolean scrapOrNot = false;
-        Boolean isModified = false;
 
-        // 해당 유저가 스크랩 했는지 여부
-        scrapOrNot = scrapRepository.countByUserAndReport(visitUser, report) == 0 ? false : true;
-
-        // 게시글이 수정된 적이 있는 확인
-        if (report.getCreatedAt() == report.getModifiedAt()) {
-            isModified = false;
-        }
-
-        // 해당 유저가 게시글 좋아요를 눌렀는지 여부
-        likeOrNot = likeRepository.countByUserAndReport(visitUser, report) == 0 ? false : true;
-
-        // 게시글 상세 조회를 한 유저가 글 작성자인지 여부
-        writerOrNot = userId == writer.getId() ? true : false;
-
-        // 게시글 상세 조회를 한 유저가 글을 쓴 유저를 팔로우 했는지 여부
-        if (userId != null) {
-            Long from_userId = visitUser.getId();
-            Long to_userId = document.getUser().getId();
-            Integer follow = followRepository.countFollowOrNot(from_userId, to_userId);
-            if (from_userId == to_userId) {
-                followOrNot = null;
-            } else if (follow == 0) {
-                followOrNot = false;
-            } else {
-                followOrNot = true;
-            }
-        } else {
-            return new GetReportResponse(writer, document, report, documentTagList,
-                    documentImageUrl, documentImageCount, reportTagList, reportImageUrlList, linkResponse, likedCount,
-                    scrapCount, commentCount, null, null, isModified, null, null);
-        }
-        return new GetReportResponse(writer, document, report,
+        return new GetReportResponse(
+                writer, document, report,
                 documentTagList, documentImageUrl, documentImageCount,
-                reportTagList, reportImageUrlList,
-                linkResponse, likedCount, scrapCount, commentCount, likeOrNot, followOrNot, isModified,
-                writerOrNot, scrapOrNot);
+                reportTagList, reportImageUrlList, linkResponseList,
+                likedCount, scrapCount, commentCount,
+                likeOrNot, followOrNot, isModified, writerOrNot, scrapOrNot);
     }
 
     public void deletePost(Long reportId) {
