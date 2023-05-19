@@ -263,42 +263,28 @@ public class ReportService {
             throw new CustomException(NO_PERMISSION);
         }
 
-        //태그 삭제
+        // 태그 삭제
         deleteTag(reportId);
 
-        //이미지 삭제
+        // 이미지 삭제
         deleteImages(reportId);
 
-        //링크 삭제
+        // 링크 삭제
         deleteLink(reportId);
 
-        //좋아요 삭제
-        List<Like> likes = likeRepository.findByReportId(reportId);
-        if (likes != null) {
-            likeRepository.deleteAll(likes);
-        }
+        // 좋아요 삭제
+        deleteLikes(reportId);
 
         // 스크랩 삭제
-        List<Scrap> scraps = scrapRepository.findByReportId(reportId);
-        if (scraps != null) {
-            scrapRepository.deleteAll(scraps);
-        }
+        deleteScrap(reportId);
 
         // 댓글 삭제
-        List<Comment> comments = commentRepository.findByReportId(reportId);
-        if (comments != null) {
-            // 댓글 신고 내역 삭제
-            List<Long> commentIds = comments.stream().map(Comment::getId).collect(Collectors.toList());
-            accuseRepository.deleteByCommentIds(commentIds);
-            commentRepository.deleteAll(comments);
-        }
+        deleteComments(reportId);
 
         // 신고 내역 삭제
-        List<Accuse> accuses = accuseRepository.findByReportId(reportId);
-        if (accuses != null) {
-            accuseRepository.deleteAll(accuses);
-        }
+        deleteAccuse(reportId);
 
+        // 결재보고서 삭제
         reportRepository.deleteById(reportId);
     }
 
@@ -398,6 +384,37 @@ public class ReportService {
         List<Image> imageList = imageRepository.findByReportId(reportId);
         if (imageList != null) {
             imageRepository.deleteAll(imageList);
+        }
+    }
+
+    private void deleteLikes(Long reportId) {
+        List<Like> likes = likeRepository.findByReportId(reportId);
+        if (likes != null) {
+            likeRepository.deleteAll(likes);
+        }
+    }
+
+    private void deleteScrap(Long reportId) {
+        List<Scrap> scraps = scrapRepository.findByReportId(reportId);
+        if (scraps != null) {
+            scrapRepository.deleteAll(scraps);
+        }
+    }
+
+    private void deleteComments(Long reportId) {
+        List<Comment> comments = commentRepository.findByReportId(reportId);
+        if (comments != null) {
+            // 댓글 신고 내역 삭제
+            List<Long> commentIds = comments.stream().map(Comment::getId).collect(Collectors.toList());
+            accuseRepository.deleteByCommentIds(commentIds);
+            commentRepository.deleteAll(comments);
+        }
+    }
+
+    private void deleteAccuse(Long reportId) {
+        List<Accuse> accuses = accuseRepository.findByReportId(reportId);
+        if (accuses != null) {
+            accuseRepository.deleteAll(accuses);
         }
     }
 
