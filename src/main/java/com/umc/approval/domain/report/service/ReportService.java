@@ -247,7 +247,7 @@ public class ReportService {
         Long commentCount = commentRepository.countByReportId(report.getId());
         Long scrapCount = scrapRepository.countByReport(report);
 
-        return new GetReportResponse(
+        return GetReportResponse.fromEntity(
                 writer, document, report,
                 documentTagList, documentImageUrl, documentImageCount,
                 reportTagList, reportImageUrlList, linkResponseList,
