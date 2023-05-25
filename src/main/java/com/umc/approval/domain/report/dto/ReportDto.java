@@ -19,7 +19,10 @@ import java.util.stream.Collectors;
 
 public class ReportDto {
 
-    @Data
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class ReportRequest {
 
         @NotNull(message = "결재서류를 선택해야합니다.")
@@ -82,7 +85,9 @@ public class ReportDto {
     }
 
     // 게시글 상세 조회
-    @Data
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class GetReportResponse {
 
         // user
@@ -119,44 +124,40 @@ public class ReportDto {
         private Boolean isModified;
         private Long view;
 
-        public GetReportResponse(User user, Document document, Report report,
-                                 List<String> documentTagList, String documentImageUrlList, Integer documentImageCount,
-                                 List<String> reportTagList, List<String> reportImageUrlList,
-                                 List<LinkDto.Response> reportLink, Long likedCount, Long scrapCount, Long commentCount,
-                                 Boolean likeOrNot, Boolean followOrNot, Boolean isModified, Boolean writerOrNot, Boolean scrapOrNot) {
-            this.userId = user.getId();
-            this.profileImage = user.getProfileImage();
-            this.nickname = user.getNickname();
-            this.level = user.getLevel();
-
-            this.documentId = document.getId();
-            this.documentImageUrl = documentImageUrlList;
-            this.documentImageCount = documentImageCount;
-            this.documentContent = document.getContent();
-            this.documentCategory = document.getCategory().getValue();
-            this.documentTitle = document.getTitle();
-            this.documentTag = documentTagList;
-
-            this.reportContent = report.getContent();
-            this.reportImageUrl = reportImageUrlList;
-            this.reportLink = reportLink;
-            this.reportTag = reportTagList;
-
-            this.likedCount = likedCount;
-            this.scrapCount = scrapCount;
-            this.datetime = DateUtil.convert(report.getCreatedAt());
-            this.commentCount = commentCount;
-            this.isNotification = report.getNotification();
-            this.view = report.getView();
-            this.likeOrNot = likeOrNot;
-            this.followOrNot = followOrNot;
-            this.isModified = isModified;
-            this.reportId = report.getId();
-            this.writerOrNot = writerOrNot;
-            this.scrapOrNot = scrapOrNot;
+        public static GetReportResponse fromEntity(User user, Document document, Report report,
+                                                   List<String> documentTagList, String documentImageUrlList, Integer documentImageCount,
+                                                   List<String> reportTagList, List<String> reportImageUrlList, List<LinkDto.Response> reportLinkResponseList,
+                                                   Long likedCount, Long scrapCount, Long commentCount,
+                                                   Boolean likeOrNot, Boolean followOrNot, Boolean isModified, Boolean writerOrNot, Boolean scrapOrNot){
+            return GetReportResponse.builder()
+                    .userId(user.getId())
+                    .profileImage(user.getProfileImage())
+                    .nickname(user.getNickname())
+                    .level(user.getLevel())
+                    .documentId(document.getId())
+                    .documentImageUrl(documentImageUrlList)
+                    .documentImageCount(documentImageCount)
+                    .documentCategory(document.getCategory().getValue())
+                    .documentTitle(document.getTitle())
+                    .documentTag(documentTagList)
+                    .reportId(report.getId())
+                    .reportContent(report.getContent())
+                    .reportImageUrl(reportImageUrlList)
+                    .reportLink(reportLinkResponseList)
+                    .reportTag(reportTagList)
+                    .likedCount(likedCount)
+                    .likeOrNot(likeOrNot)
+                    .followOrNot(followOrNot)
+                    .writerOrNot(writerOrNot)
+                    .scrapOrNot(scrapOrNot)
+                    .scrapCount(scrapCount)
+                    .commentCount(commentCount)
+                    .isNotification(report.getNotification())
+                    .datetime(DateUtil.convert(report.getCreatedAt()))
+                    .isModified(isModified)
+                    .view(report.getView())
+                    .build();
         }
-
-
     }
 
     // 게시글 목록 조회
